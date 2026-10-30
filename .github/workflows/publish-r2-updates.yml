@@ -1,0 +1,84 @@
+name: Publish approved Windows update to Cloudflare R2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: onboard-hs-production-update
+  cancel-in-progress: false
+
+jobs:
+  publish-update:
+    runs-on: windows-latest
+    environment: production-updates
+    defaults:
+      run:
+        working-directory: onboard-hs-desktop-v4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate release configuration
+        shell: pwsh
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          UPDATE_FEED_URL: ${{ vars.UPDATE_FEED_URL }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          foreach ($name in @('R2_ACCOUNT_ID','R2_ACCESS_KEY_ID','R2_SECRET_ACCESS_KEY','UPDATE_FEED_URL','CSC_LINK','CSC_KEY_PASSWORD')) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { throw "Missing approved release setting: $name" }
+          }
+          if ($env:UPDATE_FEED_URL -notmatch '^https://[^/]+/.+') { throw 'UPDATE_FEED_URL must be a configured HTTPS release feed URL' }
+      - name: Install dependencies and run checks
+        shell: pwsh
+        run: |
+          npm install --no-audit --no-fund
+          npm run test:syntax
+      - name: Build signed Windows updater artifacts
+        shell: pwsh
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          UPDATE_FEED_URL: ${{ vars.UPDATE_FEED_URL }}
+        run: |
+          npx electron-builder --win nsis --publish never -c.publish.provider=generic -c.publish.url="$env:UPDATE_FEED_URL"
+          if ($LASTEXITCODE -ne 0) { throw 'Windows signed build failed' }
+          if (-not (Test-Path 'dist/latest.yml')) { throw 'Update metadata latest.yml was not produced' }
+          if (-not (Get-ChildItem 'dist/*.exe' -ErrorAction SilentlyContinue)) { throw 'Installer was not produced' }
+      - name: Verify Windows code signature
+        shell: pwsh
+        env:
+          EXPECTED_SIGNING_SUBJECT: ${{ vars.EXPECTED_SIGNING_SUBJECT }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:EXPECTED_SIGNING_SUBJECT)) { throw 'Set EXPECTED_SIGNING_SUBJECT in production-updates environment' }
+          Get-ChildItem 'dist/*.exe' | ForEach-Object {
+            $sig = Get-AuthenticodeSignature $_.FullName
+            if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notlike "*$env:EXPECTED_SIGNING_SUBJECT*") {
+              throw "Untrusted/unsigned update: $($_.Name)"
+            }
+          }
+      - name: Upload to R2 (metadata last)
+        shell: pwsh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:R2_BUCKET)) { throw 'R2_BUCKET must be configured' }
+          python -m pip install awscli --quiet
+          $endpoint = "https://$env:R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          Get-ChildItem 'dist' -File | Where-Object { $_.Extension -in @('.exe','.blockmap') } | ForEach-Object {
+            aws s3 cp $_.FullName "s3://$env:R2_BUCKET/$($_.Name)" --endpoint-url "$endpoint"
+            if ($LASTEXITCODE -ne 0) { throw "Failed to upload $($_.Name)" }
+          }
+          aws s3 cp 'dist/latest.yml' "s3://$env:R2_BUCKET/latest.yml" --endpoint-url "$endpoint" --content-type 'text/yaml' --cache-control 'no-store'
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to publish latest.yml' }
