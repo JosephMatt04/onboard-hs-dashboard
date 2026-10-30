@@ -3,6 +3,11 @@ name: Build Onboard H&S Windows App
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'onboard-hs-desktop-v4/**'
+      - '.github/workflows/build-windows.yml'
 
 permissions:
   contents: read
