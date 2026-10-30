@@ -1,6 +1,6 @@
 {
   "name": "onboard-corrugated-hs-desktop",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "Local Onboard Corrugated Health and Safety Dashboard",
   "main": "main.js",
   "private": true,
@@ -22,7 +22,8 @@
       "app/**/*",
       "main.js",
       "preload.js",
-      "package.json"
+      "package.json",
+      "update-config.json"
     ],
     "directories": {
       "output": "dist"
@@ -38,5 +39,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.7.0"
   }
 }
