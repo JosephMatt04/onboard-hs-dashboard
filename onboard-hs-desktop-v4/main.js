@@ -29,7 +29,11 @@ function writeRecords(data) {
     const previous = dbFile() + '.previous.json';
     try {
       fs.writeFileSync(temp, text, {encoding:'utf8', flag:'w'});
-      if (fs.existsSync(dbFile())) fs.copyFileSync(dbFile(), previous);
+      if (fs.existsSync(dbFile())) {
+        const older = dbFile() + '.older.json';
+        if (fs.existsSync(previous)) fs.copyFileSync(previous, older);
+        fs.copyFileSync(dbFile(), previous);
+      }
       fs.renameSync(temp, dbFile());
     } finally { if (fs.existsSync(temp)) fs.unlinkSync(temp); }
     return result(true);
