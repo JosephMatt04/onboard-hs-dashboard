@@ -1,5 +1,4 @@
 @echo off
 cd /d "%~dp0"
-where node >nul 2>&1 || (echo Install Node.js LTS once from nodejs.org & pause & exit /b 1)
-node local-server.js
+powershell.exe -NoProfile -File "%~dp0local-server.ps1"
 if errorlevel 1 pause
