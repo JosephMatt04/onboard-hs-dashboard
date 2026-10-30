@@ -20,7 +20,7 @@ function readRecords() {
 }
 function writeRecords(data) {
   try {
-    if (!data || typeof data !== 'object' || !['risk','ssow','ppe','incidents','assets'].every(k => Array.isArray(data[k]))) throw new Error('Invalid register data');
+    if (!data || typeof data !== 'object' || !['risk','ssow','ppe','incidents','assets'].every(k => Array.isArray(data[k])) || (data.ppeStock !== undefined && !Array.isArray(data.ppeStock))) throw new Error('Invalid register data');
     const text = JSON.stringify(data);
     if (Buffer.byteLength(text, 'utf8') > MAX_DATA_BYTES) throw new Error('Data file exceeds 300 MB');
     const directory = path.dirname(dbFile());
