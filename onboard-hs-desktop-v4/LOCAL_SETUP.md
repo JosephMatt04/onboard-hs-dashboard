@@ -1,11 +1,17 @@
-# Local no-installer dashboard (Windows)
+# Onboard H&S Dashboard — no-installer PowerShell version
 
-1. In your existing EXE, choose **Export backup** to save your actual employee and H&S records. Do this before switching.
-2. Install IT-approved Node.js LTS, Git for Windows, and GitHub Desktop. Clone private GitHub repo `JosephMatt04/onboard-hs-dashboard` via GitHub Desktop, not a ZIP.
-3. Double-click `onboard-hs-desktop-v4/OPEN_LOCAL_DASHBOARD.bat`. Browser opens at `http://127.0.0.1:38471/`. Keep the terminal window running.
-4. In the browser version select **Import backup** and pick the exported EXE backup. Import replaces all current data in the local browser dashboard. Check records, attached files and signatures before uninstalling the old app.
-5. Subsequently close the dashboard console window and double-click **UPDATE_AND_OPEN.bat** to fetch changes from GitHub and launch. No EXE reinstall.
+You do **not** need Node.js, Cloudflare, or a new Windows EXE installer.
 
-Records are written to `%LOCALAPPDATA%\Onboard-HS-Local\records.json` outside GitHub and never uploaded to the repository. One previous backup copy is retained automatically. Continue regular manual JSON backup exports.
+## Initial setup
 
-The local server listens on loopback only, rejects non-local Host values, and requires a random session token for save/load requests. Do not expose or port-forward localhost port 38471. Your Windows account and disk encryption must protect employee data. GitHub Desktop sign-in is needed once for private repo access.
+1. Open your old desktop dashboard and **Export backup** to a safe location. Keep the original EXE installed until migration has been verified.
+2. Clone the private repository using GitHub Desktop and fetch/pull the newest changes.
+3. Open `onboard-hs-desktop-v4` and double-click `OPEN_LOCAL_DASHBOARD.bat`. This launches Windows PowerShell 5.1 and opens `http://127.0.0.1:38471/` in your browser. Leave the PowerShell window open while using the dashboard.
+4. Choose **Import backup** in the browser dashboard and select your old desktop backup. Import replaces the browser dashboard's records, so only do it once, after a fresh local setup.
+5. Verify your Risk Assessments, SSOWs, signatures, PPE and Training Records including attachments before uninstalling the old EXE.
+
+## Updates after that
+
+Close the dashboard's PowerShell console, open GitHub Desktop, click **Fetch origin** and **Pull origin** if available, then double-click `OPEN_LOCAL_DASHBOARD.bat` again. Or use `UPDATE_AND_OPEN.bat` which requires Git for Windows on PATH and automatically pulls then launches.
+
+There is **no EXE reinstall**. Records are kept under `%LOCALAPPDATA%\Onboard-HS-Local\records.json`, outside the Git checkout. The server listens only on `127.0.0.1` and uses a random token for save/load. Never expose the local port to the network. Export backups regularly. If workplace PowerShell execution policy blocks the script, request IT approval rather than bypassing company controls.
