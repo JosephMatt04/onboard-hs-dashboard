@@ -281,6 +281,10 @@ tr:hover td{background:#f0f8f3}
 .side .brand-copy b{font-size:13px;color:#edf5ef;letter-spacing:0}
 .side .brand-copy small{font-size:9px;color:#a4c5b2;letter-spacing:.13em}
 @media(max-width:720px){.side .logo-panel{min-height:0;padding:0}.side .brand-logo{width:135px}}
+
+/* Blend the logo's white image background into the sidebar itself */
+.side .logo-panel{background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+.side .brand-logo{background:none!important;mix-blend-mode:multiply!important;opacity:1!important;filter:brightness(1.38) contrast(1.1)}
 </style>
 </head>
 <body>
