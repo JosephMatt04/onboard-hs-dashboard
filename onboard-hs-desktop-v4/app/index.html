@@ -285,6 +285,13 @@ tr:hover td{background:#f0f8f3}
 /* Blend the logo's white image background into the sidebar itself */
 .side .logo-panel{background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
 .side .brand-logo{background:none!important;mix-blend-mode:multiply!important;opacity:1!important;filter:brightness(1.38) contrast(1.1)}
+
+/* Logo contrast correction based on the actual Edge screenshot */
+.side .logo-panel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+.side .brand-logo{width:170px!important;max-width:100%;mix-blend-mode:screen!important;filter:invert(1) brightness(1.24) contrast(1.12)!important;opacity:.94!important}
+.home-hero img{display:none!important}
+.home-hero-copy{max-width:850px}
+.home-hero{min-height:210px;align-items:center}
 </style>
 </head>
 <body>
