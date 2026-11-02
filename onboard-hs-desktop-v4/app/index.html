@@ -305,6 +305,24 @@ tr:hover td{background:#f0f8f3}
 .side .nav button{color:#cce7d6}
 .side .nav button.active{color:#fff}
 @media(max-width:720px){.side{background:linear-gradient(to bottom,#fff 0%,#eff7f1 112px,#6d9e7b 190px,#103d30 260px,#103d30 100%)!important}.side .nav{margin-top:26px!important}}
+
+/* Onboard orange accent system: forest green stays primary */
+:root{--onboard-orange:#e98328;--onboard-orange-dark:#b95d12;--onboard-orange-pale:#fff1e3}
+.side .nav button.active{box-shadow:inset 4px 0 var(--onboard-orange)!important;border-left-color:transparent!important}
+.side .nav button.active:hover{background:#ffffff29}
+.top .eyebrow{color:var(--onboard-orange-dark)!important}
+.home-hero .hero-tag{border-color:#f2a15e!important;background:#e9832830!important;color:#fff!important}
+.home-hero .hero-tag::before{content:'●';color:#ffba7a;font-size:9px;margin-right:7px}
+.panel:has(.ssow-metrics) .ssow-metrics>div:first-child::before{background:var(--onboard-orange)!important}
+.panel:has(.ssow-metrics) .ssow-metrics>div:first-child b{color:var(--onboard-orange-dark)!important}
+.panel:has(.ssow-metrics) .ssow-metrics>div:first-child{border-top:2px solid #f2a360}
+.panel:has(.ssow-metrics) .recent-item .btn.small{border-color:#eebd92;color:#a95515;background:#fff9f3}
+.panel:has(.ssow-metrics) .recent-item .btn.small:hover{background:#fff0df;border-color:var(--onboard-orange)}
+.status.warn{background:var(--onboard-orange-pale);color:#95520f}
+.status.bad{border-left:3px solid var(--onboard-orange)}
+.btn.primary{background:#187953;border-color:#187953}
+.btn.primary:hover{background:#106542;border-color:#106542}
+button:focus-visible,.btn:focus-visible{outline:3px solid #ffae66;outline-offset:2px}
 </style>
 </head>
 <body>
