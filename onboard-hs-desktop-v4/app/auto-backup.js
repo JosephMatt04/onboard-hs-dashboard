@@ -104,6 +104,29 @@ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,ch=>({'&':'&amp;'
 function bindControls(){document.querySelectorAll('[data-backup-action]').forEach(btn=>{
  btn.onclick=()=>{const action=btn.dataset.backupAction;if(action==='choose')chooseFolder();else if(action==='reconnect')reconnect();else if(action==='now')backupNow()}
 })}
+if(window.onboardDesktop&&typeof window.onboardDesktop.backupStatus==='function'){
+ let nativeState=null;
+ const nativeStatus=()=>nativeState
+  ?nativeState.lastError?'Backup warning: '+nativeState.lastError
+   :!nativeState.folder?'No folder selected — choose an approved company OneDrive folder.'
+   :nativeState.lastSuccess?'Last backup: '+new Date(nativeState.lastSuccess).toLocaleString('en-GB')
+   :'Folder selected. A backup will be saved when records are written.'
+  :'Checking backup settings…';
+ const nativeRender=()=>{
+  window.onboardDesktop.backupStatus().then(state=>{nativeState=state;const el=document.getElementById('backup-live-status');if(el)el.textContent=nativeStatus()}).catch(e=>console.warn('Could not load backup state',e));
+  return '<section class="panel backup-settings"><div class="section-title"><h2>Automatic Backup</h2><span class="muted">Windows desktop version</span></div><p>Select an IT-approved company OneDrive folder. The EXE will save a current backup and a dated copy automatically whenever you save records.</p><div class="backup-status"><strong>Backup status</strong><p id="backup-live-status">'+escapeHtml(nativeStatus())+'</p></div><div class="backup-actions"><button class="btn primary" type="button" data-backup-action="choose-native">Choose backup folder</button><button class="btn" type="button" data-backup-action="now-native">Back up now</button></div><p class="file-tip">Your records also remain in the Windows application data folder, separate from the browser version. Confirm company OneDrive has synced the files. Automatic backups are not a substitute for your organisation\'s backup and retention policy.</p></section>';
+ };
+ const nativeBind=()=>document.querySelectorAll('[data-backup-action]').forEach(button=>button.onclick=async()=>{
+  try{
+   const state=button.dataset.backupAction==='choose-native'?await window.onboardDesktop.chooseBackupFolder():await window.onboardDesktop.backupNow();
+   nativeState=state;
+   const el=document.getElementById('backup-live-status');if(el)el.textContent=nativeStatus();
+   if(state.lastError)alert('Backup problem: '+state.lastError);
+  }catch(e){alert('Could not access backup folder: '+e.message)}
+ });
+ window.onboardAutoBackup={renderSettings:nativeRender,bindControls:nativeBind,statusLine:nativeStatus};
+ return;
+}
 const api={renderSettings,bindControls,statusLine,chooseFolder,reconnect,backupNow};
 window.onboardAutoBackup=api;
 Promise.resolve(window.browserReady).then(async()=>{
