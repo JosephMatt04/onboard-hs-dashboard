@@ -43,10 +43,27 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
+      - name: Prepare private update manifest
+        shell: pwsh
+        working-directory: onboard-hs-desktop-v4
+        run: |
+          $exe = Get-ChildItem -Path dist -Filter '*.exe' -File | Select-Object -First 1
+          if (-not $exe) { throw 'Installer not found' }
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $manifest = @{
+            version = $version
+            file = $exe.Name
+            size = $exe.Length
+            sha256 = (Get-FileHash -Algorithm SHA256 $exe.FullName).Hash.ToLowerInvariant()
+          }
+          $manifest | ConvertTo-Json | Set-Content -Encoding utf8 dist/onboard-hs-update.json
+
       - name: Save Windows installer
         uses: actions/upload-artifact@v4
         with:
           name: Onboard-HS-Windows-Installer
-          path: onboard-hs-desktop-v4/dist/*.exe
+          path: |
+            onboard-hs-desktop-v4/dist/*.exe
+            onboard-hs-desktop-v4/dist/onboard-hs-update.json
           if-no-files-found: error
           retention-days: 30
