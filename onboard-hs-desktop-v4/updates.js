@@ -1,8 +1,8 @@
 'use strict';
-function createUpdates({app, dialog, getWindow, config, getUpdater = () => require('electron-updater').autoUpdater}) {
+function createUpdates({app, dialog, getWindow, config, getUpdater = () => require('electron-updater').autoUpdater, platform = process.platform}) {
   let updater, timer, busy = false, downloaded = false;
   let detail = 'Updates will be checked after the app starts.';
-  const enabled = () => app.isPackaged && process.platform === 'win32' && config.enabled === true;
+  const enabled = () => app.isPackaged && platform === 'win32' && config.enabled === true;
   const status = () => ({enabled: enabled(), version: app.getVersion(), detail});
   async function offerInstall() {
     const window = getWindow();
