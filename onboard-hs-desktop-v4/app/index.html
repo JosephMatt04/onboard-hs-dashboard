@@ -502,6 +502,15 @@ th{background:#f2f6f8!important;color:#5c7682!important}
 .section-guide{border-left:4px solid #458b6f!important;background:linear-gradient(110deg,#fff,#f8fbf9)!important;padding:17px 21px!important;margin-bottom:17px!important}
 .section-guide-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.section-guide-heading strong{color:#2b5e4a;font-size:14px}.section-guide-heading span{font-size:10px;letter-spacing:.12em;color:#c17b3f;font-weight:800}
 .section-guide p{font-size:12px;line-height:1.55;margin:8px 0 0}.section-guide p.muted{margin-top:4px}
+
+/* Modal layer repair: forms must cover the sticky app header and stay fully reachable */
+#modal-root{position:relative;z-index:1000}
+#modal-root .modal-backdrop{position:fixed!important;inset:0!important;z-index:1000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:clamp(12px,3vh,28px)!important;overflow-y:auto!important;overscroll-behavior:contain}
+#modal-root .modal{position:relative!important;z-index:1001!important;flex:0 1 auto!important;width:min(100%,640px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable}
+#modal-root .modal.preview-modal{width:min(100%,1000px)!important}
+@media(max-height:650px){#modal-root .modal-backdrop{align-items:flex-start!important}#modal-root .modal{max-height:calc(100dvh - 24px)!important}}
+@media(max-width:600px){#modal-root .modal-backdrop{padding:8px!important}#modal-root .modal{max-height:calc(100dvh - 16px)!important;padding:19px!important}}
+
 </style>
 </head>
 <body>
