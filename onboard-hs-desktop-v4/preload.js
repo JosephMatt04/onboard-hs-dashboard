@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
   dataFolder: () => ipcRenderer.invoke('records:location'),
   updateStatus: () => ipcRenderer.invoke('updates:status'),
   checkUpdates: () => ipcRenderer.invoke('updates:check'),
+  chooseUpdateFolder: () => ipcRenderer.invoke('updates:choose'),
   backupStatus: () => ipcRenderer.invoke('backup:status'),
   chooseBackupFolder: () => ipcRenderer.invoke('backup:choose'),
   backupNow: () => ipcRenderer.invoke('backup:now'),
