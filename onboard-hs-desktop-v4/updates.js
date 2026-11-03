@@ -31,7 +31,7 @@ function hashFile(filename){return new Promise((resolve,reject)=>{
  stream.on('data',chunk=>hash.update(chunk));stream.on('error',reject);stream.on('end',()=>resolve(hash.digest('hex')));
 })}
 function createUpdates({app,dialog,getWindow,settingsFile,platform=process.platform,watchMs=4*60*60*1000,initialMs=15000,spawnInstaller=spawn}) {
- let folder='',timer=null,interval=null,busy=false,available=null,detail='Choose a restricted update folder to enable automatic checks.',lastCheck='',lastError='';
+ let folder='',timer=null,interval=null,busy=false,available=null,lastPromptVersion='',detail='Choose a restricted update folder to enable automatic checks.',lastCheck='',lastError='';
  try{const stored=JSON.parse(fs.readFileSync(settingsFile,'utf8'));if(typeof stored.folder==='string')folder=stored.folder}catch{}
  const status=()=>({enabled:Boolean(folder)&&platform==='win32',folder,version:app.getVersion(),detail,lastCheck,lastError,availableVersion:available?.manifest.version||''});
  async function inspect() {
@@ -41,6 +41,7 @@ function createUpdates({app,dialog,getWindow,settingsFile,platform=process.platf
   const manifest=validateManifest(JSON.parse(raw));
   if(!newerVersion(manifest.version,app.getVersion()))return null;
   const file=path.join(folder,manifest.file);
+  if(fs.lstatSync(file).isSymbolicLink())throw Error('Installer symlinks are not allowed');
   const stats=fs.statSync(file);
   if(!stats.isFile()||stats.size!==manifest.size)throw Error('Installer size does not match the manifest');
   const digest=await hashFile(file);
@@ -56,7 +57,7 @@ function createUpdates({app,dialog,getWindow,settingsFile,platform=process.platf
    available=await inspect();
    lastCheck=new Date().toISOString();lastError='';
    detail=available?'Version '+available.manifest.version+' is available in your approved folder.':'Your installed version is up to date with the selected folder.';
-   if(available&&manual)await offerInstall();
+   if(available&&(manual||lastPromptVersion!==available.manifest.version)){lastPromptVersion=available.manifest.version;await offerInstall()}
   }catch(e){available=null;lastError=e.message;detail='Update check failed: '+e.message;}
   finally{busy=false}
   return status();
@@ -68,12 +69,13 @@ function createUpdates({app,dialog,getWindow,settingsFile,platform=process.platf
   try{candidate=await inspect()}catch(e){lastError=e.message;return {...status(),error:e.message}}
   if(!candidate||candidate.manifest.sha256!==available.manifest.sha256){available=null;return {...status(),error:'Update changed. Please check for updates again'}}
   const w=getWindow();
-  const response=await dialog.showMessageBox(w,{
+  const prompt={
    type:'question',title:'Approved dashboard update',
    message:'Install Onboard H&S Dashboard '+candidate.manifest.version+'?',
    detail:'Installer: '+candidate.manifest.file+'\nFrom your restricted update folder. The SHA256 checksum matches. The installer must also be approved by company IT; the EXE is not digitally signed. Your local records are stored separately. Close your work and keep a backup before proceeding.',
    buttons:['Install update','Later'],defaultId:1,cancelId:1
-  });
+  };
+  const response=await (w?dialog.showMessageBox(w,prompt):dialog.showMessageBox(prompt));
   if(response.response!==0)return {...status(),detail:'Update deferred. Check again when ready.'};
   try{
    const child=spawnInstaller(candidate.file,[],{detached:true,stdio:'ignore',windowsHide:false});
