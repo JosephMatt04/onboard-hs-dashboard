@@ -1,14 +1,14 @@
 {
   "name": "onboard-corrugated-hs-desktop",
-  "version": "4.9.0",
+  "version": "4.9.1",
   "description": "Local Onboard Corrugated Health and Safety Dashboard",
   "main": "main.js",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win nsis",
-    "test:syntax": "node --check main.js && node --check preload.js && node --check app/dashboard-check.js"
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "test:syntax": "node --check main.js && node --check preload.js && node --check updates.js && node --check app/auto-backup.js && node --check app/dashboard-check.js"
   },
   "devDependencies": {
     "electron": "^38.0.0",
@@ -23,7 +23,8 @@
       "main.js",
       "preload.js",
       "package.json",
-      "update-config.json"
+      "update-config.json",
+      "updates.js"
     ],
     "directories": {
       "output": "dist"
@@ -38,7 +39,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
-    }
+    },
+    "artifactName": "Onboard-HS-Dashboard-Setup-${version}-${arch}.${ext}"
   },
   "dependencies": {
     "electron-updater": "^6.7.0"
