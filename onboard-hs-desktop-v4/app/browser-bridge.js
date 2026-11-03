@@ -37,11 +37,15 @@ const snapshot=structuredClone(data);
 records=snapshot;
 pending++;
 status('Saving dashboard changes…',false);
-latest=latest.catch(()=>{}).then(()=>persisted(snapshot)).then(()=>{
+const task=latest.catch(()=>{}).then(()=>persisted(snapshot));
+latest=task.then(()=>{
 pending--;failed=false;if(!pending)status('All changes saved to this browser',false);
 },e=>{
 pending--;failed=true;status('Save failed — export a backup now. '+e.message,true);alert('Dashboard storage failure: '+e.message+'. Export a backup before closing the page.');
+throw e;
 });
+// Mark rejection observed even when there is no pending backup or import.
+latest.catch(()=>{});
 window.browserSavePending=()=>latest;
 return {ok:true};
 }catch(e){failed=true;status('Save failed: '+e.message,true);return {ok:false,error:e.message}}
