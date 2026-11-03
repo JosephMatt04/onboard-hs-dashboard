@@ -33,6 +33,10 @@ jobs:
         working-directory: onboard-hs-desktop-v4
         run: npm run test:syntax
 
+      - name: Test updater
+        working-directory: onboard-hs-desktop-v4
+        run: node --test updates.test.js
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
