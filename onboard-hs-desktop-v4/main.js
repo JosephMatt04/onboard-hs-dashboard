@@ -141,6 +141,20 @@ async function checkApprovedUpdates() {
   catch(e){return {enabled:true,error:e.message,version:app.getVersion()};}
 }
 
+async function savePermitPDF(html,reference){
+ if(typeof html!=='string'||html.length>1000000||!html.startsWith('<!doctype html>'))throw Error('Invalid permit document');
+ const safeName=String(reference||'permit').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,60);
+ const choice=await dialog.showSaveDialog(mainWindow,{title:'Save permit as PDF',defaultPath:'Onboard-Permit-'+safeName+'.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});
+ if(choice.canceled||!choice.filePath)return {cancelled:true};
+ const pdfWindow=new BrowserWindow({show:false,width:850,height:1100,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true}});
+ try{
+  await pdfWindow.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
+  const bytes=await pdfWindow.webContents.printToPDF({printBackground:true,pageSize:'A4'});
+  fs.writeFileSync(choice.filePath,bytes);
+  return {saved:true};
+ }finally{if(!pdfWindow.isDestroyed())pdfWindow.destroy()}
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width:1350, height:880, minWidth:850, minHeight:600,
@@ -160,6 +174,7 @@ app.whenReady().then(() => {
   ipcMain.handle('backup:status',()=>backupStatus());
   ipcMain.handle('backup:choose',()=>chooseBackupFolder());
   ipcMain.handle('backup:now',()=>backupNow());
+  ipcMain.handle('permit:savepdf',(_event,html,reference)=>savePermitPDF(html,reference));
   ipcMain.on('records:read', (event) => {event.returnValue = readRecords();});
   ipcMain.on('records:write', (event, data) => {event.returnValue = writeRecords(data);});
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
