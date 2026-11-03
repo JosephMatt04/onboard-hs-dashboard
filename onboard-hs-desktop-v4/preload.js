@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
   checkUpdates: () => ipcRenderer.invoke('updates:check'),
   backupStatus: () => ipcRenderer.invoke('backup:status'),
   chooseBackupFolder: () => ipcRenderer.invoke('backup:choose'),
-  backupNow: () => ipcRenderer.invoke('backup:now')
+  backupNow: () => ipcRenderer.invoke('backup:now'),
+  savePermitPDF: (html,reference) => ipcRenderer.invoke('permit:savepdf',html,reference)
 }));
