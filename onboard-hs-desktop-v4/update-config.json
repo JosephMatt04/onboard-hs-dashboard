@@ -1,4 +1,6 @@
 {
   "enabled": false,
-  "feedUrl": ""
+  "provider": "github",
+  "owner": "JosephMatt04",
+  "repo": "onboard-hs-dashboard"
 }
