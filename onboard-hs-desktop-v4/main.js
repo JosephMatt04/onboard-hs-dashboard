@@ -36,8 +36,58 @@ function writeRecords(data) {
       }
       fs.renameSync(temp, dbFile());
     } finally { if (fs.existsSync(temp)) fs.unlinkSync(temp); }
+    makeBackup(data);
     return result(true);
   } catch(e) { return result(false, null, 'Could not save records: ' + e.message); }
+}
+
+
+/* Optional automatic backups into an IT-approved folder, including company OneDrive. */
+const backupSettingsFile=()=>path.join(app.getPath('userData'),'backup-settings.json');
+let backupFolder='';
+let lastBackupAt='';
+let lastBackupError='';
+function loadBackupPreferences(){
+ try {
+  const saved=JSON.parse(fs.readFileSync(backupSettingsFile(),'utf8'));
+  if(typeof saved.folder==='string')backupFolder=saved.folder;
+ }catch{ /* No configured folder yet */ }
+}
+function backupStatus(){
+ return {supported:true,folder:backupFolder,connected:Boolean(backupFolder&&fs.existsSync(backupFolder)),lastSuccess:lastBackupAt,lastError:lastBackupError};
+}
+function makeBackup(data){
+ if(!backupFolder)return;
+ try{
+  if(!fs.existsSync(backupFolder)||!fs.statSync(backupFolder).isDirectory())throw new Error('Backup folder no longer exists');
+  const payload=JSON.stringify({app:'Onboard Corrugated H&S Dashboard',version:2,exportedAt:new Date().toISOString(),data},null,2);
+  const date=new Date().toISOString().slice(0,10);
+  for(const name of ['onboard-hs-latest.json','onboard-hs-'+date+'.json']){
+   const target=path.join(backupFolder,name);
+   const tmp=target+'.tmp';
+   fs.writeFileSync(tmp,payload,'utf8');
+   fs.renameSync(tmp,target);
+  }
+  lastBackupAt=new Date().toISOString();lastBackupError='';
+ }catch(e){lastBackupError=e.message}
+}
+async function chooseBackupFolder(){
+ const choice=await dialog.showOpenDialog(mainWindow,{title:'Choose approved company OneDrive backup folder',properties:['openDirectory','createDirectory']});
+ if(choice.canceled||!choice.filePaths?.length)return backupStatus();
+ const dir=choice.filePaths[0];
+ if(!fs.statSync(dir).isDirectory())throw Error('Please select a folder');
+ backupFolder=dir;
+ fs.mkdirSync(path.dirname(backupSettingsFile()),{recursive:true});
+ fs.writeFileSync(backupSettingsFile(),JSON.stringify({folder:backupFolder},null,2),'utf8');
+ const read=readRecords();
+ if(read.ok&&read.data)makeBackup(read.data);
+ return backupStatus();
+}
+function backupNow(){
+ const read=readRecords();
+ if(!read.ok||!read.data)return {...backupStatus(),lastError:'No saved dashboard records to back up'};
+ if(!backupFolder)return {...backupStatus(),lastError:'Select an approved company folder first'};
+ makeBackup(read.data);return backupStatus();
 }
 
 // The updater stays disabled until IT supplies an approved HTTPS feed and signed releases.
@@ -106,6 +156,10 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname,'app','index.html'));
 }
 app.whenReady().then(() => {
+  loadBackupPreferences();
+  ipcMain.handle('backup:status',()=>backupStatus());
+  ipcMain.handle('backup:choose',()=>chooseBackupFolder());
+  ipcMain.handle('backup:now',()=>backupNow());
   ipcMain.on('records:read', (event) => {event.returnValue = readRecords();});
   ipcMain.on('records:write', (event, data) => {event.returnValue = writeRecords(data);});
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
