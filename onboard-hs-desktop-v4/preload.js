@@ -5,5 +5,8 @@ contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
   write: (records) => ipcRenderer.sendSync('records:write', records),
   dataFolder: () => ipcRenderer.invoke('records:location'),
   updateStatus: () => ipcRenderer.invoke('updates:status'),
-  checkUpdates: () => ipcRenderer.invoke('updates:check')
+  checkUpdates: () => ipcRenderer.invoke('updates:check'),
+  backupStatus: () => ipcRenderer.invoke('backup:status'),
+  chooseBackupFolder: () => ipcRenderer.invoke('backup:choose'),
+  backupNow: () => ipcRenderer.invoke('backup:now')
 }));
