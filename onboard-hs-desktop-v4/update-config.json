@@ -1,6 +1,6 @@
 {
-  "enabled": false,
-  "provider": "github",
-  "owner": "JosephMatt04",
-  "repo": "onboard-hs-dashboard"
+  "provider": "private-folder",
+  "automaticChecks": true,
+  "requiresApprovedFolder": true,
+  "publicReleases": false
 }
