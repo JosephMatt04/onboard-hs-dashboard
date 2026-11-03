@@ -91,7 +91,7 @@ function backupNow(){
 }
 
 const {createUpdates} = require('./updates');
-const updates = createUpdates({app, dialog, getWindow:()=>mainWindow, config:require('./update-config.json')});
+const updates = createUpdates({app, dialog, getWindow:()=>mainWindow, settingsFile:path.join(app.getPath('userData'),'private-update-settings.json')});
 
 async function savePermitPDF(html,reference){
  if(typeof html!=='string'||html.length>1000000||!html.startsWith('<!doctype html>'))throw Error('Invalid permit document');
@@ -135,6 +135,7 @@ app.whenReady().then(() => {
   updates.start();
   ipcMain.handle('updates:status', () => updates.status());
   ipcMain.handle('updates:check', () => updates.check(true));
+  ipcMain.handle('updates:choose', () => updates.chooseFolder());
   app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});
 });
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
