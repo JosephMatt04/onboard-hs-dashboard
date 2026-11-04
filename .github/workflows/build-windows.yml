@@ -44,6 +44,10 @@ jobs:
           python scripts/make_icon.py
           python -c "from PIL import Image; p=Image.open('build/icon.ico'); assert p.format=='ICO' and p.size==(256,256)"
 
+      - name: Test section PIN security
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:pin
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
