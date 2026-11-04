@@ -94,6 +94,8 @@ const {createSectionPin} = require('./section-pin');
 const sectionPin=createSectionPin(path.join(app.getPath('userData'),'section-pin.json'));
 const {createUpdates} = require('./updates');
 const updates = createUpdates({app, dialog, getWindow:()=>mainWindow, settingsFile:path.join(app.getPath('userData'),'private-update-settings.json')});
+const {createGithubDirectUpdates}=require('./github-direct-updates');
+const githubUpdates=createGithubDirectUpdates({app,updateEngine:updates});
 
 async function savePermitPDF(html,reference){
  if(typeof html!=='string'||html.length>1000000||!html.startsWith('<!doctype html>'))throw Error('Invalid permit document');
@@ -139,7 +141,9 @@ app.whenReady().then(() => {
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
   app.on('web-contents-created', (_e, wc) => {wc.on('will-attach-webview',e=>e.preventDefault());});
   createWindow();
-  updates.start();
+  githubUpdates.start(); // GitHub is primary; the original Z: folder updater stays available manually.
+  ipcMain.handle('github-updates:status',()=>githubUpdates.status());
+  ipcMain.handle('github-updates:check',()=>githubUpdates.check(true));
   ipcMain.handle('updates:status', () => updates.status());
   ipcMain.handle('updates:check', () => updates.check(true));
   ipcMain.handle('updates:choose', () => updates.chooseFolder());
