@@ -1,6 +1,6 @@
 {
   "name": "onboard-corrugated-hs-desktop",
-  "version": "4.9.3",
+  "version": "4.9.4",
   "description": "Local Onboard Corrugated Health and Safety Dashboard",
   "main": "main.js",
   "private": true,
@@ -21,6 +21,7 @@
     "asar": true,
     "files": [
       "app/**/*",
+      "build/**/*",
       "main.js",
       "preload.js",
       "package.json",
@@ -33,13 +34,16 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
     },
     "artifactName": "Onboard-HS-Dashboard-Setup-${version}-${arch}.${ext}"
   },
