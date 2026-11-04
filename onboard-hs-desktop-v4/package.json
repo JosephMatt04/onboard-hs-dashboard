@@ -1,6 +1,6 @@
 {
   "name": "onboard-corrugated-hs-desktop",
-  "version": "4.9.5",
+  "version": "4.9.6",
   "description": "Local Onboard Corrugated Health and Safety Dashboard",
   "main": "main.js",
   "private": true,
