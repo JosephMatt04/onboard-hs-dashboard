@@ -1,6 +1,6 @@
 {
   "name": "onboard-corrugated-hs-desktop",
-  "version": "4.9.6",
+  "version": "4.9.7",
   "description": "Local Onboard Corrugated Health and Safety Dashboard",
   "main": "main.js",
   "private": true,
@@ -8,11 +8,12 @@
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
-    "test:syntax": "node --check main.js && node --check preload.js && node --check updates.js && node --check app/auto-backup.js && node --check app/dashboard-check.js && node --check section-pin.js && node --check dashboard-smoke.test.js && node --check desktop-storage.test.js",
+    "test:syntax": "node --check main.js && node --check preload.js && node --check updates.js && node --check app/auto-backup.js && node --check app/dashboard-check.js && node --check section-pin.js && node --check dashboard-smoke.test.js && node --check desktop-storage.test.js && node --check github-direct-updates.js && node --check github-direct-updates.test.js",
     "test:updates": "node --test updates.test.js",
     "test:pin": "node --test section-pin.test.js",
     "test:dashboard": "node --test dashboard-smoke.test.js",
-    "test:storage": "node --test desktop-storage.test.js"
+    "test:storage": "node --test desktop-storage.test.js",
+    "test:github-updates": "node --test github-direct-updates.test.js"
   },
   "devDependencies": {
     "electron": "^38.0.0",
@@ -30,7 +31,8 @@
       "package.json",
       "update-config.json",
       "updates.js",
-      "section-pin.js"
+      "section-pin.js",
+      "github-direct-updates.js"
     ],
     "directories": {
       "output": "dist"
