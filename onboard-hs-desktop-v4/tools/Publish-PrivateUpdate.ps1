@@ -34,7 +34,7 @@ function Run-Gh([string[]]$arguments) {
   if ($LASTEXITCODE -ne 0) { throw "GitHub CLI failed: $($output -join ' ')" }
   return $output
 }
-$mutex = New-Object System.Threading.Mutex($false,'Local\OnboardCorrugatedUpdatePublisher')
+$mutex = [System.Threading.Mutex]::new($false,'Local\OnboardCorrugatedUpdatePublisher')
 $acquired = $false
 $temp = $null
 try {
