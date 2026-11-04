@@ -90,6 +90,8 @@ function backupNow(){
  makeBackup(read.data);return backupStatus();
 }
 
+const {createSectionPin} = require('./section-pin');
+const sectionPin=createSectionPin(path.join(app.getPath('userData'),'section-pin.json'));
 const {createUpdates} = require('./updates');
 const updates = createUpdates({app, dialog, getWindow:()=>mainWindow, settingsFile:path.join(app.getPath('userData'),'private-update-settings.json')});
 
@@ -124,6 +126,10 @@ function createWindow() {
 }
 app.whenReady().then(() => {
   loadBackupPreferences();
+  ipcMain.on('pin:status',(event)=>{event.returnValue=sectionPin.status()});
+  ipcMain.handle('pin:verify',(_event,pin)=>sectionPin.verify(pin));
+  ipcMain.handle('pin:configure',(_event,pin,sections,currentPin)=>sectionPin.configure(pin,sections,currentPin));
+  ipcMain.handle('pin:lock',()=>sectionPin.lock());
   ipcMain.handle('backup:status',()=>backupStatus());
   ipcMain.handle('backup:choose',()=>chooseBackupFolder());
   ipcMain.handle('backup:now',()=>backupNow());
