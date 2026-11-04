@@ -56,6 +56,19 @@ jobs:
         working-directory: onboard-hs-desktop-v4
         run: npm run test:storage
 
+      - name: Validate automatic publisher scripts
+        shell: pwsh
+        run: |
+          foreach ($file in @('onboard-hs-desktop-v4/tools/Publish-PrivateUpdate.ps1', 'onboard-hs-desktop-v4/tools/Install-UpdatePublisher.ps1')) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file), [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) {
+              $parseErrors | ForEach-Object { Write-Error "$file : $_" }
+              throw "PowerShell publisher validation failed: $file"
+            }
+          }
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
