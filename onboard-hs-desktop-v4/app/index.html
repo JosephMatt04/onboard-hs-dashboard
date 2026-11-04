@@ -627,8 +627,11 @@ function bindGithubUpdates(){
  const button=document.getElementById('check-github-updates');
  if(button)button.onclick=async()=>{
   button.disabled=true;
+  const originalText=button.textContent;
+  button.textContent='Checking GitHub…';
+  if(label)label.textContent='Contacting GitHub and checking the installer. A first check may download over 100 MB.';
   try{show(await window.onboardDesktop.checkGithubUpdates())}catch(e){if(label)label.textContent='GitHub update check failed: '+e.message}
-  finally{button.disabled=false}
+  finally{button.disabled=false;button.textContent=originalText}
  };
 }
 function bindPrivateUpdates(){
