@@ -7,18 +7,11 @@ $source=Join-Path $PSScriptRoot 'Publish-PrivateUpdate.ps1'
 if(-not (Test-Path -LiteralPath $source -PathType Leaf)) {
   throw 'Publish-PrivateUpdate.ps1 must be in the same folder as this installer.'
 }
-# GitHub personal access token (fine-grained), limited to the dashboard repo, with Actions:read only.
-# Password-protected input is never displayed, and only a current-user DPAPI-encrypted token is saved.
+if(-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw 'Install GitHub CLI before continuing.' }
+& gh auth status
+if($LASTEXITCODE -ne 0) { throw 'GitHub CLI is not authenticated; complete gh auth login first.' }
 $stateDir=Join-Path $env:LOCALAPPDATA 'OnboardCorrugated\UpdatePublisher'
 New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
-$secretFile=Join-Path $stateDir 'github-token.dpapi'
-if(-not (Test-Path -LiteralPath $secretFile -PathType Leaf)){
-  Write-Host 'Create a read-only GitHub fine-grained token for the dashboard repository. Do not share it in chat.' -ForegroundColor Yellow
-  Write-Host 'Repository access: Only JosephMatt04/onboard-hs-dashboard; Permissions: Actions = Read-only and Metadata = Read-only.'
-  $secure=Read-Host 'Paste your GitHub fine-grained token (input hidden)' -AsSecureString
-  if($secure.Length -lt 20){throw 'Token was empty or too short. No credential was saved.'}
-  $secure | ConvertFrom-SecureString | Set-Content -LiteralPath $secretFile -Encoding UTF8
-}
 if(-not (Test-Path -LiteralPath $UpdateFolder -PathType Container)) {
   throw "Cannot find the approved folder: $UpdateFolder. Connect the company Z: drive first."
 }
