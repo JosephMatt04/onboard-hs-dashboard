@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
   read: () => ipcRenderer.sendSync('records:read'),
   write: (records) => ipcRenderer.sendSync('records:write', records),
   dataFolder: () => ipcRenderer.invoke('records:location'),
+  githubUpdateStatus: () => ipcRenderer.invoke('github-updates:status'),
+  checkGithubUpdates: () => ipcRenderer.invoke('github-updates:check'),
   updateStatus: () => ipcRenderer.invoke('updates:status'),
   checkUpdates: () => ipcRenderer.invoke('updates:check'),
   chooseUpdateFolder: () => ipcRenderer.invoke('updates:choose'),
