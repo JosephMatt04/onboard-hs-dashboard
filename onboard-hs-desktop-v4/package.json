@@ -8,9 +8,10 @@
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
-    "test:syntax": "node --check main.js && node --check preload.js && node --check updates.js && node --check app/auto-backup.js && node --check app/dashboard-check.js && node --check section-pin.js",
+    "test:syntax": "node --check main.js && node --check preload.js && node --check updates.js && node --check app/auto-backup.js && node --check app/dashboard-check.js && node --check section-pin.js && node --check dashboard-smoke.test.js",
     "test:updates": "node --test updates.test.js",
-    "test:pin": "node --test section-pin.test.js"
+    "test:pin": "node --test section-pin.test.js",
+    "test:dashboard": "node --test dashboard-smoke.test.js"
   },
   "devDependencies": {
     "electron": "^38.0.0",
