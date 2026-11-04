@@ -37,6 +37,13 @@ jobs:
         working-directory: onboard-hs-desktop-v4
         run: node --test updates.test.js
 
+      - name: Generate branded Windows icons
+        working-directory: onboard-hs-desktop-v4
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          python scripts/make_icon.py
+          python -c "from PIL import Image; p=Image.open('build/icon.ico'); assert p.format=='ICO' and p.size==(256,256)"
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
