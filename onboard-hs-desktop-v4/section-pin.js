@@ -2,7 +2,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const ALLOWED=['risk','ssow','ppe','ppeStock','training','incidents','assets','sites','audits','briefings','inductions','permits','assetChecks','loneWorker','contractors'];
+const ALLOWED=['risk','ssow','ppe','ppeStock','training','incidents','assets','sites','audits','briefings','inductions','permits','assetChecks','lone','contractors'];
 const DEFAULT=['training','incidents','ppe'];
 function createSectionPin(settingsFile,{now=()=>Date.now()}={}){
  let cfg=null,unlocked=false,failures=0,blockedUntil=0;
