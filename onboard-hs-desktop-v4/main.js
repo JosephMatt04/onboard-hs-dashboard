@@ -111,6 +111,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width:1350, height:880, minWidth:850, minHeight:600,
     title:'Onboard Corrugated — Health & Safety Dashboard',
+    icon:path.join(__dirname,'build','icon.png'),
     backgroundColor:'#f7f9f7',
     webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true}
   });
