@@ -48,6 +48,10 @@ jobs:
         working-directory: onboard-hs-desktop-v4
         run: npm run test:pin
 
+      - name: Regression-test all dashboard sections
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:dashboard
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
