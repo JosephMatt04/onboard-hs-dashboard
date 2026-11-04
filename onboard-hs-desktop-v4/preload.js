@@ -1,6 +1,10 @@
 'use strict';
 const {contextBridge, ipcRenderer} = require('electron');
 contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
+  pinStatus: () => ipcRenderer.sendSync('pin:status'),
+  pinVerify: (pin) => ipcRenderer.invoke('pin:verify',pin),
+  pinConfigure: (pin,sections,currentPin) => ipcRenderer.invoke('pin:configure',pin,sections,currentPin),
+  pinLock: () => ipcRenderer.invoke('pin:lock'),
   read: () => ipcRenderer.sendSync('records:read'),
   write: (records) => ipcRenderer.sendSync('records:write', records),
   dataFolder: () => ipcRenderer.invoke('records:location'),
