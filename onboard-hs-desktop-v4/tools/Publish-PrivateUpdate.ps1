@@ -75,7 +75,7 @@ try {
   if($artifact.Count -ne 1){throw 'Build has no available Onboard-HS-Windows-Installer artifact'}
   $zipPath=Join-Path $temp 'private-installer.zip'
   # Invoke-WebRequest follows the authenticated GitHub redirect to the time-limited artifact download URL.
-  Invoke-WebRequest -Uri "https://api.github.com/repos/$Repository/actions/artifacts/$($artifact[0].id)/zip" -Headers $headers -OutFile $zipPath -MaximumRedirection 5 -TimeoutSec 180
+  Invoke-WebRequest -Uri "https://api.github.com/repos/$Repository/actions/artifacts/$($artifact[0].id)/zip" -Headers $headers -OutFile $zipPath -MaximumRedirection 5 -TimeoutSec 180 -UseBasicParsing
   Expand-Archive -LiteralPath $zipPath -DestinationPath $temp -Force
   $manifestPath=Join-Path $temp 'onboard-hs-update.json'
   if(-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw 'Downloaded build is missing onboard-hs-update.json' }
