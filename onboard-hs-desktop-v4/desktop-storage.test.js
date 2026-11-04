@@ -19,6 +19,7 @@ function storageFixture(){
   if(name==='node:path')return path;
   if(name==='node:fs')return fs;
   if(name==='./updates')return {createUpdates:()=>({start:()=>{},status:()=>({})})};
+  if(name==='./github-direct-updates')return {createGithubDirectUpdates:()=>({start:()=>{},status:()=>({})})};
   if(name==='./section-pin')return {createSectionPin:()=>({status:()=>({})})};
   throw Error('Unexpected require: '+name);
  };
