@@ -69,6 +69,10 @@ jobs:
             }
           }
 
+      - name: Test direct GitHub desktop updates
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:github-updates
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
