@@ -525,6 +525,47 @@ th{background:#f2f6f8!important;color:#5c7682!important}
 
 /* Backups setup screen */
 .backup-settings{max-width:860px}.backup-settings>p{line-height:1.65;color:#51685c;font-size:13px}.backup-status{border-radius:12px;border:1px solid #dae8dd;background:#f6faf7;padding:18px;margin:19px 0}.backup-status p{font-weight:680;color:#30714e;margin:9px 0}.backup-status small{color:#6a8272}.backup-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 23px}
+
+/* Homepage remodel v4.10 — scoped to the dashboard tab */
+.home-redesign{display:flex;flex-direction:column;gap:0}
+.home-new-hero{background:linear-gradient(117deg,#173d30 0%,#246b4d 70%,#327d54 100%);color:#fff;border-radius:22px;padding:32px 34px;display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 27px;box-shadow:0 14px 28px rgba(20,68,43,.14)}
+.home-new-hero h2{font-size:32px;line-height:1.15;letter-spacing:-.04em;margin:9px 0 10px;color:#fff}
+.home-new-hero p{margin:0;color:#def0e5;line-height:1.5;max-width:570px;font-size:14px}
+.home-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:#d5f0cd}
+.home-hero-actions{display:flex;flex-direction:column;align-items:flex-end;gap:14px;flex-shrink:0}
+.home-local-pill{font-size:11px;border:1px solid rgba(255,255,255,.28);border-radius:50px;padding:8px 12px;color:#eef9ed}
+.home-hero-actions .btn{background:#fff;color:#1b6244;border:0}
+.home-heading-row{display:flex;justify-content:space-between;align-items:flex-end;margin:0 0 13px}
+.home-heading-row h2{font-size:18px;margin:0 0 4px;color:#173d30}
+.home-heading-row p{color:#77887d;font-size:12px;margin:0}
+.home-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:0 0 28px}
+.home-metric{background:#fff;border:1px solid #e1eae3;border-radius:16px;padding:18px;min-width:0;box-shadow:0 6px 18px rgba(24,62,41,.04);border-top:4px solid #5a9f83}
+.home-metric.amber{border-top-color:#e9a44e}.home-metric.red{border-top-color:#d36b5c}.home-metric.blue{border-top-color:#609bb3}.home-metric.green{border-top-color:#55a77d}
+.home-metric-caption{font-size:12px;font-weight:750;color:#556a5e;min-height:30px}
+.home-metric strong{display:block;font-size:34px;line-height:1.15;letter-spacing:-.05em;color:#1b3a2b;margin:6px 0 7px}
+.home-metric p{font-size:11px;color:#77877c;margin:0 0 11px;min-height:29px}
+.home-text-action{border:0;padding:4px 0;background:none;color:#23764f;cursor:pointer;font:inherit;font-size:12px;font-weight:750;text-align:left}
+.home-text-action:hover{text-decoration:underline}
+.home-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 28px}
+.home-quick-tile{display:flex;align-items:center;gap:12px;text-align:left;padding:17px 16px;background:#fff;border:1px solid #e1eae3;border-radius:15px;cursor:pointer;min-width:0;color:#223a2b;transition:border-color .15s,box-shadow .15s}
+.home-quick-tile:hover,.home-quick-tile:focus-visible{border-color:#7db18a;box-shadow:0 6px 18px rgba(20,68,43,.09);outline-offset:3px}
+.home-quick-symbol{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:12px;background:#eaf5e9;color:#2b7851;font-size:22px;font-weight:800}
+.home-quick-copy{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.home-quick-copy strong{font-size:13px}.home-quick-copy small{font-size:11px;color:#7a897f}
+.home-quick-count{font-size:21px;font-weight:800;color:#2c6e4b}
+.home-redesign>.panel{margin-bottom:26px}
+.home-bottom-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);gap:16px;margin:0 0 24px}
+.home-panel{padding:22px}
+.home-panel>p{font-size:13px;line-height:1.6;color:#637568}
+.home-activity-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #edf2ee}
+.home-activity-row:last-child{border-bottom:none}
+.home-activity-row strong{display:block;font-size:12px;color:#213b2b;overflow-wrap:anywhere}.home-activity-row small{display:block;font-size:11px;color:#7a8b80;margin-top:4px}
+.home-activity-end{display:flex;align-items:flex-end;flex-direction:column;gap:6px;flex-shrink:0}
+.home-backup-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+@media(max-width:1150px){.home-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.home-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.home-new-hero{padding:24px;align-items:flex-start;flex-direction:column}.home-hero-actions{align-items:flex-start}.home-bottom-grid{grid-template-columns:1fr}.home-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:470px){.home-metrics,.home-quick-grid{grid-template-columns:1fr}.home-new-hero h2{font-size:28px}}
+
 </style>
 </head>
 <body>
@@ -670,7 +711,47 @@ function extraModuleIcon(icon,color){const shapes={ 'clipboard-check':'<rect x="
 function moduleHub(){return '<div class="module-hub-intro"><h2>Additional H&S modules</h2><p>New record-keeping areas for Onboard Corrugated. These are local registers, not live staff tracking, electronic approvals or notifications.</p></div><div class="module-hub">'+extraModuleDetails.filter(m=>!['jobs','attendance','diary','cards'].includes(m.id)).map(m=>'<button type="button" class="module-tile" data-nav="'+m.id+'">'+extraModuleIcon(m.icon,m.color)+'<span class="module-tile-copy"><strong>'+m.name+'</strong><span>'+m.subtitle+'</span><small>'+(pinRestricted(m.id)?'🔒 PIN protected':db[m.id].length+' records')+'</small></span><span class="module-arrow" aria-hidden="true">›</span></button>').join('')+'</div>'}
 function portalModules(){return '<div class="portal-modules" role="group" aria-label="Safety modules">'+[['home','Overview'],['risk','Risk Assessments'],['ssow','Safe Systems of Work'],['incidents','Incidents'],['training','Training'],['ppeStock','PPE'],['assets','Assets'],['permits','Permits to Work']].map(([k,label])=>'<button type="button" class="portal-module '+(section===k||section==='ppe'&&k==='ppeStock'?'active':'')+'" data-nav="'+k+'">'+label+'</button>').join('')+'</div>'}
 function portalSummary(){const review=[...(pinRestricted('risk')?[]:db.risk),...(pinRestricted('ssow')?[]:db.ssow)];const late=review.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;const soon=review.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;const open=pinRestricted('incidents')?'🔒':db.incidents.filter(r=>r.status!=='Closed').length;const actionStats=pinRestricted('incidents')?{open:'🔒',overdue:false}:incidentActionCounts();const cells=[['Open actions',actionStats.open,'Incident corrective actions awaiting verification',actionStats.overdue?'danger':'warning'],['Open incidents',open,'Incident records needing attention','danger'],['Overdue reviews',late,'Risk assessments and SSOWs','warning'],['Reviews due soon',soon,'Within the next 30 days','info'],['Training records',pinRestricted('training')?'🔒':db.training.length,'Employee training evidence','good']];return '<div class="portal-intro"><h2>Safety performance overview</h2><span class="muted">Based on records stored in this browser</span></div><div class="portal-kpis">'+cells.map(([name,value,detail,tone])=>'<div class="portal-kpi '+tone+'"><span class="kpi-caption">'+name+'</span><strong class="kpi-number">'+value+'</strong><span class="kpi-foot">'+detail+'</span></div>').join('')+'</div>'}
-function homeHTML(){const counts=[['Risk Assessments',pinRestricted('risk')?'🔒':db.risk.length,'Assessment records','◈','risk'],['Safe Systems of Work',pinRestricted('ssow')?'🔒':db.ssow.length,'Procedures recorded','▤','ssow'],['Outstanding Actions',pinRestricted('incidents')?'🔒':outstanding(),'Items needing attention','!','incidents'],['Training Records',pinRestricted('training')?'🔒':db.training.length,'Employee training evidence','▤','training'],['PPE Items',pinRestricted('ppeStock')?'🔒':db.ppeStock.length,'Site PPE inventory','♧','ppeStock'],['Assets',pinRestricted('assets')?'🔒':db.assets.length,'Registered equipment','▣','assets']];const all=[...(pinRestricted('risk')?[]:db.risk).map(r=>({name:r.title,kind:'Risk assessment',status:r.status,date:r.reviewDate})),...(pinRestricted('ssow')?[]:db.ssow).map(r=>({name:r.machine,kind:'SSOW',status:r.status,date:r.reviewDate})),...(pinRestricted('incidents')?[]:db.incidents).map(r=>({name:r.location,kind:r.type,status:r.status,date:r.date})),...(pinRestricted('assets')?[]:db.assets).map(r=>({name:r.name,kind:'Asset',status:r.status,date:r.inspectionDate}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);return `${portalSummary()}<section class="home-hero"><div class="home-hero-copy"><span class="hero-tag">YOUR SAFETY WORKSPACE</span><h2>Everything safety, in one place.</h2><p>Manage assessments, safe systems of work, training and equipment records from one organised workspace.</p></div><div class="hero-meta"><span class="hero-meta-dot"></span><span>Onboard Corrugated</span><small>Local H&S management</small></div></section>${reviewReminderPanel()}<div class="cards">${counts.map(([n,v,h,i,k])=>`<div class="card"><span class="icon">${i}</span><div class="label">${n}</div><div class="value">${v}</div><div class="hint">${h}</div><button type="button" class="btn small" style="margin-top:15px" data-nav="${k}">View register</button></div>`).join('')}</div><div class="overview-grid"><section class="panel"><div class="section-title"><h2>Recent activity</h2></div>${all.length?all.map(r=>`<div class="recent-item"><div><b>${esc(r.name)}</b><span class="muted">${esc(r.kind)} · ${dateFmt(r.date)}</span></div>${statusHTML(r.status)}</div>`).join(''):'<p class="empty">No records yet.</p>'}</section><section class="panel"><div class="section-title"><h2>Getting started</h2></div><div class="callout"><strong>Welcome to your local dashboard</strong>These records are fictional examples. Choose any register to add, edit or delete entries. Everything stays on this PC unless you export a backup. Small documents can be attached to individual records.</div><h2 style="margin:22px 0 13px">Backup &amp; data tools</h2><div class="utility"><button type="button" class="btn" data-action="export">⬇ Export backup</button><button type="button" class="btn" data-action="import">⬆ Import backup</button><button type="button" class="btn danger" data-action="reset">Reset to examples</button></div><p class="muted" style="margin-top:15px">Export regularly. Uninstalling and reinstalling normally retains saved records, but back up before updates or moving PCs. Backups include attachments; keep your own copies of all original documents. Open attached PDFs, images and text files directly. DOCX has a basic text preview; older DOC and Excel files still require their normal programs. Files must be under 15 MB each and total attachment storage is limited to 200 MB.</p></section></div>`}
+function homeHTML(){
+ const locked=k=>pinRestricted(k);
+ const reviews=[...(locked('risk')?[]:db.risk),...(locked('ssow')?[]:db.ssow)];
+ const overdue=reviews.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
+ const due=reviews.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
+ const openIncidents=locked('incidents')?'🔒':db.incidents.filter(r=>r.status!=='Closed').length;
+ const actionStats=locked('incidents')?null:incidentActionCounts();
+ const overdueValue=locked('risk')||locked('ssow')?'🔒':overdue;
+ const dueValue=locked('risk')||locked('ssow')?'🔒':due;
+ const stats=[
+  ['Open corrective actions',actionStats?actionStats.open:'🔒','incident actions awaiting verification','incidents','amber'],
+  ['Overdue reviews',overdueValue,'Risk assessments and SSOW','risk','red'],
+  ['Reviews due soon',dueValue,'Within the next 30 days','ssow','blue'],
+  ['Open incidents',openIncidents,'Incidents requiring attention','incidents','green']
+ ];
+ const tiles=[
+  ['Risk assessments','risk',locked('risk')?'🔒':db.risk.length,'Assess and control hazards','◈'],
+  ['Safe systems of work','ssow',locked('ssow')?'🔒':db.ssow.length,'Machine and task procedures','▤'],
+  ['Training records','training',locked('training')?'🔒':db.training.length,'Competence and certificates','▥'],
+  ['PPE inventory','ppeStock',locked('ppeStock')?'🔒':db.ppeStock.length,'Stock and issue records','◇'],
+  ['Asset register','assets',locked('assets')?'🔒':db.assets.length,'Equipment and manuals','▣'],
+  ['Incident register','incidents',locked('incidents')?'🔒':db.incidents.length,'Investigations and actions','⚑']
+ ];
+ const recent=[
+  ...(locked('risk')?[]:db.risk).map(r=>({name:r.title,kind:'Risk assessment',status:r.status,date:r.reviewDate,k:'risk'})),
+  ...(locked('ssow')?[]:db.ssow).map(r=>({name:r.machine,kind:'SSOW',status:r.status,date:r.reviewDate,k:'ssow'})),
+  ...(locked('incidents')?[]:db.incidents).map(r=>({name:r.location,kind:'Incident',status:r.status,date:r.date,k:'incidents'})),
+  ...(locked('assets')?[]:db.assets).map(r=>({name:r.name,kind:'Asset',status:r.status,date:r.inspectionDate,k:'assets'}))
+ ].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,6);
+ const safeCount=stats.map(([name,value,detail,k,tone])=>'<div class="home-metric '+tone+'"><div class="home-metric-caption">'+esc(name)+'</div><strong>'+esc(String(value))+'</strong><p>'+esc(detail)+'</p><button type="button" data-nav="'+k+'" class="home-text-action">View records →</button></div>').join('');
+ const quick=tiles.map(([name,k,value,hint,symbol])=>'<button type="button" class="home-quick-tile" data-nav="'+k+'"><span class="home-quick-symbol" aria-hidden="true">'+symbol+'</span><span class="home-quick-copy"><strong>'+esc(name)+'</strong><small>'+esc(hint)+'</small></span><span class="home-quick-count">'+esc(String(value))+'</span></button>').join('');
+ const activity=recent.length?recent.map(r=>'<div class="home-activity-row"><div><strong>'+esc(r.name||'Untitled')+'</strong><small>'+esc(r.kind)+' · '+dateFmt(r.date)+'</small></div><div class="home-activity-end">'+statusHTML(r.status)+'<button type="button" class="home-text-action" data-nav="'+r.k+'">Open →</button></div></div>').join(''):'<p class="empty">No recent records in unlocked sections.</p>';
+ return '<div class="home-redesign"><section class="home-new-hero"><div><span class="home-eyebrow">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><h2>Safety overview</h2><p>Your workplace safety records, priorities and review dates in one clear workspace.</p></div><div class="home-hero-actions"><span class="home-local-pill">● Local desktop dashboard</span><button type="button" class="btn primary" data-nav="risk">Open risk assessments</button></div></section>'+
+ '<div class="home-heading-row"><div><h2>Needs attention</h2><p>Live counts from your registers — not a substitute for checking the underlying records.</p></div></div>'+
+ '<div class="home-metrics">'+safeCount+'</div>'+
+ '<div class="home-heading-row"><div><h2>Quick access</h2><p>Jump straight to the records you use most.</p></div></div>'+
+ '<div class="home-quick-grid">'+quick+'</div>'+
+ '<div class="home-heading-row"><div><h2>Review schedule</h2><p>Upcoming and overdue RA and SSOW reviews.</p></div></div>'+reviewReminderPanel()+
+ '<div class="home-bottom-grid"><section class="panel home-panel"><div class="section-title"><h2>Record highlights</h2><span class="muted">Latest dated entries</span></div>'+activity+'</section>'+
+ '<section class="panel home-panel"><div class="section-title"><h2>Data &amp; backups</h2></div><p>Keep a current backup of your safety records and attachments before significant changes.</p><div class="home-backup-actions"><button type="button" class="btn primary" data-action="export">Export backup</button><button type="button" class="btn" data-nav="backup">Backup settings</button></div><p class="muted">Your records are stored locally on this PC. Keep separately controlled originals of signed H&amp;S documents.</p></section></div></div>';
+}
 function statusOptions(k){const field=k==='ppe'?'claimStatus':'status';const definition=config[k]?.fields.find(([name])=>name===field);return definition?.[4]||[]}
 const factoryAuditTemplates={
 'Housekeeping & Walkways':['Walkways, pedestrian routes and fire routes kept clear','Floors free of slips, trips, offcuts and spillages','Waste and cardboard stored safely without accumulation','Storage stacks stable and within designated areas','Lighting and access routes adequate'],
