@@ -63,3 +63,16 @@ test('newer update requires approval before launch',async()=>{
   assert.equal(x.installed(),path.join(x.dir,x.file));
  }finally{x.cleanup()}
 });
+
+test('downloaded GitHub update installs without configuring Z drive',async()=>{
+ const x=setup();
+ try{
+  const first=await x.updates.checkFromFolder(x.dir,true);
+  assert.equal(first.availableVersion,'4.9.3');
+  assert.equal(first.enabled,false);
+  assert.equal(x.installed(),null);
+  x.reply(0);
+  await x.updates.checkFromFolder(x.dir,true);
+  assert.equal(x.installed(),path.join(x.dir,x.file));
+ }finally{x.cleanup()}
+});
