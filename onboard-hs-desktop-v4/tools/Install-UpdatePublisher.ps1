@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 $target=Join-Path $targetDir 'Publish-PrivateUpdate.ps1'
 Copy-Item -LiteralPath $source -Destination $target -Force
 $task='Onboard H&S Private Update Publisher'
-$action="powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$target`" -UpdateFolder `"$UpdateFolder`""
+$action="powershell.exe -NoProfile -NonInteractive -File `"$target`" -UpdateFolder `"$UpdateFolder`""
 & schtasks.exe /Create /F /SC HOURLY /MO 1 /TN $task /TR $action
 if($LASTEXITCODE -ne 0){throw 'Windows Task Scheduler could not register the publisher task. Ask IT for permission.'}
 Write-Host 'Hourly private update publication task installed.' -ForegroundColor Green
