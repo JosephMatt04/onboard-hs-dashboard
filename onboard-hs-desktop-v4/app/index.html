@@ -1868,13 +1868,13 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  z-index:2;
  width:220px;height:90px;
  max-width:none;
- right:-240px;bottom:7px;
+ left:-240px;bottom:7px;
  color:#d7e4dc;
  filter:drop-shadow(0 4px 4px rgba(10,20,23,.24));
  transform:translateX(0);
 }
 .risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .transport-scene-truck{
- animation:onboardTruckDrive 6s linear infinite!important;
+ animation:onboardTruckDrive 4s linear infinite!important;
 }
 .risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .transport-scene-road-lines{
  animation:onboardRoadMove 2s linear infinite!important;
@@ -1884,8 +1884,8 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  animation:onboardTruckWheels 1.2s linear infinite!important;
 }
 @keyframes onboardTruckDrive{
- from{transform:translateX(0)}
- to{transform:translateX(calc(-100vw - 260px))}
+ from{left:-240px}
+ to{left:calc(100% + 10px)}
 }
 @keyframes onboardRoadMove{
  from{transform:translateX(0)}
@@ -1902,7 +1902,7 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
 }
 @media(prefers-reduced-motion:reduce){
  .risk-category-chip[data-category-theme="transport"] .transport-scene-truck{
-  right:12px;bottom:5px;transform:none!important;animation:none!important
+  left:auto;right:12px;bottom:5px;transform:none!important;animation:none!important
  }
  .risk-category-chip[data-category-theme="transport"] .transport-scene-road-lines,
  .risk-category-chip[data-category-theme="transport"] .transport-wheel{animation:none!important}
