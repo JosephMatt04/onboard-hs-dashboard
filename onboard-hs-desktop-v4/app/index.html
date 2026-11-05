@@ -705,10 +705,12 @@ function privateUpdateHTML(){if(!window.onboardDesktop?.chooseUpdateFolder)retur
 function bindGithubUpdates(){
  if(!window.onboardDesktop?.checkGithubUpdates)return;
  const label=document.getElementById('github-update-status');
- const show=s=>{if(label)label.textContent=s.lastError||s.detail||'No update information';};
- window.onboardDesktop.githubUpdateStatus().then(show).catch(e=>{if(label)label.textContent=e.message});
+ const show=s=>{if(label)label.textContent=s?.lastError||s?.detail||'No update information';};
+ let manualStarted=false;
+ window.onboardDesktop.githubUpdateStatus().then(s=>{if(!manualStarted)show(s)}).catch(e=>{if(label&&!manualStarted)label.textContent=e.message});
  const button=document.getElementById('check-github-updates');
  if(button)button.onclick=async()=>{
+  manualStarted=true;
   button.disabled=true;
   const originalText=button.textContent;
   button.textContent='Checking GitHub…';
@@ -837,7 +839,8 @@ root.querySelector('#ptw-cancel').onclick=closeModal;root.querySelector('#ptw-fo
 function incidentActionCounts(){
  const actions=db.incidents.flatMap(r=>Array.isArray(r.correctiveActions)?r.correctiveActions:[]);
  const open=actions.filter(a=>a.status!=='Verified Closed');
- const today=new Date().toISOString().slice(0,10);
+ const now=new Date();
+ const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
  return {total:actions.length,open:open.length,overdue:open.filter(a=>a.dueDate&&a.dueDate<today).length};
 }
 function incidentActionSummary(){
