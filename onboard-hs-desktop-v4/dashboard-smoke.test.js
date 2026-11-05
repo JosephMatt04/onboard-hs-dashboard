@@ -77,3 +77,24 @@ test('new section-specific record fields and save preserve array structure',()=>
  assert.equal(getWrites(),1);
  assert.equal(dashboard.db.sites.at(-1).name,'Test site');
 });
+
+test('futuristic homepage renders all operational shortcuts and priority metrics',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('home');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('Safety overview'));
+ assert.equal((page.match(/class="home-quick-tile"/g)||[]).length,6);
+ assert.equal((page.match(/class="home-metric /g)||[]).length,4);
+ for(const section of ['risk','ssow','training','ppeStock','assets','incidents']){
+  assert.ok(page.includes('data-nav="'+section+'"'),section);
+ }
+});
+test('homepage hides locked risk record names and counts',()=>{
+ const {dashboard,elem}=harness({locked:true,sections:['risk','ssow','incidents','training','ppeStock','assets']});
+ dashboard.db.risk.push({id:'secret-test',title:'SECRET_MACHINE_REFERENCE',status:'Draft',reviewDate:'2020-01-01'});
+ dashboard.go('home');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('🔒'));
+ assert.ok(!page.includes('SECRET_MACHINE_REFERENCE'));
+ assert.ok(!page.includes('2020-01-01'));
+});
