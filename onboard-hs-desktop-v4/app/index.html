@@ -1843,6 +1843,71 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  opacity:0!important;animation:none!important
 }
 
+
+/* Vehicles & Transport: smooth, entirely offline HGV motion. No streamed footage. */
+.risk-category-chip[data-category-theme="transport"] .risk-chip-microfx{
+ opacity:0;
+ background:linear-gradient(145deg,#364b4d,#465b5b)!important;
+}
+.risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .risk-chip-microfx{
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+}
+.risk-category-chip[data-category-theme="transport"] .transport-scene-road{
+ position:absolute;left:0;right:0;bottom:0;height:30%;
+ background:linear-gradient(180deg,#586467 0%,#404b4d 100%);
+ border-top:2px solid #91a39e;
+}
+.risk-category-chip[data-category-theme="transport"] .transport-scene-road-lines{
+ position:absolute;left:-100%;bottom:14%;width:200%;height:3px;
+ background:repeating-linear-gradient(90deg,#e5e0b7 0 34px,transparent 34px 65px);
+ opacity:.9;
+}
+.risk-category-chip[data-category-theme="transport"] .transport-scene-truck{
+ position:absolute;
+ z-index:2;
+ width:220px;height:90px;
+ max-width:none;
+ left:-240px;bottom:7px;
+ color:#d7e4dc;
+ filter:drop-shadow(0 4px 4px rgba(10,20,23,.24));
+ transform:translateX(0);
+}
+.risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .transport-scene-truck{
+ animation:onboardTruckDrive 4s linear infinite!important;
+}
+.risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .transport-scene-road-lines{
+ animation:onboardRoadMove 2s linear infinite!important;
+}
+.risk-category-chip[data-category-theme="transport"]:is(:hover,:focus-visible) .transport-wheel{
+ transform-box:fill-box;transform-origin:center;
+ animation:onboardTruckWheels 1.2s linear infinite!important;
+}
+@keyframes onboardTruckDrive{
+ from{left:-240px}
+ to{left:calc(100% + 10px)}
+}
+@keyframes onboardRoadMove{
+ from{transform:translateX(0)}
+ to{transform:translateX(65px)}
+}
+@keyframes onboardTruckWheels{
+ from{transform:rotate(0deg)}
+ to{transform:rotate(-360deg)}
+}
+.risk-category-chip[data-category-theme="transport"] .risk-category-name,
+.risk-category-chip[data-category-theme="transport"] .risk-category-count,
+.risk-category-chip[data-category-theme="transport"] .risk-category-pictogram{
+ position:relative;z-index:4!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .risk-category-chip[data-category-theme="transport"] .transport-scene-truck{
+  left:auto;right:12px;bottom:5px;transform:none!important;animation:none!important
+ }
+ .risk-category-chip[data-category-theme="transport"] .transport-scene-road-lines,
+ .risk-category-chip[data-category-theme="transport"] .transport-wheel{animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -2200,7 +2265,7 @@ const RISK_CATEGORY_THEMES={
  'Other':['other','✧'],
  'Uncategorised':['uncategorised','?']
 };
-const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<span class=\"ecg-grid\"></span><span class=\"ecg-trace\"><svg viewBox=\"0 0 480 80\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M0 48 H60 L76 48 L88 31 L105 72 L122 11 L139 48 H190 L207 48 L220 30 L236 70 L253 12 L269 48 H318 L336 48 L350 30 L368 72 L384 12 L402 48 H480\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></span>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
+const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<span class=\"transport-scene-road\" aria-hidden=\"true\"></span><span class=\"transport-scene-road-lines\" aria-hidden=\"true\"></span><svg class=\"transport-scene-truck\" viewBox=\"0 0 260 105\" width=\"260\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><ellipse cx=\"127\" cy=\"91\" rx=\"117\" ry=\"7\" fill=\"#0b1216\" opacity=\".24\"/><path d=\"M12 22H174V78H12Z\" fill=\"#AAB9B7\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M17 26H166V70H17Z\" fill=\"#879B9C\"/><path d=\"M18 28V67M34 28V67M151 28V67\" stroke=\"#BBCBC8\" stroke-width=\"2\" opacity=\".55\"/><path d=\"M174 41H216L247 60V78H174Z\" fill=\"#C7D5D1\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M184 46H212L229 58H184Z\" fill=\"#334E59\"/><path d=\"M235 70H246V76H235Z\" fill=\"#EDEAC5\"/><path d=\"M9 78H250V84H9Z\" fill=\"#3F555A\"/><g class=\"transport-wheel\"><circle cx=\"56\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"56\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M56 76V92M48 84H64\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"88\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"88\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M88 76V92M80 84H96\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"216\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"216\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M216 76V92M208 84H224\" stroke=\"#52686A\" stroke-width=\"2\"/></g></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<span class=\"ecg-grid\"></span><span class=\"ecg-trace\"><svg viewBox=\"0 0 480 80\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M0 48 H60 L76 48 L88 31 L105 72 L122 11 L139 48 H190 L207 48 L220 30 L236 70 L253 12 L269 48 H318 L336 48 L350 30 L368 72 L384 12 L402 48 H480\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></span>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
 /* Licensed Pexels video footage — loaded only when the user hovers/focuses a chip.
    A cached local clip can replace any URL later; CSS scenes always remain as fallback.
    Footage requires internet and may be blocked on company networks. */
@@ -2215,12 +2280,11 @@ const RISK_CATEGORY_VIDEO_FILES={
  other:'https://www.pexels.com/download/video/35451867/',
  plant:'https://www.pexels.com/download/video/10040029/',
  premises:'https://www.pexels.com/download/video/3044904/',
- transport:'https://www.pexels.com/download/video/39966866/',
  uncategorised:'https://www.pexels.com/download/video/38707991/',
  custom:'https://www.pexels.com/download/video/35451867/'
 };
 function riskCategoryVideoHTML(theme){
- const source=theme==='health'?null:(RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom);
+ const source=(theme==='health'||theme==='transport')?null:(RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom);
  if(!source)return '';
  return '<span class="risk-chip-video-layer" aria-hidden="true"><video class="risk-chip-video" muted loop playsinline preload="none" tabindex="-1" disablepictureinpicture data-risk-video="'+theme+'"><source src="'+source+'" type="video/mp4"></video><span class="risk-chip-video-tint"></span></span>';
 }

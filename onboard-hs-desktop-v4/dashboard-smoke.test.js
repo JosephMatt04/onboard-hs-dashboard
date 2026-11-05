@@ -242,8 +242,8 @@ test('risk assessment categories offer real footage on hover while retaining off
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
- for(const category of ['electrical','fire','transport','plant','chemical','handling','height','premises','all','other','uncategorised'])
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
+ for(const category of ['electrical','fire','plant','chemical','handling','height','premises','all','other','uncategorised'])
   assert.ok(page.includes('data-risk-video="'+category+'"'),category);
  assert.ok(page.includes('https://www.pexels.com/download/video/'));
  assert.ok(page.includes('type="video/mp4"'));
@@ -269,7 +269,7 @@ test('minimal video-first risk category tabs use a proper lightning bolt and pre
  const page=elem('content').innerHTML;
  assert.ok(page.includes('class="risk-bolt-icon"'));
  assert.ok(page.includes('viewBox="0 0 24 24"'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
  dashboard.setRiskCategory('Electrical Safety');
  assert.ok(elem('tbody').innerHTML.includes('Electrical assessment check'));
@@ -288,7 +288,7 @@ test('electrical uses lightning footage while occupational health moves sideways
  assert.ok(page.includes('class="ecg-grid"'));
  assert.ok(html.includes('ecgTravelAcross'));
  assert.ok(html.includes('risk-category-chip[data-category-theme="health"]'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
 });
 
 test('occupational health animated ECG remains visible independently of network video playback',()=>{
@@ -387,7 +387,7 @@ test('category media remain lazy, offline-safe and accessible from keyboard focu
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
  assert.ok(page.includes('preload="none"'));
  assert.ok(page.includes('muted loop playsinline'));
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
@@ -491,16 +491,21 @@ test('charcoal theme overrides legacy white surfaces across every module and eve
  }
  dashboard.go('risk');
  assert.equal((elem('content').innerHTML.match(/class="risk-category-chip themed/g)||[]).length,12);
- assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,10);
 });
 
-test('Vehicles & Transport uses professional warehouse loading footage rather than the old road clip',()=>{
+test('Vehicles & Transport shows offline animated HGV with no external video request',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('data-risk-video="transport"'));
- assert.ok(page.includes('https://www.pexels.com/download/video/39966866/'));
- assert.ok(!page.includes('https://www.pexels.com/download/video/4356074/'));
- assert.ok(page.includes('class="risk-chip-microfx"'));
- assert.ok(html.includes('risk-category-chip[data-category-theme="transport"] .risk-chip-video'));
+ assert.ok(page.includes('data-category-theme="transport"'));
+ assert.ok(page.includes('class="transport-scene-truck"'));
+ assert.ok(page.includes('class="transport-scene-road"'));
+ assert.ok(page.includes('class="transport-wheel"'));
+ assert.ok(!page.includes('data-risk-video="transport"'));
+ assert.ok(!page.includes('https://www.pexels.com/download/video/39966866/'));
+ assert.ok(html.includes('@keyframes onboardTruckDrive'));
+ assert.ok(html.includes('@keyframes onboardRoadMove'));
+ assert.ok(html.includes('@keyframes onboardTruckWheels'));
+ assert.ok(html.includes('prefers-reduced-motion:reduce'));
 });
