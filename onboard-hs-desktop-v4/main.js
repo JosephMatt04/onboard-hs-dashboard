@@ -149,7 +149,9 @@ app.whenReady().then(() => {
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
   app.on('web-contents-created', (_e, wc) => {wc.on('will-attach-webview',e=>e.preventDefault());});
   createWindow();
-  githubUpdates.start(); // GitHub is primary; the original Z: folder updater stays available manually.
+  // Interface updates now use the explicit Refresh dashboard button. Keep the
+  // full Windows installer updater available on demand for native/runtime changes,
+  // without offering installers for routine interface-only releases.
   ipcMain.handle('github-updates:status',()=>githubUpdates.status());
   ipcMain.handle('live-ui:status',()=>liveUiUpdates.status());
   ipcMain.handle('live-ui:refresh',()=>liveUiUpdates.refresh());
