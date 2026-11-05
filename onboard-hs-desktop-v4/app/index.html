@@ -820,7 +820,7 @@ a{color:#22885e}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-t
 
 /* v4.12.3: optional offline WebM footage for Risk Assessment category chip backgrounds */
 .risk-category-chip.themed .risk-chip-video-layer{position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .35s ease}
-.risk-category-chip.themed .risk-chip-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:saturate(1.2) contrast(1.1)}
+.risk-category-chip.themed .risk-chip-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:saturate(1.4) contrast(1.2)}
 .risk-category-chip.themed .risk-chip-video-tint{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.96),rgba(255,255,255,.74) 52%,rgba(255,255,255,.26));pointer-events:none}
 .risk-category-chip.themed.risk-video-playing .risk-chip-video-layer{opacity:1}
 .risk-category-chip.themed.risk-video-playing .risk-chip-microfx{opacity:0!important}
@@ -1180,10 +1180,28 @@ const RISK_CATEGORY_THEMES={
  'Uncategorised':['uncategorised','?']
 };
 const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">ϟ</i><i class=\"fx-bolt two\">ϟ</i><i class=\"fx-bolt three\">ϟ</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<svg class=\"fx-heart\" viewBox=\"0 0 210 36\" preserveAspectRatio=\"none\"><path d=\"M0 21H52L63 21 71 9 82 31 92 15 99 21H210\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
-const RISK_CATEGORY_VIDEO_FILES={electrical:'assets/risk-videos/electric-loop.webm',fire:'assets/risk-videos/fire-loop.webm',transport:'assets/risk-videos/lorry-loop.webm',plant:'assets/risk-videos/gears-loop.webm'};
+/* Licensed Pexels video footage — loaded only when the user hovers/focuses a chip.
+   A cached local clip can replace any URL later; CSS scenes always remain as fallback.
+   Footage requires internet and may be blocked on company networks. */
+const RISK_CATEGORY_VIDEO_FILES={
+ all:'https://www.pexels.com/download/video/38707991/',
+ chemical:'https://www.pexels.com/download/video/10187920/',
+ electrical:'https://www.pexels.com/download/video/14459264/',
+ fire:'https://www.pexels.com/download/video/30796588/',
+ handling:'https://www.pexels.com/download/video/4292580/',
+ health:'https://www.pexels.com/download/video/855944/',
+ height:'https://www.pexels.com/download/video/3078521/',
+ other:'https://www.pexels.com/download/video/35451867/',
+ plant:'https://www.pexels.com/download/video/10040029/',
+ premises:'https://www.pexels.com/download/video/3044904/',
+ transport:'https://www.pexels.com/download/video/4356074/',
+ uncategorised:'https://www.pexels.com/download/video/38707991/',
+ custom:'https://www.pexels.com/download/video/35451867/'
+};
 function riskCategoryVideoHTML(theme){
- const file=RISK_CATEGORY_VIDEO_FILES[theme];if(!file)return '';
- return '<span class="risk-chip-video-layer" aria-hidden="true"><video class="risk-chip-video" muted loop playsinline preload="none" tabindex="-1" disablepictureinpicture data-risk-video="'+theme+'"><source src="'+file+'" type="video/webm"></video><span class="risk-chip-video-tint"></span></span>';
+ const source=RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom;
+ if(!source)return '';
+ return '<span class="risk-chip-video-layer" aria-hidden="true"><video class="risk-chip-video" muted loop playsinline preload="none" tabindex="-1" disablepictureinpicture data-risk-video="'+theme+'"><source src="'+source+'" type="video/mp4"></video><span class="risk-chip-video-tint"></span></span>';
 }
 function bindRiskCategoryVideos(){
  if(section!=='risk')return;
@@ -1211,7 +1229,7 @@ function riskCategoryPanel(){
  const [theme,symbol]=RISK_CATEGORY_THEMES[name]||['custom','✦'];
  const selected=riskCategoryFilter===name;
  return '<button type="button" class="risk-category-chip themed'+(selected?' active':'')+'" data-risk-category="'+esc(name)+'" data-category-theme="'+theme+'" aria-pressed="'+selected+'"><span class="risk-chip-microfx" aria-hidden="true">'+(RISK_CHIP_SCENES[theme]||RISK_CHIP_SCENES.custom)+'</span>'+riskCategoryVideoHTML(theme)+'<span class="risk-category-pictogram" aria-hidden="true">'+symbol+'</span><span class="risk-category-name">'+esc(name)+'</span><b class="risk-category-count">'+(name==='All'?db.risk.length:(counts.get(name)||0))+'</b></button>';
- }).join('')+'</div><p class="file-tip">Select a category when adding or editing an assessment. You can type a new category name to create your own. Older records remain Uncategorised until you assign them.</p></section>';
+ }).join('')+'</div><p class="file-tip">Select a category when adding or editing an assessment. You can type a new category name to create your own. Older records remain Uncategorised until you assign them. Real footage previews play on hover when online; offline or blocked videos use the existing animated scenes.</p></section>';
 }
 function riskReviewStatusPanel(){
  const cases=[
