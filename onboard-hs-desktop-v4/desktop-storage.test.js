@@ -24,7 +24,7 @@ function storageFixture(){
   if(name==='./section-pin')return {createSectionPin:()=>({status:()=>({})})};
   throw Error('Unexpected require: '+name);
  };
- const context={require:req,Buffer,console,Date,Error,setImmediate,setTimeout,clearTimeout,process};
+ const context={require:req,__dirname,Buffer,console,Date,Error,setImmediate,setTimeout,clearTimeout,process};
  vm.createContext(context);
  vm.runInContext(main+'\nthis.storageTest={writeRecords,readRecords,chooseBackupFolder,backupNow,backupStatus}',context,{timeout:1000});
  return {...context.storageTest,root,backupFolder,cleanup:()=>fs.rmSync(root,{recursive:true,force:true})};
