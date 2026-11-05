@@ -82,7 +82,7 @@ test('futuristic homepage renders all operational shortcuts and priority metrics
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('home');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('Safety overview'));
+ assert.ok(page.includes('Health &amp; Safety<br>Control Centre'));
  assert.equal((page.match(/class="home-quick-tile"/g)||[]).length,6);
  assert.equal((page.match(/class="home-metric /g)||[]).length,4);
  for(const section of ['risk','ssow','training','ppeStock','assets','incidents']){
@@ -435,7 +435,8 @@ test('control centre homepage keeps live KPI cards, existing modules and safety 
  const page=elem('content').innerHTML;
  assert.ok(page.includes('Health &amp; Safety<br>Control Centre'));
  assert.ok(page.includes('What would you like to do?'));
- assert.equal((page.match(/class="control-module/g)||[]).length,8);
+ assert.equal((page.match(/class="control-module/g)||[]).length,0);
+ assert.equal((page.match(/class="portal-module /g)||[]).length,8);
  assert.ok(page.includes('class="control-centre-main-action" data-nav="risk"'));
  assert.ok(page.includes('data-action="add" data-section="risk"'));
  assert.ok(page.includes('data-nav="incidents"'));
@@ -446,4 +447,25 @@ test('control centre homepage keeps live KPI cards, existing modules and safety 
  assert.ok(page.includes('Export backup'));
  dashboard.go('risk');
  assert.ok(elem('content').innerHTML.includes('Assessment categories'));
+});
+
+test('workshop charcoal theme applies to entire dashboard without duplicate navigation',()=>{
+ const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
+ const palette=styles.slice(styles.indexOf('/* ONBOARD WORKSHOP / charcoal'));
+ assert.ok(palette.includes('--work-bg:#171d1f'));
+ assert.ok(palette.includes('--work-lime:#c5f322'));
+ for(const target of ['.side','.workspace-topbar','.home-redesign .home-metric','.home-redesign .home-quick-tile','.risk-category-chip.themed','.modal','.field',' th{',' td,','.control-centre-hero','.control-centre-command']){
+  assert.ok(palette.includes(target),target);
+ }
+ assert.ok(html.includes("let initialTheme='dark'"));
+ const {dashboard,elem}=harness({locked:false});
+ for(const section of ['home','risk','ssow','incidents','training','ppeStock','assets']){
+  dashboard.go(section);
+  assert.ok(elem('content').innerHTML.length>300,section);
+ }
+ dashboard.go('home');
+ const page=elem('content').innerHTML;
+ assert.equal((page.match(/class="control-module/g)||[]).length,0);
+ assert.equal((page.match(/class="portal-module /g)||[]).length,8);
+ assert.ok(page.includes('class="control-centre-main-action"'));
 });
