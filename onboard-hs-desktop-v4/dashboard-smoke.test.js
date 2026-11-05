@@ -312,3 +312,18 @@ test('Risk Assessment entry groups essentials and retains every underlying saved
  assert.ok(html.includes("for(const [f,,type]of config[k].fields"));
  assert.ok(html.includes('id="entry-form"'));
 });
+
+test('dashboard has a persistent light and dark appearance switch',()=>{
+ assert.ok(html.includes('id="theme-toggle"'));
+ assert.ok(html.includes("THEME_KEY='onboard_hs_appearance_v1'"));
+ assert.ok(html.includes('window.localStorage?.getItem(THEME_KEY)'));
+ assert.ok(html.includes('window.localStorage?.setItem(THEME_KEY'));
+ assert.ok(html.includes('data-theme="dark"'));
+ assert.ok(html.includes('body .modal'));
+ assert.ok(html.includes('body .risk-category-chip.themed'));
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ assert.ok(elem('content').innerHTML.includes('Assessment categories'));
+ dashboard.go('training');
+ assert.ok(elem('content').innerHTML.includes('Live register checks'));
+});
