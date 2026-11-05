@@ -428,3 +428,22 @@ test('dark mode covers remaining white dashboard metric, quick access and worksp
  assert.equal((page.match(/class="home-metric /g)||[]).length,4);
  assert.ok(page.includes('home-quick-tile'));
 });
+
+test('control centre homepage keeps live KPI cards, existing modules and safety actions',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('home');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('Health &amp; Safety<br>Control Centre'));
+ assert.ok(page.includes('What would you like to do?'));
+ assert.equal((page.match(/class="control-module/g)||[]).length,8);
+ assert.ok(page.includes('class="control-centre-main-action" data-nav="risk"'));
+ assert.ok(page.includes('data-action="add" data-section="risk"'));
+ assert.ok(page.includes('data-nav="incidents"'));
+ assert.equal((page.match(/class="home-metric /g)||[]).length,4);
+ assert.equal((page.match(/class="home-quick-tile"/g)||[]).length,6);
+ assert.ok(page.includes('Review schedule'));
+ assert.ok(page.includes('Record highlights'));
+ assert.ok(page.includes('Export backup'));
+ dashboard.go('risk');
+ assert.ok(elem('content').innerHTML.includes('Assessment categories'));
+});
