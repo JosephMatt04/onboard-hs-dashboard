@@ -1831,6 +1831,18 @@ html[data-theme="dark"] body ::-webkit-scrollbar-track{background:#21292b!import
 html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!important}
 /* Live video and the ECG line retain their effects; only their surrounding tile is dark. */
 
+
+/* Transport: grounded industrial HGV/warehouse loading footage, not a stylised truck effect.
+   Preserve the fallback when the online clip cannot be streamed. */
+.risk-category-chip[data-category-theme="transport"] .risk-chip-video{
+ filter:saturate(.85) contrast(1.07) brightness(.91)!important;
+ object-position:center 52%!important
+}
+.risk-category-chip[data-category-theme="transport"].risk-video-playing .fx-lorry,
+.risk-category-chip[data-category-theme="transport"].risk-video-playing .fx-road{
+ opacity:0!important;animation:none!important
+}
+
 </style>
 </head>
 <body>
@@ -2203,7 +2215,7 @@ const RISK_CATEGORY_VIDEO_FILES={
  other:'https://www.pexels.com/download/video/35451867/',
  plant:'https://www.pexels.com/download/video/10040029/',
  premises:'https://www.pexels.com/download/video/3044904/',
- transport:'https://www.pexels.com/download/video/4356074/',
+ transport:'https://www.pexels.com/download/video/39966866/',
  uncategorised:'https://www.pexels.com/download/video/38707991/',
  custom:'https://www.pexels.com/download/video/35451867/'
 };
