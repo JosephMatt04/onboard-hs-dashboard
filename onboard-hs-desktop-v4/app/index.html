@@ -1908,6 +1908,119 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  .risk-category-chip[data-category-theme="transport"] .transport-wheel{animation:none!important}
 }
 
+
+/* Unified offline risk animations: bespoke scenes across every category. */
+.risk-category-chip.themed .scene-art{
+ position:absolute;z-index:2;right:3%;top:0;
+ width:58%;height:100%;max-width:270px;
+ overflow:visible;pointer-events:none;
+ opacity:.94;
+ filter:drop-shadow(0 3px 5px rgba(4,14,15,.3));
+}
+.risk-category-chip.themed .risk-chip-microfx{
+ background:linear-gradient(105deg,#293537,#3a4b4a)!important;
+}
+.risk-category-chip.themed:is(:hover,:focus-visible) .risk-chip-microfx,
+.risk-category-chip.themed.active:is(:hover,:focus-visible) .risk-chip-microfx{
+ opacity:1!important;mix-blend-mode:normal!important;
+}
+.risk-category-chip.themed .risk-category-pictogram,
+.risk-category-chip.themed .risk-category-name,
+.risk-category-chip.themed .risk-category-count{
+ z-index:4!important;position:relative;
+}
+.risk-category-chip.themed .risk-category-name{
+ text-shadow:0 1px 3px #121b1d,0 0 6px #121b1d!important
+}
+.risk-category-chip.themed .risk-category-count{
+ box-shadow:0 1px 5px #0b1719c9!important
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-bolt{
+ animation:ocElectricalFlash 1.3s steps(1,end) infinite;
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-spark{
+ animation:ocSparkFlash .75s steps(1,end) infinite;
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-spark.b{animation-delay:-.32s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame{
+ transform-box:fill-box;transform-origin:center bottom;
+ animation:ocFlameDance 1.15s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame.left{animation-delay:-.6s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame.small{animation-delay:-.35s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-ember{
+ animation:ocEmberDrift 2s ease-out infinite;
+}
+.risk-category-chip[data-category-theme="plant"]:is(:hover,:focus-visible) .scene-gear-large{
+ transform-box:view-box;transform-origin:151px 57px;
+ animation:ocGearSpin 4s linear infinite;
+}
+.risk-category-chip[data-category-theme="plant"]:is(:hover,:focus-visible) .scene-gear-small{
+ transform-box:view-box;transform-origin:83px 80px;
+ animation:ocGearSpin 3s linear infinite reverse;
+}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble{
+ animation:ocBubbleRise 1.8s ease-in infinite;
+}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble.two{animation-delay:-.65s}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble.three{animation-delay:-1.2s}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-liquid{
+ animation:ocLiquidSway 1.6s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="handling"]:is(:hover,:focus-visible) .scene-lift-arrow{
+ animation:ocLiftArrow 1.7s ease-in-out infinite;
+}
+.risk-category-chip[data-category-theme="handling"]:is(:hover,:focus-visible) .scene-lift-hands{
+ animation:ocLiftHands 1.7s ease-in-out infinite;
+}
+.risk-category-chip[data-category-theme="height"]:is(:hover,:focus-visible) .scene-height-person{
+ animation:ocLadderClimb 2.8s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="premises"]:is(:hover,:focus-visible) .scene-warehouse-door{
+ animation:ocDoorRise 3.2s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="all"]:is(:hover,:focus-visible) .scene-overview-mark.a{
+ animation:ocCheckPulse 1.8s ease-out infinite;
+}
+.risk-category-chip[data-category-theme="all"]:is(:hover,:focus-visible) .scene-overview-mark.b{
+ animation:ocCheckPulse 1.8s ease-out infinite -.85s;
+}
+.risk-category-chip[data-category-theme="other"]:is(:hover,:focus-visible) .scene-other-wheel,
+.risk-category-chip[data-category-theme="custom"]:is(:hover,:focus-visible) .scene-custom-wheel{
+ transform-box:view-box;transform-origin:145px 55px;
+ animation:ocGearSpin 5.5s linear infinite;
+}
+.risk-category-chip[data-category-theme="other"]:is(:hover,:focus-visible) .scene-other-dot,
+.risk-category-chip[data-category-theme="custom"]:is(:hover,:focus-visible) .scene-custom-dot{
+ animation:ocCheckPulse 2s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="uncategorised"]:is(:hover,:focus-visible) .scene-question{
+ animation:ocQuestionPulse 1.7s ease-in-out infinite;
+}
+@keyframes ocElectricalFlash{0%,35%,65%,100%{opacity:1;filter:drop-shadow(0 0 3px #66c9ff)}36%,41%,67%,70%{opacity:.34;filter:none}}
+@keyframes ocSparkFlash{0%,20%,45%,100%{opacity:.1}21%,44%{opacity:1}}
+@keyframes ocFlameDance{from{transform:scaleX(.88) scaleY(.9) rotate(-3deg)}to{transform:scaleX(1.08) scaleY(1.07) rotate(4deg)}}
+@keyframes ocEmberDrift{from{transform:translateY(6px);opacity:0}30%{opacity:1}to{transform:translateY(-24px);opacity:0}}
+@keyframes ocGearSpin{to{transform:rotate(360deg)}}
+@keyframes ocBubbleRise{from{transform:translateY(16px) scale(.65);opacity:0}35%{opacity:1}to{transform:translateY(-42px) scale(1.14);opacity:0}}
+@keyframes ocLiquidSway{from{transform:translateY(2px) rotate(-1deg)}to{transform:translateY(-2px) rotate(1deg)}}
+@keyframes ocLiftArrow{0%,100%{transform:translateY(7px);opacity:.6}50%{transform:translateY(-8px);opacity:1}}
+@keyframes ocLiftHands{0%,100%{transform:translateY(5px)}50%{transform:translateY(-7px)}}
+@keyframes ocLadderClimb{from{transform:translateY(14px)}to{transform:translateY(-12px)}}
+@keyframes ocDoorRise{from{transform:translateY(0) scaleY(1)}to{transform:translateY(-34px) scaleY(.48)}}
+@keyframes ocCheckPulse{0%,100%{opacity:.6;transform:scale(.93)}50%{opacity:1;transform:scale(1.07)}}
+@keyframes ocQuestionPulse{0%,100%{opacity:.5;transform:translateY(2px)}50%{opacity:1;transform:translateY(-4px)}}
+@media(prefers-reduced-motion:reduce){
+ .risk-category-chip.themed .scene-art *,
+ .risk-category-chip.themed .ecg-trace svg,
+ .risk-category-chip.themed .transport-scene-truck,
+ .risk-category-chip.themed .transport-wheel,
+ .risk-category-chip.themed .transport-scene-road-lines{
+  animation:none!important;transition:none!important;
+ }
+ .risk-category-chip[data-category-theme="transport"] .transport-scene-truck{left:auto;right:12px!important}
+}
+
 </style>
 </head>
 <body>
@@ -2265,29 +2378,9 @@ const RISK_CATEGORY_THEMES={
  'Other':['other','✧'],
  'Uncategorised':['uncategorised','?']
 };
-const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<span class=\"transport-scene-road\" aria-hidden=\"true\"></span><span class=\"transport-scene-road-lines\" aria-hidden=\"true\"></span><svg class=\"transport-scene-truck\" viewBox=\"0 0 260 105\" width=\"260\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><ellipse cx=\"127\" cy=\"91\" rx=\"117\" ry=\"7\" fill=\"#0b1216\" opacity=\".24\"/><path d=\"M12 22H174V78H12Z\" fill=\"#AAB9B7\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M17 26H166V70H17Z\" fill=\"#879B9C\"/><path d=\"M18 28V67M34 28V67M151 28V67\" stroke=\"#BBCBC8\" stroke-width=\"2\" opacity=\".55\"/><path d=\"M174 41H216L247 60V78H174Z\" fill=\"#C7D5D1\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M184 46H212L229 58H184Z\" fill=\"#334E59\"/><path d=\"M235 70H246V76H235Z\" fill=\"#EDEAC5\"/><path d=\"M9 78H250V84H9Z\" fill=\"#3F555A\"/><g class=\"transport-wheel\"><circle cx=\"56\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"56\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M56 76V92M48 84H64\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"88\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"88\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M88 76V92M80 84H96\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"216\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"216\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M216 76V92M208 84H224\" stroke=\"#52686A\" stroke-width=\"2\"/></g></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<span class=\"ecg-grid\"></span><span class=\"ecg-trace\"><svg viewBox=\"0 0 480 80\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M0 48 H60 L76 48 L88 31 L105 72 L122 11 L139 48 H190 L207 48 L220 30 L236 70 L253 12 L269 48 H318 L336 48 L350 30 L368 72 L384 12 L402 48 H480\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></span>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
-/* Licensed Pexels video footage — loaded only when the user hovers/focuses a chip.
-   A cached local clip can replace any URL later; CSS scenes always remain as fallback.
-   Footage requires internet and may be blocked on company networks. */
-const RISK_CATEGORY_VIDEO_FILES={
- all:'https://www.pexels.com/download/video/38707991/',
- chemical:'https://www.pexels.com/download/video/10187920/',
- electrical:'https://www.pexels.com/download/video/29874792/',
- fire:'https://www.pexels.com/download/video/30796588/',
- handling:'https://www.pexels.com/download/video/4292580/',
- health:'https://www.pexels.com/download/video/855944/',
- height:'https://www.pexels.com/download/video/3078521/',
- other:'https://www.pexels.com/download/video/35451867/',
- plant:'https://www.pexels.com/download/video/10040029/',
- premises:'https://www.pexels.com/download/video/3044904/',
- uncategorised:'https://www.pexels.com/download/video/38707991/',
- custom:'https://www.pexels.com/download/video/35451867/'
-};
-function riskCategoryVideoHTML(theme){
- const source=(theme==='health'||theme==='transport')?null:(RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom);
- if(!source)return '';
- return '<span class="risk-chip-video-layer" aria-hidden="true"><video class="risk-chip-video" muted loop playsinline preload="none" tabindex="-1" disablepictureinpicture data-risk-video="'+theme+'"><source src="'+source+'" type="video/mp4"></video><span class="risk-chip-video-tint"></span></span>';
-}
+const RISK_CHIP_SCENES={"electrical":"<svg class=\"scene-art scene-electrical\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path class=\"scene-electric-halo\" d=\"M155 14L95 61h35l-13 37 68-60h-39l9-24Z\" fill=\"#153c66\" stroke=\"#56baff\" stroke-width=\"2\" opacity=\".34\"/><path class=\"scene-electric-bolt\" d=\"M159 8 103 61h34L123 103l66-65h-37L159 8Z\" fill=\"#d3edff\" stroke=\"#2b92ff\" stroke-width=\"3\"/><path class=\"scene-electric-spark a\" d=\"M191 18l14-7m-20 64 23 6M91 24 74 9\" stroke=\"#7ce2ff\" stroke-width=\"3\" stroke-linecap=\"round\"/><path class=\"scene-electric-spark b\" d=\"M204 48h20M96 85 80 96m-18-46 21 4\" stroke=\"#b9eeff\" stroke-width=\"3\" stroke-linecap=\"round\"/></svg>","fire":"<svg class=\"scene-art scene-fire\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path class=\"scene-fire-flame left\" d=\"M92 101C52 76 80 58 88 35c0 20 16 22 13 43 16-18 12-35 13-45 35 39 23 64 4 68Z\" fill=\"#e76a34\"/><path class=\"scene-fire-flame centre\" d=\"M116 105C81 78 111 61 117 23c20 29 13 33 22 47 9-10 12-23 10-37 40 45 18 70-10 72Z\" fill=\"#ffbb42\"/><path class=\"scene-fire-flame small\" d=\"M121 105c-10-14 10-26 12-47 22 25 23 35 9 47Z\" fill=\"#fff0a6\"/><g class=\"scene-fire-ember\"><circle cx=\"85\" cy=\"27\" r=\"3\" fill=\"#ffbb5e\"/><circle cx=\"155\" cy=\"15\" r=\"2\" fill=\"#ffd06d\"/><circle cx=\"175\" cy=\"58\" r=\"3\" fill=\"#ff9c56\"/></g></svg>","transport":"<span class=\"transport-scene-road\" aria-hidden=\"true\"></span><span class=\"transport-scene-road-lines\" aria-hidden=\"true\"></span><svg class=\"transport-scene-truck\" viewBox=\"0 0 260 105\" width=\"260\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><ellipse cx=\"127\" cy=\"91\" rx=\"117\" ry=\"7\" fill=\"#0b1216\" opacity=\".24\"/><path d=\"M12 22H174V78H12Z\" fill=\"#AAB9B7\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M17 26H166V70H17Z\" fill=\"#879B9C\"/><path d=\"M18 28V67M34 28V67M151 28V67\" stroke=\"#BBCBC8\" stroke-width=\"2\" opacity=\".55\"/><path d=\"M174 41H216L247 60V78H174Z\" fill=\"#C7D5D1\" stroke=\"#344A50\" stroke-width=\"2\"/><path d=\"M184 46H212L229 58H184Z\" fill=\"#334E59\"/><path d=\"M235 70H246V76H235Z\" fill=\"#EDEAC5\"/><path d=\"M9 78H250V84H9Z\" fill=\"#3F555A\"/><g class=\"transport-wheel\"><circle cx=\"56\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"56\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M56 76V92M48 84H64\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"88\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"88\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M88 76V92M80 84H96\" stroke=\"#52686A\" stroke-width=\"2\"/></g><g class=\"transport-wheel\"><circle cx=\"216\" cy=\"84\" r=\"14\" fill=\"#172429\"/><circle cx=\"216\" cy=\"84\" r=\"8\" fill=\"#AFC0BC\"/><path d=\"M216 76V92M208 84H224\" stroke=\"#52686A\" stroke-width=\"2\"/></g></svg>","plant":"<svg class=\"scene-art scene-plant\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"scene-gear-large\" style=\"transform-origin:151px 57px\"><circle cx=\"151\" cy=\"57\" r=\"29\" fill=\"#819c9b\" stroke=\"#b6c9c2\" stroke-width=\"4\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(0 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(36 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(72 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(108 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(144 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(180 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(216 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(252 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(288 151 57)\"/><rect x=\"145\" y=\"19\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(324 151 57)\"/><circle cx=\"151\" cy=\"57\" r=\"11.600000000000001\" fill=\"#25363a\"/><circle cx=\"151\" cy=\"57\" r=\"4.64\" fill=\"#c4d8d1\"/></g><g class=\"scene-gear-small\" style=\"transform-origin:83px 80px\"><circle cx=\"83\" cy=\"80\" r=\"18\" fill=\"#819c9b\" stroke=\"#b6c9c2\" stroke-width=\"4\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(0 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(36 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(72 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(108 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(144 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(180 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(216 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(252 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(288 83 80)\"/><rect x=\"77\" y=\"53\" width=\"12\" height=\"17\" rx=\"2\" fill=\"#b3c7c0\" transform=\"rotate(324 83 80)\"/><circle cx=\"83\" cy=\"80\" r=\"7.2\" fill=\"#25363a\"/><circle cx=\"83\" cy=\"80\" r=\"2.88\" fill=\"#c4d8d1\"/></g></svg>","chemical":"<svg class=\"scene-art scene-chemical\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path d=\"M115 12h47m-30 0v32l-39 47q-6 10 8 12h75q17-1 8-13l-37-46V12\" fill=\"none\" stroke=\"#c9c5e9\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path class=\"scene-liquid\" d=\"M103 88q22-7 36 1t36-2l9 13H96Z\" fill=\"#8978e0\" opacity=\".86\"/><circle class=\"scene-bubble one\" cx=\"131\" cy=\"86\" r=\"5\" fill=\"#ddd4ff\"/><circle class=\"scene-bubble two\" cx=\"155\" cy=\"93\" r=\"4\" fill=\"#f0eaff\"/><circle class=\"scene-bubble three\" cx=\"145\" cy=\"79\" r=\"3\" fill=\"#ddd4ff\"/></svg>","handling":"<svg class=\"scene-art scene-handling\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path d=\"M92 54h75v50H92Z\" fill=\"#ae966e\" stroke=\"#e9d4ab\" stroke-width=\"3\"/><path d=\"M128 54v50m-36-50 36-20 39 20\" fill=\"none\" stroke=\"#e9d4ab\" stroke-width=\"3\"/><path d=\"M104 69h18\" stroke=\"#6b5743\" stroke-width=\"3\"/><g class=\"scene-lift-arrow\"><path d=\"M190 87V24m-13 12 13-14 13 14\" stroke=\"#c7f465\" stroke-width=\"6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g><g class=\"scene-lift-hands\"><path d=\"M69 94V75q0-9 9-9h14M169 66h14q9 0 9 9v19\" fill=\"none\" stroke=\"#d5dce0\" stroke-width=\"7\" stroke-linecap=\"round\"/></g></svg>","height":"<svg class=\"scene-art scene-height\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path d=\"M113 103V12m66 91V12\" stroke=\"#c5cfce\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M113 24h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 34h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 44h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 54h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 64h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 74h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 84h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><path d=\"M113 94h66\" stroke=\"#809a9a\" stroke-width=\"5\"/><g class=\"scene-height-person\"><circle cx=\"145\" cy=\"48\" r=\"9\" fill=\"#eecb98\"/><path d=\"M132 60l17 4 7 22-20 3Z\" fill=\"#d2f46d\"/><path d=\"M135 71l-15 14m29-11 20 9m-33 5-14 13m26-13 12 13\" fill=\"none\" stroke=\"#c0d4ce\" stroke-width=\"6\" stroke-linecap=\"round\"/><path d=\"M135 42q8-13 19-2\" fill=\"none\" stroke=\"#ffd466\" stroke-width=\"6\"/></g></svg>","health":"<span class=\"ecg-grid\"></span><span class=\"ecg-trace\"><svg viewBox=\"0 0 480 80\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M0 48 H60 L76 48 L88 31 L105 72 L122 11 L139 48 H190 L207 48 L220 30 L236 70 L253 12 L269 48 H318 L336 48 L350 30 L368 72 L384 12 L402 48 H480\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></span>","premises":"<svg class=\"scene-art scene-premises\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><rect x=\"62\" y=\"16\" width=\"143\" height=\"87\" rx=\"3\" fill=\"#687c80\" stroke=\"#b4c5c3\" stroke-width=\"3\"/><rect x=\"78\" y=\"29\" width=\"90\" height=\"74\" fill=\"#27383b\"/><path d=\"M78 51h90M78 72h90M78 92h90\" stroke=\"#829fa0\" stroke-width=\"3\"/><rect class=\"scene-warehouse-door\" x=\"78\" y=\"29\" width=\"90\" height=\"71\" fill=\"#a0afae\" stroke=\"#d8e3db\" stroke-width=\"2\"/><path d=\"M87 43h72M87 58h72M87 73h72M87 88h72\" stroke=\"#748b8e\" stroke-width=\"3\"/><rect x=\"174\" y=\"30\" width=\"21\" height=\"28\" fill=\"#c2e6dc\"/><path d=\"M53 102h165\" stroke=\"#b9c3bb\" stroke-width=\"5\"/></svg>","other":"<svg class=\"scene-art scene-other\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"scene-other-wheel\" style=\"transform-origin:145px 55px\"><circle cx=\"145\" cy=\"55\" r=\"34\" fill=\"none\" stroke=\"#9ec1ac\" stroke-width=\"4\" stroke-dasharray=\"13 9\"/><path d=\"M145 28l8 19 21 8-21 8-8 19-8-19-21-8 21-8Z\" fill=\"#d8f86e\" stroke=\"#accb6a\" stroke-width=\"2\"/></g><circle class=\"scene-other-dot\" cx=\"87\" cy=\"44\" r=\"6\" fill=\"#b4efc7\"/><circle class=\"scene-other-dot\" cx=\"202\" cy=\"82\" r=\"4\" fill=\"#b4efc7\"/></svg>","uncategorised":"<svg class=\"scene-art scene-uncategorised\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path d=\"M106 12h65l17 17v73h-82Z\" fill=\"#809090\" stroke=\"#cbd8d2\" stroke-width=\"3\"/><path d=\"M170 13v18h17\" fill=\"#acbeb7\"/><path d=\"M117 43h55M117 86h55\" stroke=\"#c4d2cc\" stroke-width=\"4\"/><path class=\"scene-question\" d=\"M135 57q0-11 12-11t11 9q0 6-11 11v5m0 8v1\" fill=\"none\" stroke=\"#eaf1b4\" stroke-width=\"6\" stroke-linecap=\"round\"/></svg>","custom":"<svg class=\"scene-art scene-custom\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"scene-other-wheel\" style=\"transform-origin:145px 55px\"><circle cx=\"145\" cy=\"55\" r=\"34\" fill=\"none\" stroke=\"#9ec1ac\" stroke-width=\"4\" stroke-dasharray=\"13 9\"/><path d=\"M145 28l8 19 21 8-21 8-8 19-8-19-21-8 21-8Z\" fill=\"#d8f86e\" stroke=\"#accb6a\" stroke-width=\"2\"/></g><circle class=\"scene-other-dot\" cx=\"87\" cy=\"44\" r=\"6\" fill=\"#b4efc7\"/><circle class=\"scene-other-dot\" cx=\"202\" cy=\"82\" r=\"4\" fill=\"#b4efc7\"/></svg>","all":"<svg class=\"scene-art scene-all\" viewBox=\"0 0 240 110\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><rect x=\"66\" y=\"25\" width=\"60\" height=\"62\" rx=\"7\" fill=\"#718b8c\" stroke=\"#c5d6ca\" stroke-width=\"3\"/><rect x=\"138\" y=\"25\" width=\"60\" height=\"62\" rx=\"7\" fill=\"#718b8c\" stroke=\"#c5d6ca\" stroke-width=\"3\"/><g class=\"scene-overview-mark a\"><path d=\"M81 58l14 14 18-29\" fill=\"none\" stroke=\"#d2fa6b\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g><g class=\"scene-overview-mark b\"><path d=\"M150 58l14 14 18-29\" fill=\"none\" stroke=\"#d2fa6b\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g></svg>"};
+/* All category scenes now render locally. No external video URLs are fetched. */
+function riskCategoryVideoHTML(theme){return '';}
 function bindRiskCategoryVideos(){
  if(section!=='risk')return;
  const reduced=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2346,7 +2439,7 @@ function riskCategoryPanel(){
  const [theme,symbol]=RISK_CATEGORY_THEMES[name]||['custom','✦'];
  const selected=riskCategoryFilter===name;
  return '<button type="button" class="risk-category-chip themed'+(selected?' active':'')+'" data-risk-category="'+esc(name)+'" data-category-theme="'+theme+'" aria-pressed="'+selected+'"><span class="risk-chip-microfx" aria-hidden="true">'+(RISK_CHIP_SCENES[theme]||RISK_CHIP_SCENES.custom)+'</span>'+riskCategoryVideoHTML(theme)+'<span class="risk-category-pictogram" aria-hidden="true">'+symbol+'</span><span class="risk-category-name">'+esc(name)+'</span><b class="risk-category-count">'+(name==='All'?db.risk.length:(counts.get(name)||0))+'</b></button>';
- }).join('')+'</div><p class="file-tip">Select a category when adding or editing an assessment. You can type a new category name to create your own. Older records remain Uncategorised until you assign them. Real footage previews play on hover when online; offline or blocked videos use the existing animated scenes.</p></section>';
+ }).join('')+'</div><p class="file-tip">Hover or focus any category to see its hazard animation. All effects work offline; category filtering and records are unchanged.</p></section>';
 }
 function riskReviewStatusPanel(){
  const cases=[

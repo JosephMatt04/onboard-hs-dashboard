@@ -13,12 +13,13 @@ assert.ok(core.startsWith("'use strict'"));
 function harness({locked=true,sections=['training','incidents','ppe']}={}){
  const elements=new Map();
  const elem=id=>{
-  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],value:''});
+  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],setAttribute(){},value:''});
   return elements.get(id);
  };
- const document={getElementById:elem,querySelectorAll:()=>[]};
+ const document={getElementById:elem,querySelectorAll:()=>[],documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
  let writes=0;
  const window={
+  localStorage:{getItem:()=>null,setItem:()=>{}},
   onboardDesktop:{
    read:()=>({ok:true,data:null}),
    write:()=>{writes++;return {ok:true}},
@@ -213,11 +214,11 @@ test('risk assessment category chips provide themed keyboard-accessible micro an
  dashboard.go('risk');
  const html=elem('content').innerHTML;
  assert.equal((html.match(/class="risk-chip-microfx"/g)||[]).length,12);
- assert.ok(html.includes('class="fx-lorry"'));
- assert.ok(html.includes('fx-flame'));
- assert.ok(html.includes('fx-bolt'));
- assert.ok(html.includes('fx-gear'));
- assert.ok(html.includes('fx-bubble'));
+ assert.ok(html.includes('class="transport-scene-truck"'));
+ assert.ok(html.includes('scene-fire-flame'));
+ assert.ok(html.includes('scene-electric-bolt'));
+ assert.ok(html.includes('scene-gear-large'));
+ assert.ok(html.includes('scene-bubble'));
  assert.ok(html.includes('data-category-theme="electrical"'));
  assert.ok(html.includes('data-category-theme="fire"'));
  assert.ok(html.includes('aria-hidden="true"'));
@@ -230,7 +231,7 @@ test('risk category backgrounds contain scenes behind readable category names',(
  const page=elem('content').innerHTML;
  assert.ok(page.includes('data-category-theme="fire"'));
  assert.ok(page.includes('risk-chip-microfx'));
- assert.ok(page.includes('fx-flame'));
+ assert.ok(page.includes('scene-fire-flame'));
  assert.ok(page.includes('Fire &amp; Emergency'));
  dashboard.setRiskCategory('Fire & Emergency');
  assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
@@ -238,18 +239,17 @@ test('risk category backgrounds contain scenes behind readable category names',(
  assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
 });
 
-test('risk assessment categories offer real footage on hover while retaining offline fallback',()=>{
+test('all Risk Assessment categories use distinct offline artwork rather than remote videos',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
- for(const category of ['electrical','fire','plant','chemical','handling','height','premises','all','other','uncategorised'])
-  assert.ok(page.includes('data-risk-video="'+category+'"'),category);
- assert.ok(page.includes('https://www.pexels.com/download/video/'));
- assert.ok(page.includes('type="video/mp4"'));
- assert.ok(page.includes('preload="none"'));
- assert.ok(page.includes('muted loop playsinline'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,0);
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
+ for(const scene of ['scene-electrical','scene-fire','scene-plant','scene-chemical','scene-handling','scene-height','scene-premises','scene-all','scene-other','scene-uncategorised','transport-scene-truck','ecg-trace']){
+  assert.ok(page.includes(scene),scene);
+ }
+ assert.ok(!page.includes('https://www.pexels.com/download/video/'));
+ assert.ok(page.includes('aria-pressed="true"'));
  assert.ok(page.includes('class="risk-category-name"'));
 });
 
@@ -269,7 +269,7 @@ test('minimal video-first risk category tabs use a proper lightning bolt and pre
  const page=elem('content').innerHTML;
  assert.ok(page.includes('class="risk-bolt-icon"'));
  assert.ok(page.includes('viewBox="0 0 24 24"'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,0);
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
  dashboard.setRiskCategory('Electrical Safety');
  assert.ok(elem('tbody').innerHTML.includes('Electrical assessment check'));
@@ -277,18 +277,17 @@ test('minimal video-first risk category tabs use a proper lightning bolt and pre
  assert.ok(!elem('tbody').innerHTML.includes('Electrical assessment check'));
 });
 
-test('electrical uses lightning footage while occupational health moves sideways',()=>{
+test('electrical lightning and occupational health ECG animate entirely offline',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('https://www.pexels.com/download/video/29874792/'));
+ assert.ok(page.includes('class="scene-electric-bolt"'));
  assert.ok(page.includes('class="risk-bolt-icon"'));
- assert.ok(!page.includes('data-risk-video="health"'));
  assert.ok(page.includes('class="ecg-trace"'));
  assert.ok(page.includes('class="ecg-grid"'));
- assert.ok(html.includes('ecgTravelAcross'));
- assert.ok(html.includes('risk-category-chip[data-category-theme="health"]'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
+ assert.ok(html.includes('@keyframes ocElectricalFlash'));
+ assert.ok(html.includes('@keyframes ecgTravelAcross'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,0);
 });
 
 test('occupational health animated ECG remains visible independently of network video playback',()=>{
@@ -383,19 +382,17 @@ test('video handler avoids playback with reduced motion and gracefully handles s
  }
 });
 
-test('category media remain lazy, offline-safe and accessible from keyboard focus',()=>{
+test('offline category animation retains focus accessibility and a reduced-motion mode',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,10);
- assert.ok(page.includes('preload="none"'));
- assert.ok(page.includes('muted loop playsinline'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,0);
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
  assert.ok(page.includes('class="ecg-trace"'));
- assert.ok(!page.includes('data-risk-video="health"'));
- assert.ok(html.includes('focusin'));
- assert.ok(html.includes('focusout'));
- assert.ok(html.includes('html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint'));
+ assert.ok(page.includes('aria-pressed="true"'));
+ assert.ok(html.includes('focus-visible'));
+ assert.ok(html.includes('prefers-reduced-motion:reduce'));
+ assert.ok(html.includes('scene-art *'));
 });
 
 test('Onboard-branded green dark mode styles panels, forms and categories without changing light mode',()=>{
@@ -491,7 +488,7 @@ test('charcoal theme overrides legacy white surfaces across every module and eve
  }
  dashboard.go('risk');
  assert.equal((elem('content').innerHTML.match(/class="risk-category-chip themed/g)||[]).length,12);
- assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,10);
+ assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,0);
 });
 
 test('Vehicles & Transport shows offline animated HGV with no external video request',()=>{
@@ -508,4 +505,17 @@ test('Vehicles & Transport shows offline animated HGV with no external video req
  assert.ok(html.includes('@keyframes onboardRoadMove'));
  assert.ok(html.includes('@keyframes onboardTruckWheels'));
  assert.ok(html.includes('prefers-reduced-motion:reduce'));
+});
+
+test('all custom category SVG animations have movement keyframes and never stream media',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ for(const theme of ['all','plant','chemical','electrical','fire','handling','transport','height','health','premises','other','uncategorised'])
+  assert.ok(page.includes('data-category-theme="'+theme+'"'),theme);
+ for(const motion of ['ocElectricalFlash','ocFlameDance','ocGearSpin','ocBubbleRise','ocLiftArrow','ocLadderClimb','ocDoorRise','ocCheckPulse','ocQuestionPulse','ecgTravelAcross','onboardTruckDrive'])
+  assert.ok(html.includes('@keyframes '+motion),motion);
+ assert.ok(!page.includes('<video'));
+ assert.ok(!page.includes('pexels.com'));
+ assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
 });
