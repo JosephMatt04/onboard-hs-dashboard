@@ -327,3 +327,58 @@ test('dashboard has a persistent light and dark appearance switch',()=>{
  dashboard.go('training');
  assert.ok(elem('content').innerHTML.includes('Live register checks'));
 });
+
+test('video hover handler plays, pauses and protects against stale pending play requests',async()=>{
+ const begin=inline.indexOf('function bindRiskCategoryVideos()');
+ const end=inline.indexOf('function riskCategoryPanel()',begin);
+ assert.ok(begin>=0&&end>begin);
+ const source=inline.slice(begin,end);
+ const listeners={};const mediaListeners={};const sourceListeners={};const classes=new Set();
+ let hovered=false,playCount=0,loadCount=0,pauseCount=0;
+ let resolvePlay,rejectPlay;
+ const chip={
+  classList:{add:v=>classes.add(v),remove:v=>classes.delete(v),contains:v=>classes.has(v)},
+  addEventListener:(name,fn)=>{listeners[name]=fn},
+  matches:()=>hovered,
+  contains:()=>false
+ };
+ const video={
+  dataset:{},currentTime:12,
+  closest:()=>chip,
+  addEventListener:(name,fn)=>{mediaListeners[name]=fn},
+  querySelector:()=>({addEventListener:(name,fn)=>{sourceListeners[name]=fn}}),
+  load:()=>{loadCount++},pause:()=>{pauseCount++},
+  play:()=>{playCount++;return new Promise((res,rej)=>{resolvePlay=res;rejectPlay=rej})}
+ };
+ const document={querySelectorAll:()=>[video]};
+ const window={matchMedia:()=>({matches:false})};
+ new Function('document','window','section',source+';bindRiskCategoryVideos()')(document,window,'risk');
+ hovered=true;listeners.mouseenter();assert.equal(playCount,1);assert.equal(loadCount,1);
+ resolvePlay();await Promise.resolve();assert.equal(classes.has('risk-video-playing'),true);
+ hovered=false;listeners.mouseleave();assert.equal(classes.has('risk-video-playing'),false);
+ hovered=true;listeners.mouseenter();assert.equal(playCount,2);
+ hovered=false;listeners.mouseleave();
+ rejectPlay(Object.assign(new Error('interrupted'),{name:'AbortError'}));await Promise.resolve();await Promise.resolve();
+ assert.equal(classes.has('risk-video-unavailable'),false,'normal hover cancellation is not a broken video');
+ hovered=true;listeners.mouseenter();assert.equal(playCount,3);
+ resolvePlay();await Promise.resolve();assert.equal(classes.has('risk-video-playing'),true);
+ mediaListeners.error();assert.equal(classes.has('risk-video-unavailable'),true);
+ assert.equal(classes.has('risk-video-playing'),false);
+ listeners.mouseenter();assert.equal(playCount,3,'failed media throttled to avoid download floods');
+ assert.ok(pauseCount>=2);
+ assert.ok(sourceListeners.error);
+});
+
+test('video handler avoids playback with reduced motion and gracefully handles synchronous play failures',()=>{
+ const source=inline.slice(inline.indexOf('function bindRiskCategoryVideos()'),inline.indexOf('function riskCategoryPanel()'));
+ for(const reduce of [true,false]){
+  const handlers={};const classes=new Set();
+  const chip={classList:{add:v=>classes.add(v),remove:v=>classes.delete(v),contains:v=>classes.has(v)},addEventListener:(n,fn)=>{handlers[n]=fn},matches:()=>true,contains:()=>false};
+  let calls=0;
+  const video={dataset:{},closest:()=>chip,addEventListener:()=>{},querySelector:()=>null,pause:()=>{},load:()=>{},play:()=>{calls++;throw Error('media failed')}};
+  new Function('document','window','section',source+';bindRiskCategoryVideos()')({querySelectorAll:()=>[video]},{matchMedia:()=>({matches:reduce})},'risk');
+  assert.doesNotThrow(()=>handlers.mouseenter());
+  assert.equal(calls,reduce?0:1);
+  assert.equal(classes.has('risk-video-unavailable'),!reduce);
+ }
+});
