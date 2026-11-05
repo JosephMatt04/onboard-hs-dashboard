@@ -1139,6 +1139,133 @@ html[data-theme="dark"] body a{color:#80dcb0}
 html[data-theme="dark"] body hr{border-color:#405849}
 html[data-theme="dark"] body .refresh-test-marker{background:#244c38!important;color:#b6f6cf!important;border-color:#61b98a!important}
 
+
+/* Onboard Corrugated dark mode: deep brand-green surfaces, not white or charcoal cards.
+   Maintain off-white text to preserve contrast and leave Light Mode unchanged. */
+html[data-theme="dark"]{
+ --brand-dark:#e6fff0!important;
+ --brand-green:#56c991!important;
+ --brand-lime:#78d5a3!important;
+ --brand-soft:#154c35!important;
+ --brand-soft-2:#103d2d!important;
+ --brand-line:#317754!important;
+ --brand-text:#eaf9f0!important;
+ --brand-muted:#b0ddc5!important;
+ --portal-line:#317754!important;
+ --onboard-forest:#092e23;
+ --onboard-green:#14583d;
+ --onboard-green-2:#1b704b;
+ --onboard-green-3:#237e56;
+ --onboard-edge:#3c986a;
+ color-scheme:dark!important
+}
+html[data-theme="dark"] body{
+ background:#092e23!important;
+ background-image:radial-gradient(ellipse at 82% -12%,#1c6746 0%,transparent 42%),linear-gradient(135deg,#0d3d2d,#08271e)!important;
+ color:#eaf9f0!important
+}
+html[data-theme="dark"] body .shell,
+html[data-theme="dark"] body .main{background:transparent!important;color:#eaf9f0!important}
+html[data-theme="dark"] body .side{
+ background:linear-gradient(175deg,#145b3d 0%,#104a35 48%,#093425 100%)!important;
+ border-right:1px solid #36865b!important
+}
+html[data-theme="dark"] body .workspace-topbar{
+ background:#11452fdc!important;
+ border-color:#368b60!important
+}
+html[data-theme="dark"] body .panel,
+html[data-theme="dark"] body .card,
+html[data-theme="dark"] body .modal,
+html[data-theme="dark"] body .risk-category-panel,
+html[data-theme="dark"] body .home-hero,
+html[data-theme="dark"] body .section-workflow,
+html[data-theme="dark"] body .asset-profile-field,
+html[data-theme="dark"] body .attachment-item{
+ background:linear-gradient(155deg,#185e42,#124b36)!important;
+ border-color:#34825a!important;
+ color:#edfff3!important;
+ box-shadow:0 9px 22px rgba(1,21,12,.17)!important
+}
+html[data-theme="dark"] body .modal{background:#125039!important}
+html[data-theme="dark"] body .field,
+html[data-theme="dark"] body input:not([type=checkbox]):not([type=radio]),
+html[data-theme="dark"] body textarea,
+html[data-theme="dark"] body select{
+ background:#0e3b2b!important;
+ color:#f1fff6!important;
+ border-color:#4b986f!important
+}
+html[data-theme="dark"] body .btn:not(.primary):not(.danger),
+html[data-theme="dark"] body button.btn:not(.primary):not(.danger){
+ background:#1c694a!important;
+ border-color:#50a578!important;
+ color:#effff5!important
+}
+html[data-theme="dark"] body .btn:not(.primary):not(.danger):hover{
+ background:#25825a!important
+}
+html[data-theme="dark"] body .btn.primary{
+ background:#278458!important;
+ border-color:#64b98d!important;
+ color:#fff!important
+}
+html[data-theme="dark"] body .theme-toggle{
+ background:#237e56!important;border-color:#69ba8d!important
+}
+html[data-theme="dark"] body th{background:#174f38!important;color:#ddf7e8!important;border-color:#3e875f!important}
+html[data-theme="dark"] body td{border-bottom-color:#347b55!important}
+html[data-theme="dark"] body tr:hover td{background:#216a4a!important}
+html[data-theme="dark"] body .risk-category-chip.themed{
+ background:#1b6547!important;
+ border-color:#438c64!important;
+ border-left-color:var(--chip-main)!important;
+ box-shadow:0 1px 4px rgba(0,25,12,.12)!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed:hover,
+html[data-theme="dark"] body .risk-category-chip.themed:focus-visible{
+ background:#237d56!important;
+ box-shadow:0 6px 18px rgba(0,25,12,.22)!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed.active{
+ background:#278558!important;
+ border-color:#80c49b!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-count{
+ background:#0c4931!important;color:#eafff0!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(12,67,44,.92),rgba(16,85,55,.56) 52%,rgba(16,85,55,.10))!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(17,88,52,.92),rgba(22,99,58,.56) 52%,rgba(22,99,58,.10))!important
+}
+html[data-theme="dark"] body #entry-form .risk-form-extras,
+html[data-theme="dark"] body .risk-form-extras,
+html[data-theme="dark"] body .notice{
+ background:#1b6447!important;border-color:#45946a!important;color:#edfff3!important
+}
+html[data-theme="dark"] body .pill,
+html[data-theme="dark"] body .status{
+ background:#1b6748!important;border-color:#4e9b70!important;color:#eafff0!important
+}
+html[data-theme="dark"] body .workspace-crumb,
+html[data-theme="dark"] body .workspace-state,
+html[data-theme="dark"] body .workspace-footer,
+html[data-theme="dark"] body .sub,
+html[data-theme="dark"] body .muted,
+html[data-theme="dark"] body .file-tip,
+html[data-theme="dark"] body .card .label{
+ color:#c1e5d0!important
+}
+html[data-theme="dark"] body .side .nav button.active,
+html[data-theme="dark"] body .side .nav button:hover{
+ background:#29845a!important;color:#fff!important
+}
+html[data-theme="dark"] body .refresh-test-marker{
+ background:#196342!important;border-color:#6dbe91!important;color:#edfff3!important
+}
+
 </style>
 </head>
 <body>

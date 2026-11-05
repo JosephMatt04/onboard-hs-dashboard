@@ -397,3 +397,20 @@ test('category media remain lazy, offline-safe and accessible from keyboard focu
  assert.ok(html.includes('focusout'));
  assert.ok(html.includes('html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint'));
 });
+
+test('Onboard-branded green dark mode styles panels, forms and categories without changing light mode',()=>{
+ const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
+ const green=styles.slice(styles.indexOf('/* Onboard Corrugated dark mode:'));
+ assert.ok(green.includes('html[data-theme="dark"]'));
+ assert.ok(green.includes('background:linear-gradient(155deg,#185e42,#124b36)'));
+ assert.ok(green.includes('background:#0e3b2b'));
+ assert.ok(green.includes('background:#1b6547'));
+ assert.ok(green.includes('background:#1b6447'));
+ assert.ok(green.includes('color:#eaf9f0'));
+ assert.ok(html.includes("setAppearance(initialTheme,false)"));
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ assert.ok(elem('content').innerHTML.includes('Assessment categories'));
+ dashboard.go('ssow');
+ assert.ok(elem('content').innerHTML.includes('Live register checks'));
+});
