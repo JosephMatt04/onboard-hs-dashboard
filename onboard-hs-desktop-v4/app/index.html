@@ -570,6 +570,45 @@ th{background:#f2f6f8!important;color:#5c7682!important}
 
 
 
+
+/* v4.10.7 — dimensional subject-themed risk assessment category chips */
+.risk-category-panel .risk-category-buttons{gap:12px;align-items:stretch}
+.risk-category-chip.themed{
+ --chip-main:#287c61;--chip-dark:#18543f;--chip-pale:#e6f5ed;--chip-halo:rgba(40,124,97,.24);
+ position:relative;isolation:isolate;overflow:hidden;
+ display:inline-flex;align-items:center;gap:9px;min-height:49px;
+ padding:9px 12px 11px;border-radius:14px;
+ border:1px solid color-mix(in srgb,var(--chip-main) 38%,#d7e6df);
+ color:var(--chip-dark);background:linear-gradient(145deg,#fff 0%,var(--chip-pale) 100%);
+ box-shadow:0 4px 0 color-mix(in srgb,var(--chip-main) 22%,#d5e6de),0 8px 13px rgba(25,64,50,.07),inset 0 1px 0 #fff;
+ text-shadow:none;transform:translateY(0);transition:transform .19s ease,box-shadow .19s ease,border-color .19s ease,background .19s ease;
+}
+.risk-category-chip.themed:before{content:"";position:absolute;z-index:-1;top:-40px;right:-22px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,var(--chip-halo),transparent 70%);opacity:.44;pointer-events:none}
+.risk-category-chip.themed:after{content:"";position:absolute;z-index:-1;top:0;left:-130%;height:100%;width:44%;transform:skewX(-25deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.44),transparent);transition:left .35s ease;pointer-events:none}
+.risk-category-chip.themed .risk-category-pictogram{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:9px;font-size:18px;font-family:"Segoe UI Symbol","Segoe UI",sans-serif;font-weight:800;line-height:1;color:var(--chip-main);background:linear-gradient(145deg,#fff,var(--chip-pale));border:1px solid rgba(255,255,255,.85);box-shadow:0 3px 0 color-mix(in srgb,var(--chip-main) 23%,#ccdbd5),0 5px 7px rgba(22,63,46,.13),inset 0 1px 1px white;text-shadow:0 1px 0 #fff}
+.risk-category-chip.themed .risk-category-name{font-weight:750;font-size:12px;white-space:normal;text-align:left}
+.risk-category-chip.themed .risk-category-count{padding:3px 7px;border-radius:9px;background:color-mix(in srgb,var(--chip-main) 12%,white);color:var(--chip-dark);font-variant-numeric:tabular-nums;font-size:12px}
+.risk-category-chip.themed:hover{transform:translateY(-3px);border-color:var(--chip-main);box-shadow:0 6px 0 color-mix(in srgb,var(--chip-main) 21%,#d5e6de),0 13px 19px var(--chip-halo),inset 0 1px 0 #fff}
+.risk-category-chip.themed:hover:after{left:160%}
+.risk-category-chip.themed:focus-visible{outline:3px solid var(--chip-main);outline-offset:3px}
+.risk-category-chip.themed.active{background:linear-gradient(140deg,var(--chip-dark),var(--chip-main));color:#fff;border-color:var(--chip-main);box-shadow:0 4px 0 var(--chip-dark),0 10px 23px var(--chip-halo),inset 0 1px 0 rgba(255,255,255,.3)}
+.risk-category-chip.themed.active:before{opacity:.8;background:radial-gradient(circle,rgba(255,255,255,.26),transparent 70%)}
+.risk-category-chip.themed.active .risk-category-pictogram{background:linear-gradient(145deg,#fff,var(--chip-pale));color:var(--chip-dark)}
+.risk-category-chip.themed.active .risk-category-count{color:#fff;background:rgba(255,255,255,.22)}
+.risk-category-chip[data-category-theme="plant"]{--chip-main:#477c65;--chip-dark:#254c40;--chip-pale:#e5f0ea;--chip-halo:rgba(55,104,79,.28)}
+.risk-category-chip[data-category-theme="chemical"]{--chip-main:#8b57bf;--chip-dark:#5d3384;--chip-pale:#f1eafd;--chip-halo:rgba(139,87,191,.28)}
+.risk-category-chip[data-category-theme="electrical"]{--chip-main:#298bd5;--chip-dark:#16578c;--chip-pale:#e4f4ff;--chip-halo:rgba(41,139,213,.3)}
+.risk-category-chip[data-category-theme="fire"]{--chip-main:#df5f37;--chip-dark:#963d23;--chip-pale:#fff0e4;--chip-halo:rgba(223,95,55,.29)}
+.risk-category-chip[data-category-theme="handling"]{--chip-main:#c58129;--chip-dark:#875119;--chip-pale:#fff2d9;--chip-halo:rgba(197,129,41,.25)}
+.risk-category-chip[data-category-theme="transport"]{--chip-main:#375dba;--chip-dark:#253e83;--chip-pale:#e7edff;--chip-halo:rgba(55,93,186,.27)}
+.risk-category-chip[data-category-theme="height"]{--chip-main:#48a2c7;--chip-dark:#256784;--chip-pale:#e2f6ff;--chip-halo:rgba(72,162,199,.27)}
+.risk-category-chip[data-category-theme="health"]{--chip-main:#1c9c92;--chip-dark:#126761;--chip-pale:#ddf6f3;--chip-halo:rgba(28,156,146,.26)}
+.risk-category-chip[data-category-theme="premises"]{--chip-main:#648570;--chip-dark:#405d4a;--chip-pale:#eaf2ec;--chip-halo:rgba(100,133,112,.2)}
+.risk-category-chip[data-category-theme="other"]{--chip-main:#7c8e9c;--chip-dark:#4a5b66;--chip-pale:#edf2f5;--chip-halo:rgba(124,142,156,.19)}
+.risk-category-chip[data-category-theme="uncategorised"]{--chip-main:#929a9a;--chip-dark:#596467;--chip-pale:#f0f2f2;--chip-halo:rgba(130,140,140,.15);border-style:dashed}
+.risk-category-chip[data-category-theme="custom"]{--chip-main:#7e63bb;--chip-dark:#4c397c;--chip-pale:#f0ecf9;--chip-halo:rgba(126,99,187,.22)}
+@media(prefers-reduced-motion:reduce){.risk-category-chip.themed,.risk-category-chip.themed:after{transition:none!important}.risk-category-chip.themed:hover{transform:none!important}.risk-category-chip.themed:hover:after{left:-130%}}
+
 /* RA review-status action cards — v4.10.6 */
 .risk-review-panel{padding:22px 24px;margin:0 0 22px;border:1px solid #dcebe5;border-radius:18px}
 .risk-review-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:16px}
@@ -956,7 +995,30 @@ function sectionWorkflow(k){
 }
 const RISK_CATEGORY_DEFAULTS=['Plant & Equipment','Manual Handling','Workplace & Premises','Vehicles & Transport','Fire & Emergency','Chemicals & COSHH','Electrical Safety','Working at Height','Occupational Health','Other'];
 function riskCategoryNames(){return [...new Set([...RISK_CATEGORY_DEFAULTS,...db.risk.map(r=>String(r.category||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b));}
-function riskCategoryPanel(){const counts=new Map();for(const r of db.risk){const name=String(r.category||'').trim()||'Uncategorised';counts.set(name,(counts.get(name)||0)+1)}const names=['All',...new Set([...riskCategoryNames(),'Uncategorised'])];return '<section class="panel risk-category-panel"><div class="section-title"><h2>Assessment categories</h2><span class="muted">Select a category to filter your assessments</span></div><div class="risk-category-buttons">'+names.map(name=>'<button type="button" class="risk-category-chip'+(riskCategoryFilter===name?' active':'')+'" data-risk-category="'+esc(name)+'" aria-pressed="'+(riskCategoryFilter===name)+'"><span>'+esc(name)+'</span><b>'+(name==='All'?db.risk.length:(counts.get(name)||0))+'</b></button>').join('')+'</div><p class="file-tip">Select a category when adding or editing an assessment. You can type a new category name to create your own. Older records remain Uncategorised until you assign them.</p></section>';}
+const RISK_CATEGORY_THEMES={
+ 'All':['all','◈'],
+ 'Plant & Equipment':['plant','⚙'],
+ 'Chemicals & COSHH':['chemical','⚗'],
+ 'Electrical Safety':['electrical','ϟ'],
+ 'Fire & Emergency':['fire','♨'],
+ 'Manual Handling':['handling','⬡'],
+ 'Vehicles & Transport':['transport','➜'],
+ 'Working at Height':['height','△'],
+ 'Occupational Health':['health','✚'],
+ 'Workplace & Premises':['premises','▦'],
+ 'Other':['other','✧'],
+ 'Uncategorised':['uncategorised','?']
+};
+function riskCategoryPanel(){
+ const counts=new Map();
+ for(const r of db.risk){const name=String(r.category||'').trim()||'Uncategorised';counts.set(name,(counts.get(name)||0)+1)}
+ const names=['All',...new Set([...riskCategoryNames(),'Uncategorised'])];
+ return '<section class="panel risk-category-panel"><div class="section-title"><h2>Assessment categories</h2><span class="muted">Select a category to filter your assessments</span></div><div class="risk-category-buttons">'+names.map(name=>{
+ const [theme,symbol]=RISK_CATEGORY_THEMES[name]||['custom','✦'];
+ const selected=riskCategoryFilter===name;
+ return '<button type="button" class="risk-category-chip themed'+(selected?' active':'')+'" data-risk-category="'+esc(name)+'" data-category-theme="'+theme+'" aria-pressed="'+selected+'"><span class="risk-category-pictogram" aria-hidden="true">'+symbol+'</span><span class="risk-category-name">'+esc(name)+'</span><b class="risk-category-count">'+(name==='All'?db.risk.length:(counts.get(name)||0))+'</b></button>';
+ }).join('')+'</div><p class="file-tip">Select a category when adding or editing an assessment. You can type a new category name to create your own. Older records remain Uncategorised until you assign them.</p></section>';
+}
 function riskReviewStatusPanel(){
  const cases=[
   ['Overdue review','Overdue reviews','Past the scheduled review date','overdue',r=>reviewPriority(r.reviewDate)==='Overdue review'],
