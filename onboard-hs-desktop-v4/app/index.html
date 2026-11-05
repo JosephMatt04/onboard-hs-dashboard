@@ -667,6 +667,111 @@ body,.main{background:radial-gradient(ellipse at 82% 2%,#e6f4ec 0%,transparent 4
 @media(prefers-reduced-motion:reduce){.side .nav button,.side .nav .nav-pictogram,.home-metric,.home-quick-tile,.home-quick-symbol{transition:none!important;transform:none!important}}
 @media(max-width:720px){.side .nav .nav-pictogram,.side .nav .module-icon.nav-pictogram{width:32px!important;height:32px!important;min-width:32px!important;flex-basis:32px!important}.home-new-hero{border-radius:18px!important}}
 
+
+/* v4.11.0 Onboard H&S — dark Command Centre visual system. No data changes. */
+:root{
+ color-scheme:dark;
+ --brand-dark:#edfaff;--brand-green:#4ee5bb;--brand-lime:#92f3d0;--brand-orange:#ffb767;
+ --brand-soft:#143a3d;--brand-soft-2:#112934;--brand-line:#294653;
+ --brand-text:#e5f4f5;--brand-muted:#a3bbc5;
+ --portal-ink:#e5f4f5;--portal-line:#2a4856;--portal-blue:#55d9f4;
+ background:#081621!important;color:#e5f4f5!important
+}
+html,body,body .shell,body .main{background:#081621!important;color:#e5f4f5!important}
+body{background-image:radial-gradient(circle at 88% -5%,rgba(21,178,178,.18),transparent 32%),radial-gradient(circle at 12% 80%,rgba(33,103,179,.1),transparent 35%)!important;background-attachment:fixed!important}
+.side{background:linear-gradient(176deg,#0b202e 0%,#091724 65%,#0a2830 100%)!important;border-right:1px solid #285166!important;box-shadow:7px 0 30px rgba(0,0,0,.24)!important}
+.side::before{background:linear-gradient(90deg,#3df2bd,#55d5f3,#7c82f5)!important}
+.side .brand{color:#e6f7f8!important}
+.side .brand h1,.side .brand strong,.brand-title{color:#e8f6f8!important}
+.side .brand small,.side .brand span:not(.nav-pictogram){color:#a7c1c9}
+.side .logo-panel{background:#f7faf8!important;border-radius:13px!important;padding:9px 10px!important;box-shadow:0 7px 24px rgba(0,0,0,.18),0 0 0 1px #ffffff29}
+.side .nav button{color:#b2cdd4!important;border:1px solid transparent!important;background:transparent!important}
+.side .nav button:hover{color:#f1ffff!important;background:#183646!important;box-shadow:inset 2px 0 #36cfb0!important}
+.side .nav button.active{color:#bafbec!important;background:linear-gradient(95deg,#164e57,#173c54)!important;border:1px solid #2e8190!important;box-shadow:inset 3px 0 #59f2c4,0 5px 18px rgba(0,221,188,.1)!important}
+.side .nav .nav-pictogram,.side .nav .module-icon.nav-pictogram{background:linear-gradient(150deg,#23465a,#102938)!important;box-shadow:0 4px 0 #0c2534,0 7px 13px rgba(0,0,0,.35),inset 0 1px 0 #78cecc49!important;border:1px solid #477282!important}
+.side .nav button.active .nav-pictogram{border-color:#53d9c7!important;box-shadow:0 3px 0 #123b45,0 0 13px rgba(47,225,203,.25)!important}
+.side .local-note{background:#132b37!important;color:#b8d3da!important;border-color:#2a5059!important}
+.workspace-topbar,.top,.workspace-actions{background:transparent!important;color:#e4f5f5!important}
+.top h1,.top h2,.main h1{color:#f1fbff!important;text-shadow:0 2px 18px rgba(34,203,221,.08)}
+.eyebrow,.home-eyebrow{color:#70e6cf!important}
+.sub,.muted,.main .file-tip{color:#a6bec7!important}
+.workspace-topbar{border-bottom:1px solid #263f51!important}
+.portal-modules{border-bottom:1px solid #2b4d5a!important}
+.portal-module{color:#9bb7c6!important;border-bottom-color:transparent!important}
+.portal-module:hover{background:#173440!important;color:#d1ffff!important}
+.portal-module.active{color:#69efd4!important;border-bottom:3px solid #49dbbd!important;background:linear-gradient(0deg,rgba(51,229,206,.11),transparent)!important}
+.panel,.card,.portal-kpi,.module-tile,.section-guide,.home-panel,.risk-category-panel,.risk-review-panel,.asset-profile-field,.audit-question,.ptw-check{
+ background:linear-gradient(145deg,#132b3a,#0d2231)!important;color:#e7f6f7!important;
+ border:1px solid #2a4d5e!important;box-shadow:0 9px 22px rgba(0,0,0,.17),inset 0 1px 0 rgba(136,236,234,.07)!important
+}
+.section-title h2,.section-guide-heading strong,.panel h2,.module-tile strong,.home-heading-row h2{color:#eaffff!important}
+.section-guide{border-left:3px solid #57e1c3!important}
+.section-guide-heading span{color:#89ddd0!important}
+.section-guide p,.panel p,.portal-intro span,.module-tile p,.module-tile small{color:#adc8d0!important}
+.portal-intro h2{color:#dff8fb!important}
+.portal-kpi .kpi-caption,.kpi-caption,.portal-kpi .kpi-foot,.kpi-foot{color:#b1cbd0!important}
+.portal-kpi strong,.portal-kpi .kpi-number{color:#f0ffff!important}
+.card::before{background:linear-gradient(90deg,#33e5c1,#54c4f1,#7f8dfa)!important}
+.card .label,.card .hint{color:#a9c6cb!important}.card .value{color:#eaffff!important}
+.home-new-hero{background:linear-gradient(112deg,#0a2539,#08566a 60%,#12645e)!important;border-color:#36a5ae!important;box-shadow:0 15px 40px rgba(0,0,0,.27),0 0 30px rgba(33,197,201,.09)!important}
+.home-new-hero p{color:#c7e8ee!important}
+.home-new-hero .home-hero-actions .btn{color:#082d42!important;background:#a5fff0!important}
+.home-heading-row p,.home-panel>p,.home-redesign .muted{color:#a7c4ca!important}
+.home-metric,.home-quick-tile{background:linear-gradient(145deg,#163448,#102b3c)!important;border-color:#2c5363!important;color:#eaffff!important;box-shadow:0 5px 0 #081e2d,0 12px 23px rgba(0,0,0,.19)!important}
+.home-metric-caption,.home-metric p,.home-quick-copy small{color:#accbd0!important}
+.home-metric strong,.home-quick-count,.home-quick-copy strong{color:#edffff!important}
+.home-quick-symbol{background:linear-gradient(145deg,#1e6474,#124458)!important;border-color:#4a8c97!important;color:#86ffe1!important;text-shadow:none!important;box-shadow:0 4px 0 #0b3141,0 8px 16px rgba(0,0,0,.24)!important}
+.home-activity-row{border-bottom-color:#31505e!important}
+.home-activity-row strong{color:#e8fafa!important}.home-activity-row small{color:#9cb9c6!important}
+.home-text-action,.home-activity-end button{color:#6bf4d2!important}
+.risk-review-card{background:linear-gradient(150deg,#173446,#102736)!important;color:#e7f8f8!important;border-color:#345564!important;box-shadow:0 6px 15px rgba(0,0,0,.18)!important}
+.risk-review-card .risk-review-label,.risk-review-card strong{color:#ecffff!important}
+.risk-review-card .risk-review-description{color:#a5c1ca!important}
+.risk-review-card .risk-review-open{color:#75f5d1!important}
+.risk-review-card.active{border-color:#53eaca!important;background:linear-gradient(150deg,#16525a,#16374a)!important;box-shadow:0 0 0 2px #51e8c333,0 0 20px #29c9b822!important}
+.risk-category-chip.themed{background:linear-gradient(150deg,#1b3547,#102633)!important;color:color-mix(in srgb,var(--chip-main) 58%,#fff)!important;border-color:color-mix(in srgb,var(--chip-main) 45%,#284553)!important;box-shadow:0 4px 0 #0a1c29,0 9px 18px rgba(0,0,0,.21)!important}
+.risk-category-chip.themed .risk-category-pictogram{background:linear-gradient(150deg,#223f50,#112c3b)!important;color:color-mix(in srgb,var(--chip-main) 48%,white)!important;border-color:color-mix(in srgb,var(--chip-main) 50%,#294858)!important;text-shadow:none!important}
+.risk-category-chip.themed .risk-category-count{background:#274454!important;color:#d9f4f2!important}
+.risk-category-chip.themed:hover{background:linear-gradient(150deg,#24495b,#142f40)!important;box-shadow:0 4px 0 #10293b,0 0 22px var(--chip-halo)!important}
+.risk-category-chip.themed.active{background:linear-gradient(130deg,var(--chip-dark),var(--chip-main))!important;color:#fff!important;box-shadow:0 4px 0 #102638,0 0 26px var(--chip-halo)!important}
+.risk-category-chip.themed.active .risk-category-count{background:#ffffff30!important;color:white!important}
+.risk-category-panel .file-tip,.risk-review-panel .file-tip{color:#a8c6c9!important}
+table{background:#102735!important;color:#e2f4f5!important}
+table thead,thead,th{background:#1b3a4c!important;color:#c8f7ed!important;border-color:#345463!important}
+td{background:#102735!important;color:#d9f0f2!important;border-color:#294554!important}
+tbody tr:hover td{background:#193b4d!important}
+.table-wrap{border:1px solid #2e4d5c!important;border-radius:13px;background:#112a38!important}
+.toolbar{color:#b5d1d6!important}
+.field,input.field,select.field,textarea.field,.toolbar input,.toolbar select{background:#0c2231!important;color:#f0ffff!important;border:1px solid #356071!important}
+.field::placeholder,input::placeholder,textarea::placeholder{color:#90abb7!important}
+.field:focus,input.field:focus,select.field:focus,textarea.field:focus{outline:2px solid #4fdac5!important;outline-offset:1px}
+select option{background:#102937;color:#f0ffff}
+.btn{background:#183e4c!important;color:#dffbfa!important;border:1px solid #366c77!important}
+.btn:hover{background:#215466!important;border-color:#4caea9!important}
+.btn.primary{background:linear-gradient(130deg,#117f88,#189c8e)!important;color:#f7ffff!important;border-color:#3fcdb8!important}
+.btn.primary:hover{background:linear-gradient(130deg,#169da4,#20ad9a)!important}
+.btn.danger{background:#472733!important;color:#ffc8c8!important;border-color:#8d4954!important}
+.btn.danger:hover{background:#673441!important}
+.status{background:#203d4d!important;border:1px solid #416271!important;color:#e6f4f5!important}
+.status.good{background:#124d43!important;color:#89ffcf!important;border-color:#2e876c!important}
+.status.warn{background:#58411c!important;color:#ffe1a4!important;border-color:#a57733!important}
+.status.bad{background:#582a39!important;color:#ffb8c7!important;border-color:#9a5264!important}
+.sow-metrics>div,.ssow-metrics>div,.risk-assurance-metrics>div{background:#1b3b4b!important;border:1px solid #355d6a!important;color:#d8eeee!important}
+.ssow-metrics b{color:#edffff!important}.ssow-metrics span{color:#b1ccd3!important}
+.modal-backdrop{background:rgba(1,10,17,.84)!important;backdrop-filter:blur(5px)}
+.modal,.preview-modal{background:linear-gradient(155deg,#183647,#0d2331)!important;color:#e9f9f9!important;border:1px solid #416a77!important;box-shadow:0 30px 90px rgba(0,0,0,.55)!important}
+.modal h2,.modal strong,.modal label,.form-field,.form-field span{color:#e2f5f6!important}
+.modal .sub,.modal p,.modal .file-tip{color:#aac9d1!important}
+.modal .attachment-item,.attachment-list,.asset-profile-field{border-color:#355764!important;background:#153341!important}
+.callout,.notice,.file-tip,.asset-guide,.utility,.recent-item{color:#abc9cf!important}
+.callout,.notice{background:#173e47!important;border-color:#416c77!important}
+.recent-item{border-bottom-color:#2d4b5a!important}.recent-item b{color:#f1ffff!important}
+hr,.divider{border-color:#2d4c58!important}
+.pill,.local-note{background:#153644!important;color:#b5eadc!important;border-color:#2e5d65!important}
+a{color:#7ee6ff}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#102532}::-webkit-scrollbar-thumb{background:#315563;border-radius:10px;border:2px solid #102532}
+@media(prefers-reduced-motion:reduce){.home-metric,.home-quick-tile,.risk-category-chip,.risk-review-card{transition:none!important;animation:none!important}}
+
 </style>
 </head>
 <body>
