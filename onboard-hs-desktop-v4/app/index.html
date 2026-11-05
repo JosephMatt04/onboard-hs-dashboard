@@ -1908,6 +1908,119 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  .risk-category-chip[data-category-theme="transport"] .transport-wheel{animation:none!important}
 }
 
+
+/* Unified offline risk animations: bespoke scenes across every category. */
+.risk-category-chip.themed .scene-art{
+ position:absolute;z-index:2;right:3%;top:0;
+ width:58%;height:100%;max-width:270px;
+ overflow:visible;pointer-events:none;
+ opacity:.94;
+ filter:drop-shadow(0 3px 5px rgba(4,14,15,.3));
+}
+.risk-category-chip.themed .risk-chip-microfx{
+ background:linear-gradient(105deg,#293537,#3a4b4a)!important;
+}
+.risk-category-chip.themed:is(:hover,:focus-visible) .risk-chip-microfx,
+.risk-category-chip.themed.active:is(:hover,:focus-visible) .risk-chip-microfx{
+ opacity:1!important;mix-blend-mode:normal!important;
+}
+.risk-category-chip.themed .risk-category-pictogram,
+.risk-category-chip.themed .risk-category-name,
+.risk-category-chip.themed .risk-category-count{
+ z-index:4!important;position:relative;
+}
+.risk-category-chip.themed .risk-category-name{
+ text-shadow:0 1px 3px #121b1d,0 0 6px #121b1d!important
+}
+.risk-category-chip.themed .risk-category-count{
+ box-shadow:0 1px 5px #0b1719c9!important
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-bolt{
+ animation:ocElectricalFlash 1.3s steps(1,end) infinite;
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-spark{
+ animation:ocSparkFlash .75s steps(1,end) infinite;
+}
+.risk-category-chip[data-category-theme="electrical"]:is(:hover,:focus-visible) .scene-electric-spark.b{animation-delay:-.32s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame{
+ transform-box:fill-box;transform-origin:center bottom;
+ animation:ocFlameDance 1.15s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame.left{animation-delay:-.6s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-flame.small{animation-delay:-.35s}
+.risk-category-chip[data-category-theme="fire"]:is(:hover,:focus-visible) .scene-fire-ember{
+ animation:ocEmberDrift 2s ease-out infinite;
+}
+.risk-category-chip[data-category-theme="plant"]:is(:hover,:focus-visible) .scene-gear-large{
+ transform-box:view-box;transform-origin:151px 57px;
+ animation:ocGearSpin 4s linear infinite;
+}
+.risk-category-chip[data-category-theme="plant"]:is(:hover,:focus-visible) .scene-gear-small{
+ transform-box:view-box;transform-origin:83px 80px;
+ animation:ocGearSpin 3s linear infinite reverse;
+}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble{
+ animation:ocBubbleRise 1.8s ease-in infinite;
+}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble.two{animation-delay:-.65s}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-bubble.three{animation-delay:-1.2s}
+.risk-category-chip[data-category-theme="chemical"]:is(:hover,:focus-visible) .scene-liquid{
+ animation:ocLiquidSway 1.6s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="handling"]:is(:hover,:focus-visible) .scene-lift-arrow{
+ animation:ocLiftArrow 1.7s ease-in-out infinite;
+}
+.risk-category-chip[data-category-theme="handling"]:is(:hover,:focus-visible) .scene-lift-hands{
+ animation:ocLiftHands 1.7s ease-in-out infinite;
+}
+.risk-category-chip[data-category-theme="height"]:is(:hover,:focus-visible) .scene-height-person{
+ animation:ocLadderClimb 2.8s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="premises"]:is(:hover,:focus-visible) .scene-warehouse-door{
+ animation:ocDoorRise 3.2s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="all"]:is(:hover,:focus-visible) .scene-overview-mark.a{
+ animation:ocCheckPulse 1.8s ease-out infinite;
+}
+.risk-category-chip[data-category-theme="all"]:is(:hover,:focus-visible) .scene-overview-mark.b{
+ animation:ocCheckPulse 1.8s ease-out infinite -.85s;
+}
+.risk-category-chip[data-category-theme="other"]:is(:hover,:focus-visible) .scene-other-wheel,
+.risk-category-chip[data-category-theme="custom"]:is(:hover,:focus-visible) .scene-custom-wheel{
+ transform-box:view-box;transform-origin:145px 55px;
+ animation:ocGearSpin 5.5s linear infinite;
+}
+.risk-category-chip[data-category-theme="other"]:is(:hover,:focus-visible) .scene-other-dot,
+.risk-category-chip[data-category-theme="custom"]:is(:hover,:focus-visible) .scene-custom-dot{
+ animation:ocCheckPulse 2s ease-in-out infinite alternate;
+}
+.risk-category-chip[data-category-theme="uncategorised"]:is(:hover,:focus-visible) .scene-question{
+ animation:ocQuestionPulse 1.7s ease-in-out infinite;
+}
+@keyframes ocElectricalFlash{0%,35%,65%,100%{opacity:1;filter:drop-shadow(0 0 3px #66c9ff)}36%,41%,67%,70%{opacity:.34;filter:none}}
+@keyframes ocSparkFlash{0%,20%,45%,100%{opacity:.1}21%,44%{opacity:1}}
+@keyframes ocFlameDance{from{transform:scaleX(.88) scaleY(.9) rotate(-3deg)}to{transform:scaleX(1.08) scaleY(1.07) rotate(4deg)}}
+@keyframes ocEmberDrift{from{transform:translateY(6px);opacity:0}30%{opacity:1}to{transform:translateY(-24px);opacity:0}}
+@keyframes ocGearSpin{to{transform:rotate(360deg)}}
+@keyframes ocBubbleRise{from{transform:translateY(16px) scale(.65);opacity:0}35%{opacity:1}to{transform:translateY(-42px) scale(1.14);opacity:0}}
+@keyframes ocLiquidSway{from{transform:translateY(2px) rotate(-1deg)}to{transform:translateY(-2px) rotate(1deg)}}
+@keyframes ocLiftArrow{0%,100%{transform:translateY(7px);opacity:.6}50%{transform:translateY(-8px);opacity:1}}
+@keyframes ocLiftHands{0%,100%{transform:translateY(5px)}50%{transform:translateY(-7px)}}
+@keyframes ocLadderClimb{from{transform:translateY(14px)}to{transform:translateY(-12px)}}
+@keyframes ocDoorRise{from{transform:translateY(0) scaleY(1)}to{transform:translateY(-34px) scaleY(.48)}}
+@keyframes ocCheckPulse{0%,100%{opacity:.6;transform:scale(.93)}50%{opacity:1;transform:scale(1.07)}}
+@keyframes ocQuestionPulse{0%,100%{opacity:.5;transform:translateY(2px)}50%{opacity:1;transform:translateY(-4px)}}
+@media(prefers-reduced-motion:reduce){
+ .risk-category-chip.themed .scene-art *,
+ .risk-category-chip.themed .ecg-trace svg,
+ .risk-category-chip.themed .transport-scene-truck,
+ .risk-category-chip.themed .transport-wheel,
+ .risk-category-chip.themed .transport-scene-road-lines{
+  animation:none!important;transition:none!important;
+ }
+ .risk-category-chip[data-category-theme="transport"] .transport-scene-truck{left:auto;right:12px!important}
+}
+
 </style>
 </head>
 <body>
