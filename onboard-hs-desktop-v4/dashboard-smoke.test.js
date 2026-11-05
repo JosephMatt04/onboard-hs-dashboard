@@ -249,3 +249,12 @@ test('risk assessment categories include lazy locally hosted footage without bre
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
  assert.ok(page.includes('class="risk-category-name"'));
 });
+
+test('desktop dashboard exposes instant refresh button and recovery panel',()=>{
+ assert.ok(html.includes('id="refresh-interface"'));
+ assert.ok(html.includes('window.onboardDesktop.refreshDashboard()'));
+ assert.ok(html.includes('Restore bundled dashboard'));
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ assert.ok(elem('content').innerHTML.includes('Assessment categories'));
+});
