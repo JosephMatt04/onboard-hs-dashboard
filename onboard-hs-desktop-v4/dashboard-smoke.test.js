@@ -99,11 +99,12 @@ test('homepage hides locked risk record names and counts',()=>{
  assert.ok(!page.includes('2020-01-01'));
 });
 
-test('risk register exposes review priority and assessment assurance checks',()=>{
+test('risk register retains document control, review priority and evidence filters',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('Assessment assurance'));
+ assert.ok(page.includes('Assessment categories'));
+ assert.ok(!page.includes('Assessment assurance'));
  assert.ok(page.includes('Missing document'));
  assert.ok(page.includes('Missing residual score'));
  assert.ok(page.includes('Missing sign-off'));
