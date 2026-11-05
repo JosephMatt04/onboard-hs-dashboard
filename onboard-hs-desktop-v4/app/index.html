@@ -1635,6 +1635,202 @@ html[data-theme="dark"] body .control-centre-hero>p{color:#c6d9d2!important}
  html[data-theme="dark"] body .portal-module{padding:7px 8px!important;font-size:9px!important}
 }
 
+
+/* CHARCOAL COMPLETENESS PASS — covers legacy white surfaces throughout every module.
+   Keep text bright, status semantics intact, and actual uploaded document content unchanged. */
+html[data-theme="dark"] body .toolbar,
+html[data-theme="dark"] body .table-wrap,
+html[data-theme="dark"] body table,
+html[data-theme="dark"] body table thead,
+html[data-theme="dark"] body thead,
+html[data-theme="dark"] body .ssow-metrics>div,
+html[data-theme="dark"] body .risk-assurance-metrics>div,
+html[data-theme="dark"] body .risk-assurance,
+html[data-theme="dark"] body .risk-review-panel,
+html[data-theme="dark"] body .risk-review-card,
+html[data-theme="dark"] body .risk-review-card.active,
+html[data-theme="dark"] body .ppe-tabs,
+html[data-theme="dark"] body .audit-question,
+html[data-theme="dark"] body .ptw-check,
+html[data-theme="dark"] body .incident-action-row,
+html[data-theme="dark"] body .backup-status,
+html[data-theme="dark"] body .callout,
+html[data-theme="dark"] body .hero-meta,
+html[data-theme="dark"] body .attachment-list,
+html[data-theme="dark"] body .asset-guide,
+html[data-theme="dark"] body .home-redesign>.panel,
+html[data-theme="dark"] body .risk-category-panel,
+html[data-theme="dark"] body .section-guide,
+html[data-theme="dark"] body .home-hero,
+html[data-theme="dark"] body .home-panel,
+html[data-theme="dark"] body .home-quick-tile,
+html[data-theme="dark"] body .home-metric,
+html[data-theme="dark"] body .portal-kpi,
+html[data-theme="dark"] body .module-tile,
+html[data-theme="dark"] body .modal .attachment-item,
+html[data-theme="dark"] body .asset-profile-field,
+html[data-theme="dark"] body .notice{
+ background:#30393c!important;
+ background-image:none!important;
+ border-color:#526065!important;
+ color:#eaf0eb!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] body .panel,
+html[data-theme="dark"] body .card,
+html[data-theme="dark"] body .modal{
+ background:linear-gradient(155deg,#303a3d,#252d30)!important;
+ border-color:#526065!important;color:#edf3ed!important;
+}
+/* Every assessment category stays graphite, even with an active filter or hover. */
+html[data-theme="dark"] body .risk-category-chip,
+html[data-theme="dark"] body .risk-category-chip.themed,
+html[data-theme="dark"] body .risk-category-chip.themed.active,
+html[data-theme="dark"] body .risk-category-chip.themed:hover,
+html[data-theme="dark"] body .risk-category-chip.themed:focus-visible{
+ background:#303a3d!important;
+ background-image:none!important;
+ color:#f1f6ef!important;
+ border-color:#596a6b!important;
+ border-left-color:var(--chip-main,#c5f322)!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+}
+html[data-theme="dark"] body .risk-category-chip.themed.active{
+ background:#3d4b45!important;
+ border-color:#c5f322!important;
+ border-left-color:#c5f322!important;
+ box-shadow:inset 0 0 0 1px #9abf48!important;
+}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-pictogram,
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-category-pictogram,
+html[data-theme="dark"] body .risk-category-chip .risk-category-pictogram{
+ background:#3a4548!important;
+ background-image:none!important;
+ border:1px solid #607272!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ color:#d0f46a!important;
+}
+html[data-theme="dark"] body .risk-category-chip.themed[data-category-theme="electrical"] .risk-bolt-icon{color:#71c2ff!important}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-name,
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-category-name{color:#f4f8f3!important;text-shadow:0 1px 1px #161e1e!important}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-count,
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-category-count,
+html[data-theme="dark"] body .risk-category-chip b{
+ background:#4a585b!important;
+ color:#f5fbf4!important;
+ border:1px solid #637477!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(23,31,33,.91) 0%,rgba(23,31,33,.57) 55%,rgba(23,31,33,.08) 100%)!important;
+}
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(33,42,37,.90) 0%,rgba(33,42,37,.56) 55%,rgba(33,42,37,.10) 100%)!important;
+}
+/* Register details, due-review cards and distinct workflow controls */
+html[data-theme="dark"] body .risk-review-card.active{background:#3b4742!important;border-color:#c5f322!important}
+html[data-theme="dark"] body .risk-review-card .risk-review-label,
+html[data-theme="dark"] body .risk-review-card strong,
+html[data-theme="dark"] body .risk-review-card .risk-review-description,
+html[data-theme="dark"] body .risk-assurance-metrics b,
+html[data-theme="dark"] body .ssow-metrics b,
+html[data-theme="dark"] body .ssow-metrics strong,
+html[data-theme="dark"] body .portal-kpi strong,
+html[data-theme="dark"] body .portal-kpi .kpi-number,
+html[data-theme="dark"] body .module-tile strong,
+html[data-theme="dark"] body .audit-question legend,
+html[data-theme="dark"] body .incident-action-row legend,
+html[data-theme="dark"] body .backup-status p,
+html[data-theme="dark"] body .callout strong,
+html[data-theme="dark"] body .recent-item b,
+html[data-theme="dark"] body .home-activity-row strong,
+html[data-theme="dark"] body .section-guide-heading span,
+html[data-theme="dark"] body .module-hub-intro h2{color:#eef5ed!important}
+html[data-theme="dark"] body .section-guide p,
+html[data-theme="dark"] body .module-hub-intro p,
+html[data-theme="dark"] body .backup-status small,
+html[data-theme="dark"] body .portal-kpi .kpi-caption,
+html[data-theme="dark"] body .callout,
+html[data-theme="dark"] body .ptw-check,
+html[data-theme="dark"] body .incident-action-row,
+html[data-theme="dark"] body .recent-item .muted{color:#bfd0c7!important}
+html[data-theme="dark"] body .recent-item,
+html[data-theme="dark"] body .home-activity-row,
+html[data-theme="dark"] body .attachment-item{
+ border-bottom-color:#526166!important;
+}
+html[data-theme="dark"] body .ppe-tabs{padding:6px!important}
+html[data-theme="dark"] body .ppe-tab{
+ background:#343f42!important;border:1px solid #57696b!important;color:#eaf2ea!important;
+}
+html[data-theme="dark"] body .ppe-tab.active{background:#c5f322!important;color:#23301d!important;border-color:#e0ff6e!important}
+html[data-theme="dark"] body .status.warn{background:#4f4333!important;border-color:#b09057!important;color:#ffe8ad!important}
+html[data-theme="dark"] body .status.bad{background:#563637!important;border-color:#ad6869!important;color:#ffe1df!important}
+html[data-theme="dark"] body .status.good{background:#30453b!important;border-color:#70a984!important;color:#c8ffd9!important}
+html[data-theme="dark"] body .toolbar .field,
+html[data-theme="dark"] body .toolbar input,
+html[data-theme="dark"] body .toolbar select,
+html[data-theme="dark"] body .field,
+html[data-theme="dark"] body input.field,
+html[data-theme="dark"] body select.field,
+html[data-theme="dark"] body textarea.field,
+html[data-theme="dark"] body select option{
+ background:#212a2c!important;
+ background-image:none!important;
+ border-color:#5b6b6e!important;
+ color:#f3f6f3!important;
+}
+html[data-theme="dark"] body .modal .form-field,
+html[data-theme="dark"] body .modal .form-field span,
+html[data-theme="dark"] body .modal label,
+html[data-theme="dark"] body .modal .form-grid{color:#e7efe8!important}
+html[data-theme="dark"] body #entry-form .risk-form-extras,
+html[data-theme="dark"] body #entry-form .risk-form-extras .risk-form-grid,
+html[data-theme="dark"] body .notice{background:#30393c!important;border-color:#536569!important;color:#eaf0ea!important}
+html[data-theme="dark"] body .modal .attachment-list,
+html[data-theme="dark"] body .modal .attachment-item{background:#30393c!important}
+html[data-theme="dark"] body .modal-actions{border-color:#536367!important}
+html[data-theme="dark"] body .table-wrap{border:1px solid #526166!important;border-radius:9px!important;overflow-x:auto}
+html[data-theme="dark"] body table{background:#293335!important}
+html[data-theme="dark"] body th,
+html[data-theme="dark"] body table thead,
+html[data-theme="dark"] body table thead th{background:#394548!important;border-color:#536267!important;color:#d9e9dd!important}
+html[data-theme="dark"] body td,
+html[data-theme="dark"] body tbody td{background:#293335!important;border-color:#48595d!important;color:#e9f0ea!important}
+html[data-theme="dark"] body tbody tr:hover td{background:#3b484b!important}
+html[data-theme="dark"] body .btn:not(.primary):not(.danger),
+html[data-theme="dark"] body .recent-item .btn.small,
+html[data-theme="dark"] body .panel:has(.ssow-metrics) .recent-item .btn.small{
+ background:#3b484b!important;
+ border-color:#67797b!important;color:#e7f2e8!important;
+}
+html[data-theme="dark"] body .btn:not(.primary):not(.danger):hover,
+html[data-theme="dark"] body .recent-item .btn.small:hover{background:#4c5b5e!important}
+html[data-theme="dark"] body .side .nav .nav-pictogram,
+html[data-theme="dark"] body .side .nav .module-icon.nav-pictogram,
+html[data-theme="dark"] body .side .nav button.active .nav-pictogram{
+ background:#354347!important;
+ background-image:none!important;
+ border:1px solid #617376!important;
+ color:#d9f6a3!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+}
+html[data-theme="dark"] body .side .nav button.active .nav-pictogram{border-color:#c5f322!important}
+html[data-theme="dark"] body .side .logo-panel{background:transparent!important;border:0!important;box-shadow:none!important}
+/* Keep uploaded PDF/image page pixels unchanged, but remove white preview chrome. */
+html[data-theme="dark"] body .preview-modal,
+html[data-theme="dark"] body .preview-text,
+html[data-theme="dark"] body .preview-frame{background:#283235!important;color:#e7f2e9!important;border-color:#526166!important}
+html[data-theme="dark"] body .callout,
+html[data-theme="dark"] body .backup-status{border-left:3px solid #c5f322!important}
+html[data-theme="dark"] body .card .icon{background:#394749!important;border-color:#5b706d!important;color:#d1f767!important}
+html[data-theme="dark"] body ::-webkit-scrollbar-track{background:#21292b!important}
+html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!important}
+/* Live video and the ECG line retain their effects; only their surrounding tile is dark. */
+
 </style>
 </head>
 <body>
