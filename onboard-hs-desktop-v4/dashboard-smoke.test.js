@@ -414,3 +414,17 @@ test('Onboard-branded green dark mode styles panels, forms and categories withou
  dashboard.go('ssow');
  assert.ok(elem('content').innerHTML.includes('Live register checks'));
 });
+
+test('dark mode covers remaining white dashboard metric, quick access and workspace surfaces',()=>{
+ const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
+ const audit=styles.slice(styles.indexOf('/* Dark mode white-surface audit:'));
+ for(const target of ['.home-redesign .home-metric','.home-redesign .home-quick-tile','.risk-review-card','.local-note','.workspace-state','.home-quick-symbol','.home-heading-row h2']){
+  assert.ok(audit.includes(target),'Missing dark mode override: '+target);
+ }
+ assert.ok(audit.includes('background:linear-gradient(148deg,#1b6547 0%,#134f39 100%)'));
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('home');
+ const page=elem('content').innerHTML;
+ assert.equal((page.match(/class="home-metric /g)||[]).length,4);
+ assert.ok(page.includes('home-quick-tile'));
+});
