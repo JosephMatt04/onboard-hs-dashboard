@@ -1525,17 +1525,49 @@ function bindRiskCategoryVideos(){
  const reduced=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  document.querySelectorAll('[data-risk-video]').forEach(video=>{
   const chip=video.closest('.risk-category-chip');if(!chip)return;
-  const stop=()=>{video.pause();try{video.currentTime=0}catch(e){}chip.classList.remove('risk-video-playing')};
-  video.addEventListener('error',()=>{chip.classList.add('risk-video-unavailable');stop()});
-  video.querySelector('source')?.addEventListener('error',()=>{chip.classList.add('risk-video-unavailable');stop()});
-  const play=()=>{
-   if(reduced||chip.classList.contains('risk-video-unavailable'))return;
-   if(!video.dataset.riskLoaded){video.dataset.riskLoaded='1';video.load()}
-   const attempt=video.play();
-   if(attempt&&typeof attempt.then==='function')attempt.then(()=>{if(chip.matches(':hover,:focus-visible'))chip.classList.add('risk-video-playing');else stop()}).catch(()=>{chip.classList.add('risk-video-unavailable');stop()});
+  let activeRequest=0,lastFailure=0;
+  const stop=()=>{
+   activeRequest++;
+   try{video.pause()}catch(e){}
+   try{video.currentTime=0}catch(e){}
+   chip.classList.remove('risk-video-playing');
   };
-  chip.addEventListener('mouseenter',play);chip.addEventListener('focusin',play);
-  chip.addEventListener('mouseleave',stop);chip.addEventListener('focusout',e=>{if(!chip.contains(e.relatedTarget))stop()});
+  const fail=()=>{
+   lastFailure=Date.now();
+   chip.classList.add('risk-video-unavailable');
+   stop();
+  };
+  video.addEventListener('error',fail);
+  video.querySelector('source')?.addEventListener('error',fail);
+  const play=()=>{
+   if(reduced)return;
+   // Network failures get a cool-down; AbortError from leaving a hovered video does not.
+   if(lastFailure&&Date.now()-lastFailure<15000)return;
+   chip.classList.remove('risk-video-unavailable');
+   const request=++activeRequest;
+   try{
+    if(!video.dataset.riskLoaded||lastFailure){video.dataset.riskLoaded='1';video.load();lastFailure=0}
+    const attempt=video.play();
+    if(attempt&&typeof attempt.then==='function'){
+     attempt.then(()=>{
+      if(request!==activeRequest)return;
+      if(chip.matches(':hover,:focus-visible'))chip.classList.add('risk-video-playing');
+      else stop();
+     }).catch(err=>{
+      if(request!==activeRequest)return;
+      // Browser pause/navigation routinely rejects pending play() with AbortError.
+      if(err?.name==='AbortError'){stop();return}
+      fail();
+     });
+    }else if(chip.matches(':hover,:focus-visible'))chip.classList.add('risk-video-playing');
+   }catch(e){
+    if(request===activeRequest)fail();
+   }
+  };
+  chip.addEventListener('mouseenter',play);
+  chip.addEventListener('focusin',play);
+  chip.addEventListener('mouseleave',stop);
+  chip.addEventListener('focusout',e=>{if(!chip.contains(e.relatedTarget))stop()});
  });
 }
 function riskCategoryPanel(){
