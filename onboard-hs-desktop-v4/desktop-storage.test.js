@@ -20,6 +20,7 @@ function storageFixture(){
   if(name==='node:fs')return fs;
   if(name==='./updates')return {createUpdates:()=>({start:()=>{},status:()=>({})})};
   if(name==='./github-direct-updates')return {createGithubDirectUpdates:()=>({start:()=>{},status:()=>({})})};
+  if(name==='./live-ui-updates')return {createLiveUiUpdates:()=>({activeUi:()=>path.join(__dirname,'app','index.html'),restore:async()=>({}),refresh:async()=>({}),status:()=>({}),liveFile:path.join(userData,'live-ui','index.html')})};
   if(name==='./section-pin')return {createSectionPin:()=>({status:()=>({})})};
   throw Error('Unexpected require: '+name);
  };
