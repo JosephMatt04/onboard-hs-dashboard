@@ -1155,7 +1155,7 @@ const STORAGE_KEY='onboard_corrugated_hs_dashboard_v1';
 const THEME_KEY='onboard_hs_appearance_v1';
 function setAppearance(theme,persist=true){
  const dark=theme==='dark';
- document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+ document.documentElement?.setAttribute('data-theme',dark?'dark':'light');
  const btn=document.getElementById('theme-toggle');
  if(btn){btn.textContent=dark?'☀ Light mode':'☾ Dark mode';btn.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');btn.setAttribute('aria-pressed',dark?'true':'false');btn.title=dark?'Switch to light mode':'Switch to dark mode'}
  if(persist){try{window.localStorage?.setItem(THEME_KEY,dark?'dark':'light')}catch(e){}}
@@ -1163,7 +1163,7 @@ function setAppearance(theme,persist=true){
 let initialTheme='light';try{initialTheme=window.localStorage?.getItem(THEME_KEY)||'light'}catch(e){}
 setAppearance(initialTheme,false);
 const themeButton=document.getElementById('theme-toggle');
-if(themeButton)themeButton.onclick=()=>setAppearance(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+if(themeButton)themeButton.onclick=()=>setAppearance(document.documentElement?.getAttribute('data-theme')==='dark'?'light':'dark');
 
 const config={
   risk:{name:'Risk Assessment Register',short:'Risk Assessments',subtitle:'Control assessment revisions, evidence, review priorities and responsible owners.',columns:[['title','Assessment'],['area','Area'],['revision','Revision'],['reviewDate','Next review'],['reviewHealth','Review priority'],['person','Responsible'],['status','Workflow status']],fields:[['title','Assessment title','text',true],['area','Area / department','text',true],['reviewDate','Review date','date',true],['person','Responsible person','text',true],['status','Status','select',true,['Current','Due Soon','Overdue','In Progress']]]},
