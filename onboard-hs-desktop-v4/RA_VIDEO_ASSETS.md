@@ -1,16 +1,31 @@
-# Risk Assessment video backgrounds
+# Risk Assessment realistic hover footage
 
-The Risk Assessment category buttons support **optional** locally packaged WebM video clips. This version includes the playback code, but **does not yet include licensed realistic video footage**. Until you add clips, the existing CSS background animations remain the fallback.
+The premium dashboard supports photographic/video category backgrounds, with local CSS animated scenes as an offline fallback.
 
-Place the following licensed, silent, short WebM videos under `onboard-hs-desktop-v4/app/assets/risk-videos/`:
+## Online source test (interface refresh; no installer)
 
-- `electric-loop.webm` — realistic electrical arcs
-- `fire-loop.webm` — realistic fire flames
-- `lorry-loop.webm` — moving lorry
-- `gears-loop.webm` — real industrial gears
+The following clips are sourced from video pages on Pexels and use the Pexels License. Their **download endpoints** are currently used directly as remote media sources when each category is hovered. **Playback depends on network access and the provider permitting in-page video streaming.** These external links are not guaranteed streaming endpoints and should ultimately be replaced with approved, locally packaged WebM clips. No H&S employee records or attachments are uploaded by the video feature. The external media provider can still see a standard network request such as IP address when a video loads.
 
-Keep clips short (approximately 2–4 seconds), lightweight, muted and seamless, ideally with an aspect ratio suitable for a wide category button. Verify that footage is licensed for redistribution before committing it. The build must package these files inside the Electron app's `app` directory.
+| Category | Source |
+|---|---|
+| All | https://www.pexels.com/video/warehouse-storage-with-worker-walking-38707991/ |
+| Chemicals & COSHH | https://www.pexels.com/video/bubbling-red-liquid-in-a-flask-10187920/ |
+| Electrical Safety | https://www.pexels.com/video/person-welding-metal-14459264/ |
+| Fire & Emergency | https://www.pexels.com/video/intense-close-up-of-flickering-fire-flames-30796588/ |
+| Manual Handling | https://www.pexels.com/video/man-lifting-boxes-inside-the-warehouse-4292580/ |
+| Occupational Health | https://www.pexels.com/video/heartbeat-on-monitor-855944/ |
+| Working at Height | https://www.pexels.com/video/low-angle-footage-of-a-construction-worker-securing-the-steel-scaffolding-on-the-building-exterior-3078521/ |
+| Other | https://www.pexels.com/video/industrial-machinery-in-factory-setting-35451867/ |
+| Plant & Equipment | https://www.pexels.com/video/close-up-of-gears-on-a-machine-in-a-factory-10040029/ |
+| Workplace & Premises | https://www.pexels.com/video/two-women-walking-in-the-hall-of-a-building-while-having-a-conversation-3044904/ |
+| Vehicles & Transport | https://www.pexels.com/video/a-truck-travelling-in-the-road-4356074/ |
+| Uncategorised | same warehouse clip as All |
+| User-created categories | generic industrial clip |
 
-Playback starts on hover or keyboard focus and stops on exit. A contrast overlay preserves label visibility. Errors and absent files fall back to the existing CSS animation. Reduced-motion users do not get autoplay footage.
+Pexels licensing guide: https://help.pexels.com/hc/en-us/articles/360042295174-What-is-the-license-of-the-photos-and-videos-on-Pexels
 
-Do not use unverified remote streaming links for these buttons. The dashboard is designed to run offline.
+## Proper offline production solution
+
+Install approved short silent clips under `onboard-hs-desktop-v4/app/assets/risk-videos/`, change `RISK_CATEGORY_VIDEO_FILES` to those relative paths and use WebM MIME type. This needs one desktop install to deliver **new binary video files**, because the instant refresh capability currently exchanges only HTML and not newly bundled media.
+
+When footage fails to load, the category's animated CSS scene remains visible. Reduced-motion users receive the static background rather than moving video.
