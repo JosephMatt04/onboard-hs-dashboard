@@ -382,3 +382,18 @@ test('video handler avoids playback with reduced motion and gracefully handles s
   assert.equal(classes.has('risk-video-unavailable'),!reduce);
  }
 });
+
+test('category media remain lazy, offline-safe and accessible from keyboard focus',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ assert.ok(page.includes('preload="none"'));
+ assert.ok(page.includes('muted loop playsinline'));
+ assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
+ assert.ok(page.includes('class="ecg-trace"'));
+ assert.ok(!page.includes('data-risk-video="health"'));
+ assert.ok(html.includes('focusin'));
+ assert.ok(html.includes('focusout'));
+ assert.ok(html.includes('html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint'));
+});
