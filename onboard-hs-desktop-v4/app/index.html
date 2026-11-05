@@ -2021,6 +2021,43 @@ html[data-theme="dark"] body ::-webkit-scrollbar-thumb{background:#57686a!import
  .risk-category-chip[data-category-theme="transport"] .transport-scene-truck{left:auto;right:12px!important}
 }
 
+
+/* Word risk-assessment preview: readable paragraphs and matrix tables, no network dependency. */
+.docx-preview-sheet{
+ background:#fdfefe!important;color:#21312d!important;
+ border:1px solid #cbd7d4!important;border-radius:8px;
+ padding:clamp(16px,3vw,36px)!important;margin:0 auto;max-height:67vh;overflow:auto;
+ font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:13px;line-height:1.45;
+ box-shadow:0 9px 28px rgba(0,0,0,.16);
+}
+.docx-preview-sheet .docx-paragraph{margin:0 0 9px!important;color:#21312d!important;white-space:pre-wrap;overflow-wrap:anywhere}
+.docx-preview-sheet .docx-paragraph.docx-empty{min-height:7px;margin:0 0 3px!important}
+.docx-preview-sheet .docx-heading{font-weight:800;color:#243d33!important}
+.docx-preview-sheet h1.docx-heading{font-size:21px!important}
+.docx-preview-sheet h2.docx-heading{font-size:18px!important}
+.docx-preview-sheet h3.docx-heading{font-size:16px!important}
+.docx-table-scroll{max-width:100%;overflow-x:auto;margin:12px 0 20px}
+.docx-preview-sheet .docx-preview-table{
+ border-collapse:collapse!important;table-layout:auto;width:100%;
+ background:#fff!important;color:#17231d!important;font-size:12px!important
+}
+.docx-preview-sheet .docx-preview-table tr,.docx-preview-sheet .docx-preview-table th,
+.docx-preview-sheet .docx-preview-table td{
+ border:1px solid #aebdb8!important;
+ background:#fff!important;color:#1f3027!important;
+ padding:7px 8px!important;vertical-align:top!important;
+ overflow-wrap:anywhere;white-space:normal;min-width:70px
+}
+.docx-preview-sheet .docx-preview-table td.docx-shaded-cell{background:var(--docx-cell-shade,#e6eee8)!important}
+.docx-preview-sheet .docx-preview-table td .docx-paragraph{color:inherit!important;margin:0 0 5px!important}
+.docx-preview-sheet .docx-preview-table tr:hover td{background:#f8faf8!important}
+.docx-preview-sheet .docx-preview-table tr:hover td.docx-shaded-cell{background:var(--docx-cell-shade,#e6eee8)!important}
+html[data-theme="dark"] body .docx-preview-sheet{background:#fff!important;color:#21312d!important}
+html[data-theme="dark"] body .docx-preview-sheet .docx-paragraph{color:#21312d!important}
+html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table,
+html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table td{background:#fff!important;color:#1f3027!important}
+html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table td.docx-shaded-cell{background:var(--docx-cell-shade,#e6eee8)!important}
+
 </style>
 </head>
 <body>
@@ -2460,7 +2497,7 @@ function bytesUsed(data=db){return Object.values(data).flat().flatMap(r=>r.attac
 function attachmentHTML(arr){return arr.length?arr.map((a,i)=>`<div class="attachment-item"><span>📄 <strong>${esc(a.name)}</strong> ${a.role==='Operating Manual'?'<span class="status good">Operating manual</span>':''} <span class="muted">(${Math.round(a.size/1024)} KB)</span></span><div class="attachment-controls"><button type="button" class="btn small primary" data-preview="${i}">Open</button><button type="button" class="btn small" data-download="${i}">Download</button><button type="button" class="btn small danger" data-remove="${i}">Remove</button></div></div>`).join(''):'<p class="muted">No documents attached yet.</p>'}
 function downloadAttachment(a){const link=document.createElement('a');link.href=a.data;link.download=a.name;document.body.append(link);link.click();link.remove()}
 function attachmentBlob(a){const [head,body]=a.data.split(',',2);if(!body||!/^data:[^,]*;base64$/i.test(head))throw Error('Invalid attachment data');const raw=atob(body);const bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return new Blob([bytes],{type:a.name.toLowerCase().endsWith('.pdf')?'application/pdf':a.type||'application/octet-stream'})}
-async function readDocxText(blob){
+async function readDocxXml(blob){
   const data=new Uint8Array(await blob.arrayBuffer()),dv=new DataView(data.buffer);
   let eocd=-1;for(let i=data.length-22;i>=Math.max(0,data.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break}}
   if(eocd<0)throw Error('Cannot read this Word document');
@@ -2484,9 +2521,92 @@ async function readDocxText(blob){
   if(!xmlBytes)throw Error('Could not find document text');
   const doc=new DOMParser().parseFromString(new TextDecoder().decode(xmlBytes),'application/xml');
   if(doc.querySelector('parsererror'))throw Error('Document text is invalid');
-  const paragraphs=Array.from(doc.getElementsByTagName('w:p'));
-  const lines=paragraphs.map(p=>Array.from(p.getElementsByTagName('w:t')).map(n=>n.textContent).join(''));
-  return lines.join('\n').replace(/\n{4,}/g,'\n\n\n').slice(0,250000);
+  return doc;
+}
+
+function docxChildren(node,name){return Array.from(node?.childNodes||[]).filter(n=>n.nodeType===1&&n.localName===name)}
+function docxChild(node,name){return docxChildren(node,name)[0]||null}
+function docxAttr(node,name){return node?.getAttribute('w:'+name)||node?.getAttribute(name)||''}
+function docxAppendRun(run,target){
+ const props=docxChild(run,'rPr');
+ let wrapper=target;
+ if(docxChild(props,'b')&&docxAttr(docxChild(props,'b'),'val')!=='0'){const e=document.createElement('strong');wrapper.append(e);wrapper=e}
+ if(docxChild(props,'i')&&docxAttr(docxChild(props,'i'),'val')!=='0'){const e=document.createElement('em');wrapper.append(e);wrapper=e}
+ if(docxChild(props,'u')&&docxAttr(docxChild(props,'u'),'val')!=='none'){const e=document.createElement('u');wrapper.append(e);wrapper=e}
+ for(const child of Array.from(run.childNodes||[])){
+  if(child.nodeType!==1)continue;
+  if(child.localName==='t'||child.localName==='delText')wrapper.append(document.createTextNode(child.textContent||''));
+  else if(child.localName==='tab')wrapper.append(document.createTextNode('    '));
+  else if(child.localName==='br'||child.localName==='cr')wrapper.append(document.createElement('br'));
+ }
+}
+function docxRenderParagraph(node){
+ const props=docxChild(node,'pPr'),style=docxAttr(docxChild(props,'pStyle'),'val');
+ const heading=style.match(/^Heading([1-6])$/i);
+ const para=document.createElement(heading?'h'+heading[1]:'p');
+ para.className='docx-paragraph'+(heading?' docx-heading':'');
+ const alignment=docxAttr(docxChild(props,'jc'),'val');
+ if(['center','right','justify'].includes(alignment))para.style.textAlign=alignment;
+ const ind=docxChild(props,'ind');
+ const left=Number(docxAttr(ind,'left'));
+ if(Number.isFinite(left)&&left>0)para.style.paddingLeft=Math.min(left/20,100)+'px';
+ // Keep hyperlink text and runs in their original order, without executing embedded content.
+ for(const child of Array.from(node.childNodes||[])){
+  if(child.nodeType!==1)continue;
+  if(child.localName==='r')docxAppendRun(child,para);
+  else if(child.localName==='hyperlink')for(const run of docxChildren(child,'r'))docxAppendRun(run,para);
+ }
+ if(!para.textContent.trim()&&!para.querySelector('br'))para.classList.add('docx-empty');
+ return para;
+}
+function docxRenderTable(tbl){
+ const frame=document.createElement('div');frame.className='docx-table-scroll';
+ const table=document.createElement('table');table.className='docx-preview-table';
+ const grid=docxChild(tbl,'tblGrid');const cols=docxChildren(grid,'gridCol');
+ const total=cols.reduce((v,col)=>v+Math.max(0,Number(docxAttr(col,'w'))||0),0);
+ if(total>0&&cols.length){
+  const cg=document.createElement('colgroup');
+  for(const col of cols){const cell=document.createElement('col');cell.style.width=(100*(Number(docxAttr(col,'w'))||0)/total).toFixed(2)+'%';cg.append(cell)}
+  table.append(cg);
+ }
+ for(const row of docxChildren(tbl,'tr')){
+  const tr=document.createElement('tr');
+  for(const sourceCell of docxChildren(row,'tc')){
+   const tc=document.createElement('td'),props=docxChild(sourceCell,'tcPr');
+   const span=Math.max(1,Math.min(20,Number(docxAttr(docxChild(props,'gridSpan'),'val'))||1));
+   if(span>1)tc.colSpan=span;
+   const shading=docxAttr(docxChild(props,'shd'),'fill');
+   if(/^[0-9a-f]{6}$/i.test(shading)&&shading.toLowerCase()!=='ffffff'){
+    tc.style.setProperty('--docx-cell-shade','#'+shading);
+    tc.classList.add('docx-shaded-cell');
+   }
+   for(const child of Array.from(sourceCell.childNodes||[])){
+    if(child.nodeType!==1)continue;
+    if(child.localName==='p')tc.append(docxRenderParagraph(child));
+    else if(child.localName==='tbl')tc.append(docxRenderTable(child));
+   }
+   tr.append(tc);
+  }
+  table.append(tr);
+ }
+ frame.append(table);
+ return frame;
+}
+async function renderDocxPreview(blob,target){
+ const xml=await readDocxXml(blob);
+ const root=xml.documentElement;
+ const body=xml.getElementsByTagName('w:body')[0]||Array.from(xml.getElementsByTagName('*')).find(n=>n.localName==='body');
+ if(!root||!body)throw Error('This Word document has no readable body');
+ const sheet=document.createElement('article');sheet.className='docx-preview-sheet';
+ let paragraphCount=0,tableCount=0;
+ for(const child of Array.from(body.childNodes||[])){
+  if(child.nodeType!==1)continue;
+  if(child.localName==='p'){sheet.append(docxRenderParagraph(child));paragraphCount++}
+  else if(child.localName==='tbl'){sheet.append(docxRenderTable(child));tableCount++}
+ }
+ if(!paragraphCount&&!tableCount)throw Error('No readable Word content found');
+ target.append(sheet);
+ return {paragraphCount,tableCount};
 }
 async function previewAttachment(a,k,id){
   const name=a.name.toLowerCase(),pdf=name.endsWith('.pdf'),img=/\.(jpg|jpeg|png)$/.test(name),txt=name.endsWith('.txt'),docx=name.endsWith('.docx');
@@ -2503,7 +2623,7 @@ async function previewAttachment(a,k,id){
     if(pdf){objectUrl=URL.createObjectURL(blob);const frame=document.createElement('iframe');frame.className='preview-frame';frame.title='PDF preview';frame.src=objectUrl;body.append(frame);info.textContent='PDF preview · use the Download original button if your browser does not display PDFs.'}
     else if(img){objectUrl=URL.createObjectURL(blob);const picture=document.createElement('img');picture.className='preview-image';picture.alt=a.name;picture.src=objectUrl;body.append(picture);info.textContent='Image preview'}
     else if(txt){const pre=document.createElement('pre');pre.className='preview-text';pre.textContent=await blob.text();body.append(pre);info.textContent='Text preview'}
-    else {const content=await readDocxText(blob);const pre=document.createElement('pre');pre.className='preview-text';pre.textContent=content||'(No readable body text found)';body.append(pre);info.textContent='Basic Word text preview (formatting, tables, headers and images may not appear). Download to view the full original document.'}
+    else {const result=await renderDocxPreview(blob,body);info.textContent='Word preview · '+result.tableCount+' table(s), '+result.paragraphCount+' paragraph(s). Tables and basic formatting shown; embedded images and exact page layout may differ from Word. Use Download original for the authoritative document.'}
   }catch(err){const info=root.querySelector('#preview-info');if(info){info.textContent='Preview unavailable: '+err.message+'. Download the original to open it in its normal program.';}}
 }
 function fileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('Unable to read '+file.name));reader.readAsDataURL(file)})}
