@@ -519,3 +519,51 @@ test('all custom category SVG animations have movement keyframes and never strea
  assert.ok(!page.includes('pexels.com'));
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
 });
+
+test('Word preview creates real risk matrix tables and preserves formatted paragraph runs',()=>{
+ const start=inline.indexOf('function docxChildren(');
+ const end=inline.indexOf('async function previewAttachment(',start);
+ assert.ok(start>=0&&end>start);
+ const source=inline.slice(start,end);
+ const node=(name,children=[],attr={},value='')=>({
+  nodeType:1,localName:name,childNodes:children,textContent:value,
+  getAttribute:k=>attr[k]||null
+ });
+ function element(tag){
+  return {tag,children:[],style:{setProperty(k,v){this[k]=v}},className:'',
+   classList:{add(k){this[k]=true}},append(...c){this.children.push(...c)},
+   set colSpan(n){this.span=n},set textContent(v){this.text=v},get textContent(){return this.text||this.children.map(c=>c.textContent||'').join('')},
+   querySelector:()=>null};
+ }
+ const document={createElement:element,createTextNode:v=>({nodeType:3,textContent:v})};
+ const renderer=new Function('document',source+';return {docxRenderParagraph,docxRenderTable,docxChildren};')(document);
+ const run=node('r',[node('rPr',[node('b')]),node('t',[],{},'Likelihood')]);
+ const para=node('p',[run],{},'Likelihood');
+ const table=node('tbl',[
+  node('tblGrid',[node('gridCol',[],{'w:w':'2000'}),node('gridCol',[],{'w:w':'3000'})]),
+  node('tr',[
+   node('tc',[node('tcPr',[node('gridSpan',[],{'w:val':'2'}),node('shd',[],{'w:fill':'D7EAD8'})]),para]),
+   node('tc',[node('p',[node('r',[node('t',[],{},'Risk Category')])])])
+  ])
+ ]);
+ const out=renderer.docxRenderTable(table);
+ const tbl=out.children[0];
+ assert.equal(tbl.tag,'table');
+ assert.equal(tbl.children[0].tag,'colgroup');
+ const row=tbl.children[1];
+ assert.equal(row.tag,'tr');
+ assert.equal(row.children[0].span,2);
+ assert.ok(row.children[0].classList['docx-shaded-cell']);
+ assert.equal(row.children[0].children[0].children[0].tag,'strong');
+ assert.equal(row.children[0].children[0].textContent,'Likelihood');
+ assert.equal(row.children[1].children[0].textContent,'Risk Category');
+});
+test('DOCX preview is clearly labelled approximate and leaves original untouched',()=>{
+ assert.ok(html.includes('async function renderDocxPreview(blob,target)'));
+ assert.ok(html.includes('docxRenderTable(child)'));
+ assert.ok(html.includes('docxRenderParagraph(child)'));
+ assert.ok(html.includes('Download original for the authoritative document'));
+ assert.ok(html.includes('className=\\'docx-preview-sheet\\''));
+ assert.ok(html.includes('html[data-theme="dark"] body .docx-preview-sheet'));
+ assert.ok(!html.includes('Basic Word text preview'));
+});
