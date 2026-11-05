@@ -261,3 +261,18 @@ test('desktop dashboard exposes instant refresh button and recovery panel',()=>{
  dashboard.go('risk');
  assert.ok(elem('content').innerHTML.includes('Assessment categories'));
 });
+
+test('minimal video-first risk category tabs use a proper lightning bolt and preserve filtering',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'bolt-test',title:'Electrical assessment check',category:'Electrical Safety',status:'Current'});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('class="risk-bolt-icon"'));
+ assert.ok(page.includes('viewBox="0 0 24 24"'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
+ assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
+ dashboard.setRiskCategory('Electrical Safety');
+ assert.ok(elem('tbody').innerHTML.includes('Electrical assessment check'));
+ dashboard.setRiskCategory('Fire & Emergency');
+ assert.ok(!elem('tbody').innerHTML.includes('Electrical assessment check'));
+});
