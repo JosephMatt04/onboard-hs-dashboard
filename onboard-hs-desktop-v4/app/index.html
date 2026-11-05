@@ -1362,6 +1362,44 @@ html[data-theme="dark"] body .home-redesign .home-metric:after{opacity:.15!impor
 html[data-theme="dark"] body .portal-modules{border-color:#408660!important}
 html[data-theme="dark"] body .portal-module.active{background:#247b54!important;color:#fff!important;border-color:#75cd9c!important}
 
+
+/* Control Centre homepage — inspired by workshop stores reference, without disturbing registers. */
+.home-redesign.control-centre{max-width:1280px;margin-inline:auto}
+.control-centre-nav{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;margin:0 auto 22px;padding:0 12px}
+.control-centre-nav .control-module{border:1px solid #bbd9c8;background:#f0f7f3;color:#255640;font-size:10px;font-weight:800;padding:8px 11px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:background .18s,border-color .18s}
+.control-centre-nav .control-module.active{background:#c6f51c;color:#213621;border-color:#d0f54e}
+.control-centre-nav .control-module:hover,.control-centre-nav .control-module:focus-visible{background:#d9f5e5;border-color:#69bd8c}
+.control-centre-hero{position:relative;isolation:isolate;min-height:410px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:39px 26px 38px;margin-bottom:29px;border:1px solid #a6ccbd;border-radius:20px;background:radial-gradient(ellipse at 50% 60%,rgba(104,185,150,.18),transparent 47%),linear-gradient(135deg,#174d40,#203e44 60%,#1a5042);box-shadow:0 24px 60px #112c2719;overflow:hidden}
+.control-centre-hero:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0,transparent 79px,#ffffff04 80px,#ffffff04 81px);pointer-events:none;z-index:-1}
+.control-centre-kicker{color:#bbecd2;font-size:10px;font-weight:850;letter-spacing:.16em;margin:0 0 11px}
+.control-centre-online{font-size:9px;font-weight:800;letter-spacing:.13em;color:#b6f2d4;margin-bottom:12px}
+.control-centre-hero h2{font-size:clamp(27px,3.6vw,43px)!important;font-weight:800!important;line-height:1.1!important;letter-spacing:-.04em!important;color:#f5fff8!important;margin:0 0 12px!important;text-shadow:0 2px 16px #0b322b80}
+.control-centre-hero>p{color:#c9e7dc!important;font-size:12px!important;margin:0 0 25px!important;line-height:1.6}
+.control-centre-command{width:min(100%,530px);padding:22px 23px 20px;background:linear-gradient(145deg,rgba(70,105,115,.75),rgba(39,69,77,.86));border:1px solid #b3dbd052;border-radius:12px;box-shadow:0 12px 40px #0c2e3280,inset 0 1px 0 #ffffff13;text-align:left;backdrop-filter:blur(7px)}
+.control-centre-command-head{display:flex;align-items:center;gap:11px;margin-bottom:17px}
+.control-command-icon{display:grid;place-items:center;color:#c3f51c;background:#243e42;border:1px solid #91b7aa55;border-radius:10px;font-size:19px;width:37px;height:37px;flex-shrink:0}
+.control-centre-command h3{font-size:16px!important;margin:0 0 4px!important;color:#fff!important;letter-spacing:-.01em}
+.control-centre-command-head p{color:#c2ded8!important;font-size:11px!important;line-height:1.45;margin:0}
+.control-centre-actions{display:grid;gap:9px}
+.control-centre-actions button{width:100%;border-radius:7px;cursor:pointer;min-height:43px;letter-spacing:.035em;font-weight:850;font-size:11px;transition:filter .16s,transform .16s}
+.control-centre-main-action{background:#c3f31d;color:#273719;border:1px solid #e2ff75;box-shadow:0 5px 12px #172a1d50}
+.control-centre-secondary-action{background:#254c54;color:#e7fff5;border:1px solid #83aea8}
+.control-centre-quiet-action{background:transparent;border:0;color:#d5f2e4;font-size:10px!important;min-height:27px!important;font-weight:650!important}
+.control-centre-actions button:hover,.control-centre-actions button:focus-visible{filter:brightness(1.12);transform:translateY(-1px)}
+.home-redesign.control-centre .home-heading-row{margin-top:8px}
+@media(max-width:720px){.control-centre-hero{padding:32px 15px 29px;min-height:0}.control-centre-command{padding:18px 14px}.control-centre-nav{gap:6px;padding:0}.control-centre-nav .control-module{padding:8px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.control-centre-actions button,.control-centre-nav .control-module{transition:none}.control-centre-actions button:hover{transform:none}}
+/* Dark mode: the command centre uses the reference's slate/teal tone and lime CTA. */
+html[data-theme="dark"] body .control-centre-hero{background:radial-gradient(ellipse at 50% 60%,rgba(72,143,130,.20),transparent 49%),linear-gradient(125deg,#152e39,#1d3f48 52%,#152d38)!important;border-color:#47726e!important}
+html[data-theme="dark"] body .control-centre-command{background:linear-gradient(148deg,#344f5eeb,#263f4deb)!important;border:1px solid #91baba55!important}
+html[data-theme="dark"] body .control-centre-nav .control-module{background:#233e48!important;border-color:#456d70!important;color:#d5e7e6!important}
+html[data-theme="dark"] body .control-centre-nav .control-module.active{background:#c3f31d!important;border-color:#dffb65!important;color:#1f301f!important}
+html[data-theme="dark"] body .control-centre-nav .control-module:hover{background:#39616a!important}
+html[data-theme="dark"] body .control-centre-main-action{background:#c3f31d!important;border-color:#e5ff6e!important;color:#26351e!important}
+html[data-theme="dark"] body .control-centre-secondary-action{background:#254e58!important;color:#eaf9f4!important;border-color:#83b2ae!important}
+html[data-theme="dark"] body .control-centre-quiet-action{background:transparent!important;color:#d2efe2!important;border:0!important}
+html[data-theme="dark"] body .control-centre-hero h2{color:#fff!important}
+
 </style>
 </head>
 <body>
@@ -1556,7 +1594,9 @@ function homeHTML(){
  const safeCount=stats.map(([name,value,detail,k,tone])=>'<div class="home-metric '+tone+'"><div class="home-metric-caption">'+esc(name)+'</div><strong>'+esc(String(value))+'</strong><p>'+esc(detail)+'</p><button type="button" data-nav="'+k+'" class="home-text-action">View records →</button></div>').join('');
  const quick=tiles.map(([name,k,value,hint,symbol])=>'<button type="button" class="home-quick-tile" data-nav="'+k+'"><span class="home-quick-symbol" aria-hidden="true">'+symbol+'</span><span class="home-quick-copy"><strong>'+esc(name)+'</strong><small>'+esc(hint)+'</small></span><span class="home-quick-count">'+esc(String(value))+'</span></button>').join('');
  const activity=recent.length?recent.map(r=>'<div class="home-activity-row"><div><strong>'+esc(r.name||'Untitled')+'</strong><small>'+esc(r.kind)+' · '+dateFmt(r.date)+'</small></div><div class="home-activity-end">'+statusHTML(r.status)+'<button type="button" class="home-text-action" data-nav="'+r.k+'">Open →</button></div></div>').join(''):'<p class="empty">No recent records in unlocked sections.</p>';
- return '<div class="home-redesign"><section class="home-new-hero"><div><span class="home-eyebrow">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><h2>Safety overview</h2><p>Your workplace safety records, priorities and review dates in one clear workspace.</p></div><div class="home-hero-actions"><span class="home-local-pill">● Local desktop dashboard</span><button type="button" class="btn primary" data-nav="risk">Open risk assessments</button></div></section>'+
+ const commandModules=[['Overview','home'],['Risk Assessments','risk'],['SSOW','ssow'],['Incidents','incidents'],['Training','training'],['PPE','ppeStock'],['Assets','assets'],['Permits to Work','permits']];
+ const commandNav=commandModules.map(([name,k])=>'<button type="button" class="control-module'+(k==='home'?' active':'')+'" data-nav="'+k+'">'+esc(name)+'</button>').join('');
+ return '<div class="home-redesign control-centre"><div class="control-centre-nav" aria-label="Control centre modules">'+commandNav+'</div><section class="control-centre-hero"><span class="control-centre-kicker">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><div class="control-centre-online">● LOCAL WORKSPACE</div><h2>Health &amp; Safety<br>Control Centre</h2><p>Everything you need to manage workplace safety, all in one place.</p><div class="control-centre-command"><div class="control-centre-command-head"><span class="control-command-icon">✦</span><div><h3>What would you like to do?</h3><p>Choose an action to open your safety workspace.</p></div></div><div class="control-centre-actions"><button type="button" class="control-centre-main-action" data-nav="risk">◈ &nbsp; OPEN RISK ASSESSMENTS</button><button type="button" class="control-centre-secondary-action" data-action="add" data-section="risk">＋ &nbsp; ADD NEW ASSESSMENT</button><button type="button" class="control-centre-quiet-action" data-nav="incidents">View incidents and outstanding actions →</button></div></div></section>'+
  '<div class="home-heading-row"><div><h2>Needs attention</h2><p>Live counts from your registers — not a substitute for checking the underlying records.</p></div></div>'+
  '<div class="home-metrics">'+safeCount+'</div>'+
  '<div class="home-heading-row"><div><h2>Quick access</h2><p>Jump straight to the records you use most.</p></div></div>'+
