@@ -195,8 +195,9 @@ test('risk categories render distinct visual themes without changing filter sema
  assert.ok(elem('tbody').innerHTML.includes('Custom Category Record'));
 });
 
-test('command centre theme covers navigation, registers, cards and edit forms',()=>{
- assert.ok(html.includes('dark Command Centre visual system'));
+test('premium light web-app theme covers navigation, registers, cards and edit forms',()=>{
+ assert.ok(html.includes('Premium light web-app design'));
+ assert.ok(!html.includes('dark Command Centre visual system'));
  for(const selector of ['.side .nav button.active','.portal-module.active','.home-new-hero','.risk-category-chip.themed','.risk-review-card.active','tbody tr:hover td','.modal,.preview-modal']){
   assert.ok(html.includes(selector),selector);
  }
