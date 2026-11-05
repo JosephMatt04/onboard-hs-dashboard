@@ -179,3 +179,18 @@ test('risk review filters show matching assessments without changing records',()
  assert.ok(!filterBy('In Progress').includes('OVERDUE_RA_EXAMPLE'));
  assert.equal(dashboard.db.risk.at(-1).status,'In Progress');
 });
+
+test('risk categories render distinct visual themes without changing filter semantics',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'custom-chip-test',title:'Custom Category Record',category:'Warehouse Operations',status:'Current',reviewDate:'2030-01-01'});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ for(const theme of ['plant','chemical','electrical','fire','handling','transport','height','health','premises','other','uncategorised','custom']){
+  assert.ok(page.includes('data-category-theme="'+theme+'"'),theme);
+ }
+ assert.ok(page.includes('class="risk-category-pictogram"'));
+ dashboard.setRiskCategory('Warehouse Operations');
+ assert.ok(elem('tbody').innerHTML.includes('Custom Category Record'));
+ dashboard.setRiskCategory('All');
+ assert.ok(elem('tbody').innerHTML.includes('Custom Category Record'));
+});
