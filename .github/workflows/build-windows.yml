@@ -73,6 +73,10 @@ jobs:
         working-directory: onboard-hs-desktop-v4
         run: npm run test:github-updates
 
+      - name: Test refresh-without-installer interface updater
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:live-ui
+
       - name: Build Windows installer
         working-directory: onboard-hs-desktop-v4
         run: npm run dist:win
