@@ -96,6 +96,9 @@ const {createUpdates} = require('./updates');
 const updates = createUpdates({app, dialog, getWindow:()=>mainWindow, settingsFile:path.join(app.getPath('userData'),'private-update-settings.json')});
 const {createGithubDirectUpdates}=require('./github-direct-updates');
 const githubUpdates=createGithubDirectUpdates({app,updateEngine:updates});
+const {createLiveUiUpdates}=require('./live-ui-updates');
+const bundledUi=path.join(__dirname,'app','index.html');
+const liveUiUpdates=createLiveUiUpdates({app,getWindow:()=>mainWindow,bundledUi});
 
 async function savePermitPDF(html,reference){
  if(typeof html!=='string'||html.length>1000000||!html.startsWith('<!doctype html>'))throw Error('Invalid permit document');
@@ -122,9 +125,14 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.webContents.setWindowOpenHandler(() => ({action:'deny'}));
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!url.startsWith('file://') || !url.endsWith('/app/index.html')) event.preventDefault();
+    const allowed=new Set([require('node:url').pathToFileURL(bundledUi).href,require('node:url').pathToFileURL(liveUiUpdates.liveFile).href]);
+    if(!allowed.has(url))event.preventDefault();
   });
-  mainWindow.loadFile(path.join(__dirname,'app','index.html'));
+  mainWindow.loadFile(liveUiUpdates.activeUi());
+  // Recovery shortcut if a refreshed interface fails: Ctrl+Shift+Alt+B restores the bundled UI.
+  mainWindow.webContents.on('before-input-event',(_event,input)=>{
+    if(input.type==='keyDown'&&input.control&&input.shift&&input.alt&&input.key.toLowerCase()==='b')liveUiUpdates.restore().catch(()=>{});
+  });
 }
 app.whenReady().then(() => {
   loadBackupPreferences();
@@ -143,6 +151,9 @@ app.whenReady().then(() => {
   createWindow();
   githubUpdates.start(); // GitHub is primary; the original Z: folder updater stays available manually.
   ipcMain.handle('github-updates:status',()=>githubUpdates.status());
+  ipcMain.handle('live-ui:status',()=>liveUiUpdates.status());
+  ipcMain.handle('live-ui:refresh',()=>liveUiUpdates.refresh());
+  ipcMain.handle('live-ui:restore',()=>liveUiUpdates.restore());
   ipcMain.handle('github-updates:check',()=>githubUpdates.check(true));
   ipcMain.handle('updates:status', () => updates.status());
   ipcMain.handle('updates:check', () => updates.check(true));
