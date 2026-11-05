@@ -493,3 +493,14 @@ test('charcoal theme overrides legacy white surfaces across every module and eve
  assert.equal((elem('content').innerHTML.match(/class="risk-category-chip themed/g)||[]).length,12);
  assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,11);
 });
+
+test('Vehicles & Transport uses professional warehouse loading footage rather than the old road clip',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('data-risk-video="transport"'));
+ assert.ok(page.includes('https://www.pexels.com/download/video/39966866/'));
+ assert.ok(!page.includes('https://www.pexels.com/download/video/4356074/'));
+ assert.ok(page.includes('class="risk-chip-microfx"'));
+ assert.ok(html.includes('risk-category-chip[data-category-theme="transport"] .risk-chip-video'));
+});
