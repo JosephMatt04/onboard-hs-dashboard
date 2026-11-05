@@ -469,3 +469,27 @@ test('workshop charcoal theme applies to entire dashboard without duplicate navi
  assert.equal((page.match(/class="portal-module /g)||[]).length,8);
  assert.ok(page.includes('class="control-centre-main-action"'));
 });
+
+test('charcoal theme overrides legacy white surfaces across every module and every risk category',()=>{
+ const css=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
+ const fix=css.slice(css.indexOf('/* CHARCOAL COMPLETENESS PASS'));
+ const surfaces=['.toolbar','.table-wrap','table thead','.ssow-metrics>div',
+  '.risk-assurance-metrics>div','.risk-review-card','.ppe-tabs','.audit-question',
+  '.ptw-check','.incident-action-row','.backup-status','.callout','.section-guide',
+  '.attachment-list','.preview-modal','.module-tile','.asset-profile-field',
+  '.risk-category-chip.themed.active','.risk-category-pictogram','.risk-category-count',
+  '.side .nav .nav-pictogram','.status.warn','.status.bad','.recent-item .btn.small'];
+ for(const name of surfaces)assert.ok(fix.includes(name),'Missing dark surface override '+name);
+ assert.ok(fix.includes('html[data-theme="dark"]'));
+ assert.ok(fix.includes('background:#30393c!important'));
+ assert.ok(fix.includes('background:#303a3d!important'));
+ assert.equal((fix.match(/\{/g)||[]).length,(fix.match(/\}/g)||[]).length);
+ const {dashboard,elem}=harness({locked:false});
+ for(const name of ['home','risk','ssow','training','incidents','assets','ppeStock','audits','permits']){
+  dashboard.go(name);
+  assert.ok(elem('content').innerHTML.length>300,name);
+ }
+ dashboard.go('risk');
+ assert.equal((elem('content').innerHTML.match(/class="risk-category-chip themed/g)||[]).length,12);
+ assert.equal((elem('content').innerHTML.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+});
