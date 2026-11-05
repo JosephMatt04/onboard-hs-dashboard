@@ -237,3 +237,15 @@ test('risk category backgrounds contain scenes behind readable category names',(
  dashboard.setRiskCategory('All');
  assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
 });
+
+test('risk assessment categories include lazy locally hosted footage without breaking fallback',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,4);
+ for(const file of ['electric-loop.webm','fire-loop.webm','lorry-loop.webm','gears-loop.webm'])assert.ok(page.includes(file),file);
+ assert.ok(page.includes('preload="none"'));
+ assert.ok(page.includes('muted loop playsinline'));
+ assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
+ assert.ok(page.includes('class="risk-category-name"'));
+});
