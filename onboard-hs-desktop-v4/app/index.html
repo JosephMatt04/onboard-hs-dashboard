@@ -835,6 +835,81 @@ a{color:#22885e}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-t
 /* Instant refresh visual verification, 05 November 2026 */
 .refresh-test-marker{display:inline-flex;align-items:center;white-space:nowrap;padding:7px 10px;border:1px solid #75c9a4;border-radius:999px;background:#e9fff2;color:#126346;font-size:10px;font-weight:800;letter-spacing:.035em;box-shadow:0 2px 8px #237d4722}
 @media(max-width:850px){.refresh-test-marker{font-size:9px;padding:5px 7px}}
+
+/* Refresh-only update: minimal video-first category filters (05 Nov 2026) */
+.risk-category-panel .risk-category-buttons{gap:9px!important;align-items:stretch}
+.risk-category-chip.themed{
+ min-height:47px!important;
+ padding:10px 13px!important;
+ gap:8px!important;
+ border-radius:11px!important;
+ border:1px solid #dde7e1!important;
+ border-left:3px solid var(--chip-main)!important;
+ background:#fff!important;
+ color:#304b3b!important;
+ box-shadow:0 1px 3px rgba(28,62,41,.055)!important;
+ text-shadow:none!important;
+ transform:none!important;
+ transition:border-color .2s ease,box-shadow .2s ease,background .2s ease!important
+}
+.risk-category-chip.themed:before,.risk-category-chip.themed:after{display:none!important}
+.risk-category-chip.themed .risk-category-pictogram{
+ display:grid!important;place-items:center!important;
+ flex:0 0 19px!important;width:19px!important;height:22px!important;
+ padding:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;text-shadow:none!important;
+ color:var(--chip-main)!important;
+ font-size:17px!important;line-height:1!important
+}
+.risk-category-chip.themed .risk-bolt-icon{width:18px;height:20px;display:block;color:#167dd3;filter:drop-shadow(0 1px 0 rgba(15,102,173,.09))}
+.risk-category-chip.themed .risk-category-name{
+ font-size:12px!important;
+ font-weight:650!important;
+ letter-spacing:0!important;
+ color:#294937!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.8)!important
+}
+.risk-category-chip.themed .risk-category-count{
+ margin-left:2px!important;
+ padding:2px 6px!important;
+ min-width:20px!important;
+ border-radius:6px!important;
+ font-size:11px!important;
+ color:#597265!important;
+ background:#f1f6f2!important
+}
+.risk-category-chip.themed:hover,.risk-category-chip.themed:focus-visible{
+ border-color:color-mix(in srgb,var(--chip-main) 70%,#d6e2da)!important;
+ border-left-color:var(--chip-main)!important;
+ background:#fcfffd!important;
+ box-shadow:0 5px 14px color-mix(in srgb,var(--chip-main) 15%,transparent)!important;
+ transform:none!important
+}
+.risk-category-chip.themed.active{
+ border-color:#abcbb9!important;
+ border-left:3px solid #1d8058!important;
+ background:#eaf6ee!important;
+ color:#1c6d4b!important;
+ box-shadow:inset 0 0 0 1px #d8ece0!important
+}
+.risk-category-chip.themed.active .risk-category-name{color:#1b674a!important}
+.risk-category-chip.themed.active .risk-category-count{background:#d7ebdd!important;color:#216e4c!important}
+.risk-category-chip.themed.active .risk-category-pictogram{color:#1c805b!important}
+.risk-category-chip.themed.active .risk-bolt-icon{color:#167dd3!important}
+.risk-category-chip.themed .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.79) 46%,rgba(255,255,255,.23) 100%)!important
+}
+.risk-category-chip.themed.active .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(244,252,246,.97) 0%,rgba(244,252,246,.8) 46%,rgba(244,252,246,.27) 100%)!important
+}
+.risk-category-chip.themed.risk-video-playing .risk-chip-video-layer{opacity:1!important}
+.risk-category-chip.themed.risk-video-playing .risk-category-name{
+ text-shadow:0 1px 2px #ffffff!important
+}
+.risk-category-chip.themed:is(:hover,:focus-visible) .risk-category-pictogram{animation:none!important}
+@media(prefers-reduced-motion:reduce){.risk-category-chip.themed{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -1169,7 +1244,7 @@ const RISK_CATEGORY_THEMES={
  'All':['all','◈'],
  'Plant & Equipment':['plant','⚙'],
  'Chemicals & COSHH':['chemical','⚗'],
- 'Electrical Safety':['electrical','ϟ'],
+ 'Electrical Safety':['electrical','<svg class="risk-bolt-icon" width="18" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 2 4.5 13.2h6.2L9.8 22 20 9.7h-6.3L13.5 2Z" fill="currentColor"/></svg>'],
  'Fire & Emergency':['fire','♨'],
  'Manual Handling':['handling','⬡'],
  'Vehicles & Transport':['transport','➜'],
