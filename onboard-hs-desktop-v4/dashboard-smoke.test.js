@@ -13,12 +13,13 @@ assert.ok(core.startsWith("'use strict'"));
 function harness({locked=true,sections=['training','incidents','ppe']}={}){
  const elements=new Map();
  const elem=id=>{
-  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],value:''});
+  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],setAttribute(){},value:''});
   return elements.get(id);
  };
- const document={getElementById:elem,querySelectorAll:()=>[]};
+ const document={getElementById:elem,querySelectorAll:()=>[],documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
  let writes=0;
  const window={
+  localStorage:{getItem:()=>null,setItem:()=>{}},
   onboardDesktop:{
    read:()=>({ok:true,data:null}),
    write:()=>{writes++;return {ok:true}},
