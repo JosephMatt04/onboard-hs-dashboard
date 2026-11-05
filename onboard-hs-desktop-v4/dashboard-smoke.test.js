@@ -213,8 +213,27 @@ test('risk assessment category chips provide themed keyboard-accessible micro an
  dashboard.go('risk');
  const html=elem('content').innerHTML;
  assert.equal((html.match(/class="risk-chip-microfx"/g)||[]).length,12);
- assert.ok(html.includes('class="motion-lorry"'));
+ assert.ok(html.includes('class="fx-lorry"'));
+ assert.ok(html.includes('fx-flame'));
+ assert.ok(html.includes('fx-bolt'));
+ assert.ok(html.includes('fx-gear'));
+ assert.ok(html.includes('fx-bubble'));
  assert.ok(html.includes('data-category-theme="electrical"'));
  assert.ok(html.includes('data-category-theme="fire"'));
  assert.ok(html.includes('aria-hidden="true"'));
+});
+
+test('risk category backgrounds contain scenes behind readable category names',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'scene-custom',title:'Scene test assessment',category:'Fire & Emergency',status:'Current'});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('data-category-theme="fire"'));
+ assert.ok(page.includes('risk-chip-microfx'));
+ assert.ok(page.includes('fx-flame'));
+ assert.ok(page.includes('Fire &amp; Emergency'));
+ dashboard.setRiskCategory('Fire & Emergency');
+ assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
+ dashboard.setRiskCategory('All');
+ assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
 });
