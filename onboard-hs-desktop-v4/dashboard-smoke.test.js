@@ -28,7 +28,7 @@ function harness({locked=true,sections=['training','incidents','ppe']}={}){
   },
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
- const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow};")(window,document,()=>{},()=>true);
+ const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
  return {dashboard,elem,getWrites:()=>writes};
 }
 test('all registers render their distinct workflow checks without crashing',()=>{
@@ -37,7 +37,7 @@ test('all registers render their distinct workflow checks without crashing',()=>
  assert.equal(names.length,19);
  for(const k of names){
   dashboard.go(k);
-  assert.ok(elem('content').innerHTML.includes('Live register checks'),k);
+  assert.ok(elem('content').innerHTML.includes(k==='risk'?'Assessment categories':'Live register checks'),k);
   assert.ok(dashboard.config[k].fields.length>7,k);
   assert.ok(dashboard.sectionWorkflow(k).length>200,k);
  }
@@ -122,4 +122,34 @@ test('risk status and missing-evidence filters work without mutating records',()
  assert.ok(setFilter('Missing residual score').includes('FILTER_TARGET_SAFE'));
  assert.ok(setFilter('Missing sign-off').includes('FILTER_TARGET_SAFE'));
  assert.equal(dashboard.db.risk.at(-1).status,'In Progress');
+});
+
+test('risk categories replace assessment quality panel and preserve legacy assessments',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('Assessment categories'));
+ assert.ok(!page.includes('Assessment quality'));
+ assert.ok(!page.includes('Assessment assurance'));
+ assert.ok(page.includes('Plant &amp; Equipment'));
+ assert.ok(page.includes('Uncategorised'));
+ assert.ok(dashboard.config.risk.fields.some(x=>x[0]==='category'));
+ assert.ok(dashboard.config.risk.columns.some(x=>x[0]==='category'));
+});
+test('risk category filter handles default, custom and uncategorised categories',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'category-a',title:'FORKLIFT_CATEGORY_TEST',category:'Plant & Equipment',status:'Current',reviewDate:'2027-05-01'});
+ dashboard.db.risk.push({id:'category-b',title:'OFFICE_CATEGORY_TEST',category:'Office Activities',status:'Current',reviewDate:'2027-05-01'});
+ dashboard.go('risk');
+ dashboard.setRiskCategory('Plant & Equipment');
+ assert.ok(elem('tbody').innerHTML.includes('FORKLIFT_CATEGORY_TEST'));
+ assert.ok(!elem('tbody').innerHTML.includes('OFFICE_CATEGORY_TEST'));
+ dashboard.setRiskCategory('Office Activities');
+ assert.ok(elem('tbody').innerHTML.includes('OFFICE_CATEGORY_TEST'));
+ assert.ok(!elem('tbody').innerHTML.includes('FORKLIFT_CATEGORY_TEST'));
+ dashboard.setRiskCategory('Uncategorised');
+ assert.ok(!elem('tbody').innerHTML.includes('FORKLIFT_CATEGORY_TEST'));
+ dashboard.setRiskCategory('All');
+ assert.ok(elem('tbody').innerHTML.includes('FORKLIFT_CATEGORY_TEST'));
+ assert.ok(elem('tbody').innerHTML.includes('OFFICE_CATEGORY_TEST'));
 });
