@@ -108,7 +108,7 @@ test('risk register exposes review priority and assessment assurance checks',()=
  assert.ok(page.includes('Missing residual score'));
  assert.ok(page.includes('Missing sign-off'));
  assert.ok(dashboard.config.risk.columns.some(x=>x[0]==='reviewHealth'));
- for(const field of ['reference','revision','lastReviewed','approvedBy']){
+ for(const field of ['reference','revision','lastReview','approvedBy']){
   assert.ok(dashboard.config.risk.fields.some(x=>x[0]===field),field);
  }
 });
