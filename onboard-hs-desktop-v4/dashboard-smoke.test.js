@@ -207,3 +207,14 @@ test('premium light web-app theme covers navigation, registers, cards and edit f
   assert.ok(elem('content').innerHTML.length>100,section);
  }
 });
+
+test('risk assessment category chips provide themed keyboard-accessible micro animations',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const html=elem('content').innerHTML;
+ assert.equal((html.match(/class="risk-chip-microfx"/g)||[]).length,12);
+ assert.ok(html.includes('class="motion-lorry"'));
+ assert.ok(html.includes('data-category-theme="electrical"'));
+ assert.ok(html.includes('data-category-theme="fire"'));
+ assert.ok(html.includes('aria-hidden="true"'));
+});
