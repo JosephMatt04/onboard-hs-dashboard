@@ -238,12 +238,15 @@ test('risk category backgrounds contain scenes behind readable category names',(
  assert.ok(elem('tbody').innerHTML.includes('Scene test assessment'));
 });
 
-test('risk assessment categories include lazy locally hosted footage without breaking fallback',()=>{
+test('risk assessment categories offer real footage on hover while retaining offline fallback',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,4);
- for(const file of ['electric-loop.webm','fire-loop.webm','lorry-loop.webm','gears-loop.webm'])assert.ok(page.includes(file),file);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
+ for(const category of ['electrical','fire','transport','plant','chemical','handling','height','health','premises','all','other','uncategorised'])
+  assert.ok(page.includes('data-risk-video="'+category+'"'),category);
+ assert.ok(page.includes('https://www.pexels.com/download/video/'));
+ assert.ok(page.includes('type="video/mp4"'));
  assert.ok(page.includes('preload="none"'));
  assert.ok(page.includes('muted loop playsinline'));
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
