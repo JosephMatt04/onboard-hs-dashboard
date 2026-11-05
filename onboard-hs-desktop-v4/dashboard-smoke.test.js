@@ -98,3 +98,28 @@ test('homepage hides locked risk record names and counts',()=>{
  assert.ok(!page.includes('SECRET_MACHINE_REFERENCE'));
  assert.ok(!page.includes('2020-01-01'));
 });
+
+test('risk register exposes review priority and assessment assurance checks',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('Assessment assurance'));
+ assert.ok(page.includes('Missing document'));
+ assert.ok(page.includes('Missing residual score'));
+ assert.ok(page.includes('Missing sign-off'));
+ assert.ok(dashboard.config.risk.columns.some(x=>x[0]==='reviewHealth'));
+ for(const field of ['reference','revision','lastReview','approvedBy']){
+  assert.ok(dashboard.config.risk.fields.some(x=>x[0]===field),field);
+ }
+});
+test('risk status and missing-evidence filters work without mutating records',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'risk-filter-example',title:'FILTER_TARGET_SAFE',area:'Testing',status:'In Progress',person:'Tester',reviewDate:'',attachments:[],signatures:[],residualRisk:''});
+ dashboard.go('risk');
+ const setFilter=value=>{elem('filter').value=value;elem('filter').onchange({target:{value}});return elem('tbody').innerHTML;};
+ assert.ok(setFilter('In Progress').includes('FILTER_TARGET_SAFE'));
+ assert.ok(setFilter('Missing document').includes('FILTER_TARGET_SAFE'));
+ assert.ok(setFilter('Missing residual score').includes('FILTER_TARGET_SAFE'));
+ assert.ok(setFilter('Missing sign-off').includes('FILTER_TARGET_SAFE'));
+ assert.equal(dashboard.db.risk.at(-1).status,'In Progress');
+});
