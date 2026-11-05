@@ -276,3 +276,15 @@ test('minimal video-first risk category tabs use a proper lightning bolt and pre
  dashboard.setRiskCategory('Fire & Emergency');
  assert.ok(!elem('tbody').innerHTML.includes('Electrical assessment check'));
 });
+
+test('electrical uses lightning footage while occupational health moves sideways',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const page=elem('content').innerHTML;
+ assert.ok(page.includes('https://www.pexels.com/download/video/29874792/'));
+ assert.ok(page.includes('class="risk-bolt-icon"'));
+ assert.ok(page.includes('data-risk-video="health"'));
+ assert.ok(html.includes('riskHealthVideoSideways'));
+ assert.ok(html.includes('riskHealthLineSideways'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
+});

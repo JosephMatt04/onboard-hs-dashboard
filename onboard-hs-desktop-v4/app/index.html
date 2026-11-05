@@ -910,6 +910,21 @@ a{color:#22885e}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-t
 .risk-category-chip.themed:is(:hover,:focus-visible) .risk-category-pictogram{animation:none!important}
 @media(prefers-reduced-motion:reduce){.risk-category-chip.themed{transition:none!important}}
 
+
+/* Electrical lightning correction + horizontal Occupational Health motion */
+.risk-category-chip[data-category-theme="electrical"] .risk-bolt-icon{width:22px!important;height:23px!important;color:#0077dc!important;filter:drop-shadow(0 1px 2px rgba(0,119,220,.18))!important}
+.risk-category-chip[data-category-theme="electrical"] .risk-category-pictogram{width:24px!important;flex-basis:24px!important;overflow:visible!important}
+.risk-category-chip[data-category-theme="electrical"] .fx-bolt{font-family:"Segoe UI Emoji","Segoe UI Symbol",sans-serif!important;color:#0077dc!important;font-size:33px!important;text-shadow:0 0 8px #62b9ff,0 0 17px #1b8fff!important}
+.risk-category-chip[data-category-theme="electrical"] .risk-chip-microfx{background:linear-gradient(105deg,rgba(229,247,255,.15),rgba(35,141,246,.34),rgba(225,244,255,.08))!important}
+.risk-category-chip[data-category-theme="health"] .risk-chip-video{width:140%!important;max-width:none!important;height:100%!important;left:-20%!important;object-fit:cover!important;object-position:center!important}
+.risk-category-chip[data-category-theme="health"].risk-video-playing .risk-chip-video{animation:riskHealthVideoSideways 5s ease-in-out infinite alternate!important}
+.risk-category-chip[data-category-theme="health"] .fx-heart{width:165%!important;left:-22%!important;height:100%!important;stroke-dasharray:none!important;stroke-dashoffset:0!important;color:#078c7b!important;opacity:.75}
+.risk-category-chip[data-category-theme="health"]:is(:hover,:focus-visible) .fx-heart{animation:riskHealthLineSideways 2.6s linear infinite!important}
+.risk-category-chip[data-category-theme="health"] .risk-chip-video-tint{background:linear-gradient(90deg,rgba(255,255,255,.94),rgba(255,255,255,.65) 48%,rgba(255,255,255,.18))!important}
+@keyframes riskHealthVideoSideways{from{transform:translateX(-9%) scale(1.03)}to{transform:translateX(9%) scale(1.03)}}
+@keyframes riskHealthLineSideways{from{transform:translateX(-19%)}to{transform:translateX(20%)}}
+@media(prefers-reduced-motion:reduce){.risk-category-chip[data-category-theme="health"] .risk-chip-video,.risk-category-chip[data-category-theme="health"] .fx-heart{animation:none!important;transform:none!important}}
+
 </style>
 </head>
 <body>
@@ -1244,7 +1259,7 @@ const RISK_CATEGORY_THEMES={
  'All':['all','◈'],
  'Plant & Equipment':['plant','⚙'],
  'Chemicals & COSHH':['chemical','⚗'],
- 'Electrical Safety':['electrical','<svg class="risk-bolt-icon" width="18" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 2 4.5 13.2h6.2L9.8 22 20 9.7h-6.3L13.5 2Z" fill="currentColor"/></svg>'],
+ 'Electrical Safety':['electrical','<svg class="risk-bolt-icon" width="18" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13 1.5 3 13.5h8.3L10 22.5 21 10.5h-8.5L13 1.5Z" fill="currentColor"/></svg>'],
  'Fire & Emergency':['fire','♨'],
  'Manual Handling':['handling','⬡'],
  'Vehicles & Transport':['transport','➜'],
@@ -1254,14 +1269,14 @@ const RISK_CATEGORY_THEMES={
  'Other':['other','✧'],
  'Uncategorised':['uncategorised','?']
 };
-const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">ϟ</i><i class=\"fx-bolt two\">ϟ</i><i class=\"fx-bolt three\">ϟ</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<svg class=\"fx-heart\" viewBox=\"0 0 210 36\" preserveAspectRatio=\"none\"><path d=\"M0 21H52L63 21 71 9 82 31 92 15 99 21H210\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
+const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<svg class=\"fx-heart\" viewBox=\"0 0 210 36\" preserveAspectRatio=\"none\"><path d=\"M0 21H52L63 21 71 9 82 31 92 15 99 21H210\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
 /* Licensed Pexels video footage — loaded only when the user hovers/focuses a chip.
    A cached local clip can replace any URL later; CSS scenes always remain as fallback.
    Footage requires internet and may be blocked on company networks. */
 const RISK_CATEGORY_VIDEO_FILES={
  all:'https://www.pexels.com/download/video/38707991/',
  chemical:'https://www.pexels.com/download/video/10187920/',
- electrical:'https://www.pexels.com/download/video/14459264/',
+ electrical:'https://www.pexels.com/download/video/29874792/',
  fire:'https://www.pexels.com/download/video/30796588/',
  handling:'https://www.pexels.com/download/video/4292580/',
  health:'https://www.pexels.com/download/video/855944/',
