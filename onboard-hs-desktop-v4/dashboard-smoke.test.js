@@ -154,3 +154,28 @@ test('risk category filter handles default, custom and uncategorised categories'
  assert.ok(elem('tbody').innerHTML.includes('FORKLIFT_CATEGORY_TEST'));
  assert.ok(elem('tbody').innerHTML.includes('OFFICE_CATEGORY_TEST'));
 });
+
+test('risk review status panel replaces guide with four clickable review filters',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const html=elem('content').innerHTML;
+ assert.ok(html.includes('Assessment review status'));
+ assert.ok(!html.includes('ONBOARD · MODULE GUIDE'));
+ assert.equal((html.match(/class="risk-review-card /g)||[]).length,4);
+ for(const status of ['Overdue review','Due in 30 days','In Progress','No date']){
+  assert.ok(html.includes('data-review-filter="'+status+'"'),status);
+ }
+ assert.ok(html.includes('Assessment categories'));
+});
+test('risk review filters show matching assessments without changing records',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.risk.push({id:'review-filter-a',title:'OVERDUE_RA_EXAMPLE',reviewDate:'2020-01-01',status:'Current'});
+ dashboard.db.risk.push({id:'review-filter-b',title:'IN_PROGRESS_RA_EXAMPLE',reviewDate:'2030-01-01',status:'In Progress'});
+ dashboard.go('risk');
+ const filterBy=value=>{elem('filter').onchange({target:{value}});return elem('tbody').innerHTML};
+ assert.ok(filterBy('Overdue review').includes('OVERDUE_RA_EXAMPLE'));
+ assert.ok(!filterBy('Overdue review').includes('IN_PROGRESS_RA_EXAMPLE'));
+ assert.ok(filterBy('In Progress').includes('IN_PROGRESS_RA_EXAMPLE'));
+ assert.ok(!filterBy('In Progress').includes('OVERDUE_RA_EXAMPLE'));
+ assert.equal(dashboard.db.risk.at(-1).status,'In Progress');
+});
