@@ -1400,12 +1400,247 @@ html[data-theme="dark"] body .control-centre-secondary-action{background:#254e58
 html[data-theme="dark"] body .control-centre-quiet-action{background:transparent!important;color:#d2efe2!important;border:0!important}
 html[data-theme="dark"] body .control-centre-hero h2{color:#fff!important}
 
+
+/* ONBOARD WORKSHOP / charcoal & lime system-wide shell, register and form theme.
+   The stored Light choice remains available, but fresh installations open in Dark. */
+html[data-theme="dark"]{
+ color-scheme:dark!important;
+ --brand-dark:#f0f2ee!important;
+ --brand-green:#c2ee20!important;
+ --brand-lime:#d5ff38!important;
+ --brand-soft:#303638!important;
+ --brand-soft-2:#252c2d!important;
+ --brand-line:#444e4e!important;
+ --brand-text:#f0f3ef!important;
+ --brand-muted:#bdc9c4!important;
+ --portal-ink:#ecf1ea!important;
+ --portal-line:#455254!important;
+ --work-bg:#171d1f;--work-deep:#121719;--work-panel:#293135;
+ --work-panel-hi:#343e41;--work-muted:#b7c7c1;
+ --work-border:#445355;--work-lime:#c5f322;--work-text:#f2f5f1;
+ background:var(--work-bg)!important;color:var(--work-text)!important
+}
+html[data-theme="dark"] body{
+ background:radial-gradient(ellipse at 52% 26%,#364346 0%,#232c2f 37%,#181e20 74%)!important;
+ background-attachment:fixed!important;color:var(--work-text)!important
+}
+html[data-theme="dark"] body .shell,
+html[data-theme="dark"] body .main{background:transparent!important;color:var(--work-text)!important}
+html[data-theme="dark"] body .side{
+ background:linear-gradient(180deg,#2c3537 0%,#222b2d 55%,#1c2426 100%)!important;
+ border-right:1px solid #465356!important;
+ box-shadow:inset -1px 0 rgba(255,255,255,.03)!important
+}
+html[data-theme="dark"] body .side .nav button{
+ background:transparent!important;color:#d6e1da!important;border:1px solid transparent!important;
+ border-radius:7px!important
+}
+html[data-theme="dark"] body .side .nav button:hover{background:#3e494b!important;color:#fff!important;border-color:#667376!important}
+html[data-theme="dark"] body .side .nav button.active{
+ background:#3a4849!important;color:#eaffbb!important;
+ border:1px solid #b0d94e!important;box-shadow:inset 3px 0 #c5f322!important
+}
+html[data-theme="dark"] body .side .brand-copy b,
+html[data-theme="dark"] body .brand-copy b{color:#eaf2ea!important}
+html[data-theme="dark"] body .side .brand-copy small{color:#b7c7c4!important}
+html[data-theme="dark"] body .local-note{
+ background:#303a3d!important;color:#d6e3da!important;border:1px solid #536064!important;
+ border-radius:9px!important
+}
+html[data-theme="dark"] body .local-note *{color:#d6e3da!important}
+html[data-theme="dark"] body .workspace-topbar{
+ background:#222b2eea!important;border-bottom:1px solid #475558!important
+}
+html[data-theme="dark"] body .workspace-crumb,
+html[data-theme="dark"] body .workspace-state,
+html[data-theme="dark"] body .workspace-footer{color:#cfddd4!important}
+html[data-theme="dark"] body .workspace-crumb strong{color:#fff!important}
+html[data-theme="dark"] body .workspace-state{
+ background:#354144!important;border:1px solid #5b6b6d!important;
+ color:#dff0e5!important
+}
+html[data-theme="dark"] body .top h1,
+html[data-theme="dark"] body h1,
+html[data-theme="dark"] body h2,
+html[data-theme="dark"] body h3,
+html[data-theme="dark"] body h4,
+html[data-theme="dark"] body .home-heading-row h2{color:#f3f7f2!important}
+html[data-theme="dark"] body .eyebrow{color:#d3f96d!important}
+html[data-theme="dark"] body .sub,
+html[data-theme="dark"] body .muted,
+html[data-theme="dark"] body .file-tip,
+html[data-theme="dark"] body .form-field,
+html[data-theme="dark"] body .form-field>span,
+html[data-theme="dark"] body .section-title>span,
+html[data-theme="dark"] body .home-heading-row p,
+html[data-theme="dark"] body .home-panel>p,
+html[data-theme="dark"] body .home-metric p,
+html[data-theme="dark"] body .home-quick-copy small,
+html[data-theme="dark"] body .home-hero-copy p,
+html[data-theme="dark"] body .home-activity-row,
+html[data-theme="dark"] body .section-guide p,
+html[data-theme="dark"] body .portal-intro span,
+html[data-theme="dark"] body .module-tile p,
+html[data-theme="dark"] body .module-tile small{color:#baccc5!important}
+/* All register surfaces, action cards and dialogues share the same graphite palette. */
+html[data-theme="dark"] body .panel,
+html[data-theme="dark"] body .card,
+html[data-theme="dark"] body .modal,
+html[data-theme="dark"] body .risk-category-panel,
+html[data-theme="dark"] body .home-panel,
+html[data-theme="dark"] body .section-workflow,
+html[data-theme="dark"] body .section-guide,
+html[data-theme="dark"] body .asset-profile-field,
+html[data-theme="dark"] body .attachment-item,
+html[data-theme="dark"] body .portal-kpi,
+html[data-theme="dark"] body .module-tile,
+html[data-theme="dark"] body .risk-review-card,
+html[data-theme="dark"] body .home-redesign .home-metric,
+html[data-theme="dark"] body .home-redesign .home-quick-tile{
+ background:linear-gradient(145deg,#323c3f,#262f31)!important;
+ color:#eaf0e9!important;
+ border:1px solid #4e5c5f!important;
+ border-radius:10px!important;
+ box-shadow:0 8px 18px rgba(0,0,0,.13)!important
+}
+html[data-theme="dark"] body .home-metric,
+html[data-theme="dark"] body .home-metric strong,
+html[data-theme="dark"] body .home-metric-caption,
+html[data-theme="dark"] body .home-quick-copy strong,
+html[data-theme="dark"] body .home-quick-count,
+html[data-theme="dark"] body .home-text-action,
+html[data-theme="dark"] body .risk-review-card .risk-review-label,
+html[data-theme="dark"] body .risk-review-card strong,
+html[data-theme="dark"] body .home-activity-row strong{color:#f2f6f0!important}
+html[data-theme="dark"] body .home-metric-caption,
+html[data-theme="dark"] body .home-metric p,
+html[data-theme="dark"] body .risk-review-card .risk-review-description{color:#c0d0c8!important}
+html[data-theme="dark"] body .home-metric.amber{border-top:3px solid #f1bb65!important}
+html[data-theme="dark"] body .home-metric.red{border-top:3px solid #ea8074!important}
+html[data-theme="dark"] body .home-metric.blue{border-top:3px solid #8dc1cf!important}
+html[data-theme="dark"] body .home-metric.green{border-top:3px solid #b9e56c!important}
+html[data-theme="dark"] body .home-quick-symbol{
+ background:#424d4b!important;color:#cffb57!important;border:1px solid #677a6e!important;
+ box-shadow:none!important
+}
+html[data-theme="dark"] body .home-redesign .home-quick-tile:hover,
+html[data-theme="dark"] body .risk-review-card:hover{background:#3c4749!important;border-color:#b2d76a!important}
+html[data-theme="dark"] body .portal-modules{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex-wrap:wrap!important;gap:6px!important;margin:10px auto 22px!important;
+ padding:0 0 15px!important;border-bottom:1px solid #465355!important
+}
+html[data-theme="dark"] body .portal-module{
+ flex:none!important;background:#333e42!important;border:1px solid #536366!important;
+ color:#e0e9e5!important;border-radius:6px!important;min-height:30px!important;
+ padding:7px 11px!important;font-size:10px!important;font-weight:750!important;
+ box-shadow:none!important
+}
+html[data-theme="dark"] body .portal-module.active{
+ background:#c5f322!important;color:#222a20!important;border:1px solid #dfff6e!important
+}
+html[data-theme="dark"] body .portal-module:hover{border-color:#b5da70!important;background:#455253!important}
+html[data-theme="dark"] body .portal-module.active:hover{background:#d4ff32!important}
+html[data-theme="dark"] body .btn:not(.danger):not(.primary),
+html[data-theme="dark"] body button.btn:not(.danger):not(.primary),
+html[data-theme="dark"] body .ppe-tab,
+html[data-theme="dark"] body .toolbar button{
+ background:#3b4649!important;color:#e7eee9!important;border:1px solid #657376!important;
+ border-radius:7px!important
+}
+html[data-theme="dark"] body .btn.primary,
+html[data-theme="dark"] body .home-hero-actions .btn,
+html[data-theme="dark"] body .home-backup-actions .btn.primary{
+ background:#c5f322!important;color:#202a1e!important;border:1px solid #dcff65!important;
+ border-radius:7px!important;font-weight:800!important
+}
+html[data-theme="dark"] body .btn:hover:not(.primary),
+html[data-theme="dark"] body .ppe-tab:hover{background:#505e61!important;color:#fff!important}
+html[data-theme="dark"] body .btn.primary:hover{background:#dcff5d!important}
+html[data-theme="dark"] body .theme-toggle{background:#3b4649!important;color:#eef6ef!important}
+html[data-theme="dark"] body .field,
+html[data-theme="dark"] body input:not([type=checkbox]):not([type=radio]),
+html[data-theme="dark"] body select,
+html[data-theme="dark"] body textarea{
+ background:#222b2e!important;color:#f0f5f1!important;border:1px solid #536468!important;
+ border-radius:7px!important
+}
+html[data-theme="dark"] body input::placeholder,
+html[data-theme="dark"] body textarea::placeholder{color:#a6b8b0!important}
+html[data-theme="dark"] body .field:focus,
+html[data-theme="dark"] body input:focus,
+html[data-theme="dark"] body select:focus,
+html[data-theme="dark"] body textarea:focus{border-color:#c4f322!important;outline-color:#c4f322!important}
+html[data-theme="dark"] body th{background:#303b3e!important;color:#d8e3da!important;border-color:#4b5d61!important}
+html[data-theme="dark"] body td,
+html[data-theme="dark"] body td strong,
+html[data-theme="dark"] body table{background:transparent!important;color:#e4eee6!important;border-bottom-color:#47565a!important}
+html[data-theme="dark"] body tr:hover td{background:#394649!important}
+html[data-theme="dark"] body .modal-backdrop{background:rgba(5,9,10,.82)!important}
+html[data-theme="dark"] body #entry-form .risk-form-extras,
+html[data-theme="dark"] body .risk-form-extras,
+html[data-theme="dark"] body .notice,
+html[data-theme="dark"] body .home-activity-row{
+ background:#303a3e!important;border-color:#526366!important;color:#e9f1ea!important
+}
+html[data-theme="dark"] body #entry-form .risk-form-extras>summary{color:#ecf3ec!important}
+html[data-theme="dark"] body .modal-actions{border-color:#4d5b5f!important}
+html[data-theme="dark"] body .pill,
+html[data-theme="dark"] body .status{background:#3c494b!important;color:#eaf1e8!important;border:1px solid #617273!important}
+html[data-theme="dark"] body a{color:#cdf35a!important}
+html[data-theme="dark"] body .risk-category-chip.themed{
+ background:#303b3e!important;color:#f4f8f3!important;border:1px solid #526469!important;
+ border-left:4px solid var(--chip-main)!important;border-radius:8px!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed.active{
+ background:#435248!important;border-color:#c5f322!important
+}
+html[data-theme="dark"] body .risk-category-chip.themed:hover{background:#445152!important}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-name{color:#f0f5ed!important;text-shadow:none!important}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-count{background:#445254!important;color:#f7fff5!important}
+html[data-theme="dark"] body .risk-category-chip.themed .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(28,36,37,.9),rgba(28,36,37,.55) 51%,rgba(28,36,37,.08))!important
+}
+/* Workshop photo-inspired hero: graphite not navy, compact action panel. */
+html[data-theme="dark"] body .control-centre-hero{
+ min-height:350px!important;
+ padding:27px 24px 32px!important;
+ border:1px solid #5a6b6a!important;border-radius:10px!important;
+ background:radial-gradient(ellipse at 50% 65%,rgba(151,170,162,.13),transparent 56%),linear-gradient(145deg,#303b3d,#202829 72%)!important;
+ box-shadow:0 12px 36px rgba(0,0,0,.16)!important
+}
+html[data-theme="dark"] body .control-centre-command{
+ width:min(100%,500px)!important;background:linear-gradient(145deg,#3b474a,#2e393c)!important;
+ border:1px solid #667777!important;border-radius:9px!important;
+ box-shadow:0 14px 32px rgba(0,0,0,.22)!important
+}
+html[data-theme="dark"] body .control-centre-hero h2{font-size:clamp(27px,3vw,36px)!important;color:#f5f7f2!important}
+html[data-theme="dark"] body .control-centre-main-action{
+ background:#c5f322!important;border:1px solid #dcff68!important;
+ color:#252b1d!important;font-weight:900!important
+}
+html[data-theme="dark"] body .control-centre-secondary-action{
+ background:#384548!important;border:1px solid #708180!important;color:#ecf5ef!important
+}
+html[data-theme="dark"] body .control-centre-quiet-action{
+ background:transparent!important;border:0!important;color:#cbdcd2!important
+}
+html[data-theme="dark"] body .control-command-icon{background:#303d40!important;color:#c5f322!important}
+html[data-theme="dark"] body .control-centre-kicker,
+html[data-theme="dark"] body .control-centre-online{color:#d0ebd0!important}
+html[data-theme="dark"] body .control-centre-command-head p,
+html[data-theme="dark"] body .control-centre-hero>p{color:#c6d9d2!important}
+@media(max-width:720px){
+ html[data-theme="dark"] body .control-centre-hero{padding:22px 13px!important}
+ html[data-theme="dark"] body .portal-module{padding:7px 8px!important;font-size:9px!important}
+}
+
 </style>
 </head>
 <body>
 <div class="shell">
 <aside class="side"><div class="brand"><div class="logo-panel"><img src="data:image/png;base64,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" alt="Onboard Corrugated logo" class="brand-logo"></div><div class="brand-copy"><b>Health &amp; Safety Dashboard</b><small>ONBOARD CORRUGATED</small></div></div><nav class="nav" id="nav" aria-label="Main navigation"></nav><div class="local-note">🔒 <b>Local-only version</b><br>Records stay in this browser profile on this PC. Export backups regularly.</div></aside>
-<main class="main"><div class="workspace-topbar"><span class="workspace-crumb">WORKSPACE <span aria-hidden="true">/</span> <strong>Onboard Corrugated</strong></span><div class="workspace-actions"><button type="button" id="theme-toggle" class="btn small theme-toggle" aria-label="Switch to dark mode" aria-pressed="false" title="Switch between light and dark appearance">☾ Dark mode</button><button type="button" class="btn small primary" id="refresh-interface" hidden title="Load the latest dashboard interface from private GitHub without reinstalling">↻ Refresh dashboard</button><button type="button" class="btn small" id="pin-global-lock" hidden title="Immediately lock all PIN-protected sections">🔒 Lock protected tabs</button><span class="workspace-state">● Private browser workspace</span><span class="refresh-test-marker" title="Visible marker for the first instant-refresh test">✓ REFRESH TEST · 05 NOV</span></div></div><div class="top"><div><p class="eyebrow">Safety management overview</p><h1 id="page-title">Dashboard</h1><p class="sub" id="page-subtitle">Your site safety records, all in one place.</p></div><span class="pill">● Browser storage · Offline</span></div><div id="content"></div><p class="workspace-footer">Onboard Corrugated · H&S Workspace · Local browser data · No cloud sync or shared accounts · Export backups regularly</p></main>
+<main class="main"><div class="workspace-topbar"><span class="workspace-crumb">WORKSPACE <span aria-hidden="true">/</span> <strong>Onboard Corrugated</strong></span><div class="workspace-actions"><button type="button" id="theme-toggle" class="btn small theme-toggle" aria-label="Switch to dark mode" aria-pressed="false" title="Switch between light and dark appearance">☾ Dark mode</button><button type="button" class="btn small primary" id="refresh-interface" hidden title="Load the latest dashboard interface from private GitHub without reinstalling">↻ Refresh dashboard</button><button type="button" class="btn small" id="pin-global-lock" hidden title="Immediately lock all PIN-protected sections">🔒 Lock protected tabs</button><span class="workspace-state">● Private browser workspace</span></div></div><div class="top"><div><p class="eyebrow">Safety management overview</p><h1 id="page-title">Dashboard</h1><p class="sub" id="page-subtitle">Your site safety records, all in one place.</p></div><span class="pill">● Browser storage · Offline</span></div><div id="content"></div><p class="workspace-footer">Onboard Corrugated · H&S Workspace · Local browser data · No cloud sync or shared accounts · Export backups regularly</p></main>
 </div><div id="modal-root"></div><div id="toast" role="status" hidden></div>
 <script src="browser-bridge.js"></script>
 <script src="auto-backup.js"></script>
@@ -1421,7 +1656,7 @@ function setAppearance(theme,persist=true){
  if(btn){btn.textContent=dark?'☀ Light mode':'☾ Dark mode';btn.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');btn.setAttribute('aria-pressed',dark?'true':'false');btn.title=dark?'Switch to light mode':'Switch to dark mode'}
  if(persist){try{window.localStorage?.setItem(THEME_KEY,dark?'dark':'light')}catch(e){}}
 }
-let initialTheme='light';try{initialTheme=window.localStorage?.getItem(THEME_KEY)||'light'}catch(e){}
+let initialTheme='dark';try{initialTheme=window.localStorage?.getItem(THEME_KEY)||'dark'}catch(e){}
 setAppearance(initialTheme,false);
 const themeButton=document.getElementById('theme-toggle');
 if(themeButton)themeButton.onclick=()=>setAppearance(document.documentElement?.getAttribute('data-theme')==='dark'?'light':'dark');
@@ -1594,9 +1829,7 @@ function homeHTML(){
  const safeCount=stats.map(([name,value,detail,k,tone])=>'<div class="home-metric '+tone+'"><div class="home-metric-caption">'+esc(name)+'</div><strong>'+esc(String(value))+'</strong><p>'+esc(detail)+'</p><button type="button" data-nav="'+k+'" class="home-text-action">View records →</button></div>').join('');
  const quick=tiles.map(([name,k,value,hint,symbol])=>'<button type="button" class="home-quick-tile" data-nav="'+k+'"><span class="home-quick-symbol" aria-hidden="true">'+symbol+'</span><span class="home-quick-copy"><strong>'+esc(name)+'</strong><small>'+esc(hint)+'</small></span><span class="home-quick-count">'+esc(String(value))+'</span></button>').join('');
  const activity=recent.length?recent.map(r=>'<div class="home-activity-row"><div><strong>'+esc(r.name||'Untitled')+'</strong><small>'+esc(r.kind)+' · '+dateFmt(r.date)+'</small></div><div class="home-activity-end">'+statusHTML(r.status)+'<button type="button" class="home-text-action" data-nav="'+r.k+'">Open →</button></div></div>').join(''):'<p class="empty">No recent records in unlocked sections.</p>';
- const commandModules=[['Overview','home'],['Risk Assessments','risk'],['SSOW','ssow'],['Incidents','incidents'],['Training','training'],['PPE','ppeStock'],['Assets','assets'],['Permits to Work','permits']];
- const commandNav=commandModules.map(([name,k])=>'<button type="button" class="control-module'+(k==='home'?' active':'')+'" data-nav="'+k+'">'+esc(name)+'</button>').join('');
- return '<div class="home-redesign control-centre"><div class="control-centre-nav" aria-label="Control centre modules">'+commandNav+'</div><section class="control-centre-hero"><span class="control-centre-kicker">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><div class="control-centre-online">● LOCAL WORKSPACE</div><h2>Health &amp; Safety<br>Control Centre</h2><p>Everything you need to manage workplace safety, all in one place.</p><div class="control-centre-command"><div class="control-centre-command-head"><span class="control-command-icon">✦</span><div><h3>What would you like to do?</h3><p>Choose an action to open your safety workspace.</p></div></div><div class="control-centre-actions"><button type="button" class="control-centre-main-action" data-nav="risk">◈ &nbsp; OPEN RISK ASSESSMENTS</button><button type="button" class="control-centre-secondary-action" data-action="add" data-section="risk">＋ &nbsp; ADD NEW ASSESSMENT</button><button type="button" class="control-centre-quiet-action" data-nav="incidents">View incidents and outstanding actions →</button></div></div></section>'+
+return '<div class="home-redesign control-centre"><section class="control-centre-hero"><span class="control-centre-kicker">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><div class="control-centre-online">● LOCAL WORKSPACE</div><h2>Health &amp; Safety<br>Control Centre</h2><p>Everything you need to manage workplace safety, all in one place.</p><div class="control-centre-command"><div class="control-centre-command-head"><span class="control-command-icon">✦</span><div><h3>What would you like to do?</h3><p>Choose an action to open your safety workspace.</p></div></div><div class="control-centre-actions"><button type="button" class="control-centre-main-action" data-nav="risk">◈ &nbsp; OPEN RISK ASSESSMENTS</button><button type="button" class="control-centre-secondary-action" data-action="add" data-section="risk">＋ &nbsp; ADD NEW ASSESSMENT</button><button type="button" class="control-centre-quiet-action" data-nav="incidents">View incidents and outstanding actions →</button></div></div></section>'+
  '<div class="home-heading-row"><div><h2>Needs attention</h2><p>Live counts from your registers — not a substitute for checking the underlying records.</p></div></div>'+
  '<div class="home-metrics">'+safeCount+'</div>'+
  '<div class="home-heading-row"><div><h2>Quick access</h2><p>Jump straight to the records you use most.</p></div></div>'+
