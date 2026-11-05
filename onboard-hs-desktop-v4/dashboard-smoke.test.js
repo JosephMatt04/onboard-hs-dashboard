@@ -301,3 +301,14 @@ test('occupational health animated ECG remains visible independently of network 
  assert.ok(html.includes('@keyframes ecgTravelAcross'));
  assert.ok(html.includes('prefers-reduced-motion:reduce'));
 });
+
+test('Risk Assessment entry groups essentials and retains every underlying saved field',()=>{
+ assert.ok(html.includes("Essential information"));
+ assert.ok(html.includes('risk-form-extras'));
+ assert.ok(html.includes('Additional details'));
+ assert.ok(html.includes("const primary=['title','category','area','reviewDate','person','reference','status']"));
+ assert.ok(html.includes("const optional=config[k].fields.map"));
+ assert.ok(html.includes("const hasExtra=!!record"));
+ assert.ok(html.includes("for(const [f,,type]of config[k].fields"));
+ assert.ok(html.includes('id="entry-form"'));
+});
