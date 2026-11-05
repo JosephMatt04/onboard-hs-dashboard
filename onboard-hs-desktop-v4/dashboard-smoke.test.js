@@ -242,8 +242,8 @@ test('risk assessment categories offer real footage on hover while retaining off
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
- for(const category of ['electrical','fire','transport','plant','chemical','handling','height','health','premises','all','other','uncategorised'])
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+ for(const category of ['electrical','fire','transport','plant','chemical','handling','height','premises','all','other','uncategorised'])
   assert.ok(page.includes('data-risk-video="'+category+'"'),category);
  assert.ok(page.includes('https://www.pexels.com/download/video/'));
  assert.ok(page.includes('type="video/mp4"'));
@@ -269,7 +269,7 @@ test('minimal video-first risk category tabs use a proper lightning bolt and pre
  const page=elem('content').innerHTML;
  assert.ok(page.includes('class="risk-bolt-icon"'));
  assert.ok(page.includes('viewBox="0 0 24 24"'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
  assert.equal((page.match(/class="risk-chip-microfx"/g)||[]).length,12);
  dashboard.setRiskCategory('Electrical Safety');
  assert.ok(elem('tbody').innerHTML.includes('Electrical assessment check'));
@@ -283,8 +283,21 @@ test('electrical uses lightning footage while occupational health moves sideways
  const page=elem('content').innerHTML;
  assert.ok(page.includes('https://www.pexels.com/download/video/29874792/'));
  assert.ok(page.includes('class="risk-bolt-icon"'));
- assert.ok(page.includes('data-risk-video="health"'));
- assert.ok(html.includes('riskHealthVideoSideways'));
- assert.ok(html.includes('riskHealthLineSideways'));
- assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,12);
+ assert.ok(!page.includes('data-risk-video="health"'));
+ assert.ok(page.includes('class="ecg-trace"'));
+ assert.ok(page.includes('class="ecg-grid"'));
+ assert.ok(html.includes('ecgTravelAcross'));
+ assert.ok(html.includes('risk-category-chip[data-category-theme="health"]'));
+ assert.equal((page.match(/class="risk-chip-video-layer"/g)||[]).length,11);
+});
+
+test('occupational health animated ECG remains visible independently of network video playback',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('risk');
+ const output=elem('content').innerHTML;
+ assert.ok(output.includes('class="ecg-trace"'));
+ assert.ok(output.includes('class="ecg-grid"'));
+ assert.ok(!output.includes('data-risk-video="health"'));
+ assert.ok(html.includes('@keyframes ecgTravelAcross'));
+ assert.ok(html.includes('prefers-reduced-motion:reduce'));
 });

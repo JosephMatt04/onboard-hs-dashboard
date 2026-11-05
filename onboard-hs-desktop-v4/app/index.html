@@ -980,6 +980,43 @@ a{color:#22885e}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-t
  .risk-category-panel .risk-category-chip.themed{min-height:82px!important;padding:15px 16px!important}
 }
 
+
+/* Occupational Health: prominent genuine sideways-moving ECG visual, no external video dependency */
+.risk-category-chip[data-category-theme="health"] .risk-chip-microfx{
+ background:linear-gradient(100deg,#e6fbf3,#b2e9d4 60%,#e5faf1)!important;
+ opacity:0!important;
+}
+.risk-category-chip[data-category-theme="health"]:is(:hover,:focus-visible) .risk-chip-microfx{
+ opacity:1!important;
+}
+.risk-category-chip[data-category-theme="health"] .ecg-grid{
+ position:absolute;inset:0;
+ background-image:linear-gradient(rgba(17,139,101,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(17,139,101,.12) 1px,transparent 1px);
+ background-size:15px 15px;opacity:.7;
+}
+.risk-category-chip[data-category-theme="health"] .ecg-trace{
+ position:absolute;inset:0;display:block!important;overflow:hidden;
+ color:#008967;filter:drop-shadow(0 0 3px rgba(0,145,111,.4));
+}
+.risk-category-chip[data-category-theme="health"] .ecg-trace svg{
+ position:absolute;top:0;left:-110%;
+ width:220%;height:100%;
+}
+.risk-category-chip[data-category-theme="health"]:is(:hover,:focus-visible) .ecg-trace svg{
+ animation:ecgTravelAcross 3.1s linear infinite;
+}
+.risk-category-chip[data-category-theme="health"] .risk-category-name{
+ color:#164c38!important;text-shadow:0 1px 2px white,0 0 6px white!important;
+}
+@keyframes ecgTravelAcross{
+ from{transform:translateX(0)}
+ to{transform:translateX(98%)}
+}
+@media(prefers-reduced-motion:reduce){
+ .risk-category-chip[data-category-theme="health"]:is(:hover,:focus-visible) .ecg-trace svg{
+ animation:none!important;left:0;width:100%;
+ }
+}
 </style>
 </head>
 <body>
@@ -1324,7 +1361,7 @@ const RISK_CATEGORY_THEMES={
  'Other':['other','✧'],
  'Uncategorised':['uncategorised','?']
 };
-const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<svg class=\"fx-heart\" viewBox=\"0 0 210 36\" preserveAspectRatio=\"none\"><path d=\"M0 21H52L63 21 71 9 82 31 92 15 99 21H210\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
+const RISK_CHIP_SCENES={"electrical":"<i class=\"fx-bolt one\">⚡</i><i class=\"fx-bolt two\">⚡</i><i class=\"fx-bolt three\">⚡</i>","fire":"<i class=\"fx-flame one\">♨</i><i class=\"fx-flame two\">♨</i><i class=\"fx-flame three\">♨</i>","transport":"<i class=\"fx-road\"></i><svg class=\"fx-lorry\" viewBox=\"0 0 48 28\" width=\"45\" height=\"27\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linejoin=\"round\"><path d=\"M2 4h25v17H2zM27 10h9l9 7v4H27zM31 11v6h12\"/><circle cx=\"11\" cy=\"22\" r=\"3.2\" fill=\"white\"/><circle cx=\"36\" cy=\"22\" r=\"3.2\" fill=\"white\"/></svg>","plant":"<i class=\"fx-gear one\">⚙</i><i class=\"fx-gear two\">⚙</i>","chemical":"<i class=\"fx-bubble one\"></i><i class=\"fx-bubble two\"></i><i class=\"fx-bubble three\"></i><i class=\"fx-bubble four\"></i>","handling":"<i class=\"fx-box\">▣</i><i class=\"fx-up\">↑</i>","height":"<i class=\"fx-up one\">↑</i><i class=\"fx-up two\">↑</i><i class=\"fx-up three\">↑</i>","health":"<span class=\"ecg-grid\"></span><span class=\"ecg-trace\"><svg viewBox=\"0 0 480 80\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M0 48 H60 L76 48 L88 31 L105 72 L122 11 L139 48 H190 L207 48 L220 30 L236 70 L253 12 L269 48 H318 L336 48 L350 30 L368 72 L384 12 L402 48 H480\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></span>","premises":"<i class=\"fx-building one\">▦</i><i class=\"fx-building two\">▦</i>","other":"<i class=\"fx-star one\">✧</i><i class=\"fx-star two\">✦</i>","uncategorised":"<i class=\"fx-star one\">?</i>","custom":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>","all":"<i class=\"fx-star one\">✦</i><i class=\"fx-star two\">✧</i>"};
 /* Licensed Pexels video footage — loaded only when the user hovers/focuses a chip.
    A cached local clip can replace any URL later; CSS scenes always remain as fallback.
    Footage requires internet and may be blocked on company networks. */
@@ -1344,7 +1381,7 @@ const RISK_CATEGORY_VIDEO_FILES={
  custom:'https://www.pexels.com/download/video/35451867/'
 };
 function riskCategoryVideoHTML(theme){
- const source=RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom;
+ const source=theme==='health'?null:(RISK_CATEGORY_VIDEO_FILES[theme]||RISK_CATEGORY_VIDEO_FILES.custom);
  if(!source)return '';
  return '<span class="risk-chip-video-layer" aria-hidden="true"><video class="risk-chip-video" muted loop playsinline preload="none" tabindex="-1" disablepictureinpicture data-risk-video="'+theme+'"><source src="'+source+'" type="video/mp4"></video><span class="risk-chip-video-tint"></span></span>';
 }
