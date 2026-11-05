@@ -925,6 +925,61 @@ a{color:#22885e}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-t
 @keyframes riskHealthLineSideways{from{transform:translateX(-19%)}to{transform:translateX(20%)}}
 @media(prefers-reduced-motion:reduce){.risk-category-chip[data-category-theme="health"] .risk-chip-video,.risk-category-chip[data-category-theme="health"] .fx-heart{animation:none!important;transform:none!important}}
 
+
+/* Larger video-first category tiles — instant refresh update */
+.risk-category-panel .risk-category-buttons{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:14px!important;
+ align-items:stretch!important;
+}
+.risk-category-panel .risk-category-chip.themed{
+ width:100%!important;
+ min-width:0!important;
+ min-height:100px!important;
+ padding:19px 18px!important;
+ gap:12px!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ border-radius:15px!important;
+ border-left-width:4px!important;
+}
+.risk-category-panel .risk-category-chip.themed .risk-category-pictogram{
+ flex-basis:25px!important;
+ width:25px!important;
+ height:27px!important;
+ font-size:22px!important;
+}
+.risk-category-panel .risk-category-chip.themed .risk-bolt-icon{
+ width:23px!important;
+ height:26px!important;
+}
+.risk-category-panel .risk-category-chip.themed .risk-category-name{
+ font-size:14px!important;
+ font-weight:700!important;
+ line-height:1.35!important;
+}
+.risk-category-panel .risk-category-chip.themed .risk-category-count{
+ margin-left:auto!important;
+ min-width:27px!important;
+ text-align:center!important;
+ padding:5px 8px!important;
+ font-size:12px!important;
+}
+.risk-category-panel .risk-category-chip.themed .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(255,255,255,.91),rgba(255,255,255,.56) 50%,rgba(255,255,255,.13))!important;
+}
+.risk-category-panel .risk-category-chip.themed.active .risk-chip-video-tint{
+ background:linear-gradient(90deg,rgba(244,252,246,.93),rgba(244,252,246,.56) 50%,rgba(244,252,246,.15))!important;
+}
+@media(max-width:1120px){
+ .risk-category-panel .risk-category-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+ .risk-category-panel .risk-category-buttons{grid-template-columns:1fr!important;gap:10px!important}
+ .risk-category-panel .risk-category-chip.themed{min-height:82px!important;padding:15px 16px!important}
+}
+
 </style>
 </head>
 <body>
