@@ -2058,6 +2058,25 @@ html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table,
 html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table td{background:#fff!important;color:#1f3027!important}
 html[data-theme="dark"] body .docx-preview-sheet .docx-preview-table td.docx-shaded-cell{background:var(--docx-cell-shade,#e6eee8)!important}
 
+
+/* Readable risk assessment category labels: remove fuzzy glow on text. */
+.risk-category-chip.themed .risk-category-name,
+.risk-category-chip.themed.active .risk-category-name,
+.risk-category-chip.themed:hover .risk-category-name,
+html[data-theme="dark"] body .risk-category-chip.themed .risk-category-name,
+html[data-theme="dark"] body .risk-category-chip.themed.active .risk-category-name{
+ text-shadow:none!important;
+ filter:none!important;
+ -webkit-font-smoothing:antialiased;
+ font-size:14px!important;
+ font-weight:700!important;
+ line-height:1.35!important;
+ letter-spacing:normal!important;
+}
+.risk-category-chip.themed .risk-category-count{
+ text-shadow:none!important;
+ filter:none!important;
+}
 </style>
 </head>
 <body>
