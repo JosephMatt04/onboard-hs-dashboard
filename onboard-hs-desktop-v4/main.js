@@ -1,5 +1,5 @@
 'use strict';
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 
@@ -114,6 +114,34 @@ async function savePermitPDF(html,reference){
  }finally{if(!pdfWindow.isDestroyed())pdfWindow.destroy()}
 }
 
+
+/* Open a temporary viewing copy of a saved attachment in its Windows-associated app.
+   No arbitrary paths or renderer-supplied bytes are accepted. Edits to this copy do
+   not change the approved file stored in dashboard records. */
+const previewCopyDir=()=>path.join(app.getPath('temp'),'Onboard-HS-Attachment-Views');
+async function openSavedAttachment(section,id,index){
+ try{
+  if(typeof section!=='string'||typeof id!=='string'||!Number.isSafeInteger(index)||index<0)throw Error('Invalid attachment selection');
+  const saved=readRecords();if(!saved.ok||!saved.data)throw Error('Saved attachments are unavailable');
+  const record=Array.isArray(saved.data[section])?saved.data[section].find(item=>item.id===id):null;
+  const attachment=record?.attachments?.[index];
+  if(!attachment||typeof attachment.name!=='string'||typeof attachment.data!=='string')throw Error('Attachment not found');
+  const ext=path.extname(attachment.name).toLowerCase();
+  if(!['.pdf','.doc','.docx','.xls','.xlsx','.xlsm','.xlsb','.csv','.ods','.jpg','.jpeg','.png','.txt'].includes(ext))throw Error('Unsupported attachment format');
+  const match=/^data:[^,]*;base64,([a-zA-Z0-9+/=]+)$/.exec(attachment.data);
+  if(!match)throw Error('Invalid attachment encoding');
+  const bytes=Buffer.from(match[1],'base64');
+  if(bytes.length===0||bytes.length>15*1024*1024)throw Error('Attachment size is invalid');
+  const dir=previewCopyDir();fs.mkdirSync(dir,{recursive:true});
+  const filename='Onboard-view-'+require('node:crypto').randomUUID()+ext;
+  const target=path.join(dir,filename);
+  fs.writeFileSync(target,bytes,{flag:'wx',mode:0o600});
+  const error=await shell.openPath(target);
+  if(error)throw Error(error);
+  return {ok:true,note:'Opened a temporary copy. Changes made in the external application will not update the dashboard attachment.'};
+ }catch(e){return {ok:false,error:e.message}}
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width:1350, height:880, minWidth:850, minHeight:600,
@@ -144,6 +172,7 @@ app.whenReady().then(() => {
   ipcMain.handle('backup:choose',()=>chooseBackupFolder());
   ipcMain.handle('backup:now',()=>backupNow());
   ipcMain.handle('permit:savepdf',(_event,html,reference)=>savePermitPDF(html,reference));
+  ipcMain.handle('attachments:open',(_event,section,id,index)=>openSavedAttachment(section,id,index));
   ipcMain.on('records:read', (event) => {event.returnValue = readRecords();});
   ipcMain.on('records:write', (event, data) => {event.returnValue = writeRecords(data);});
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
