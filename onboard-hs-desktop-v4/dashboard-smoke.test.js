@@ -562,7 +562,7 @@ test('DOCX preview is clearly labelled approximate and leaves original untouched
  assert.ok(html.includes('async function renderDocxPreview(blob,target)'));
  assert.ok(html.includes('docxRenderTable(child)'));
  assert.ok(html.includes('docxRenderParagraph(child)'));
- assert.ok(html.includes('Download original for the authoritative document'));
+ assert.ok(html.includes('Not suitable for checking approved risk assessment layout'));
  assert.ok(html.includes("className=\'docx-preview-sheet\'"));
  assert.ok(html.includes('html[data-theme="dark"] body .docx-preview-sheet'));
  assert.ok(!html.includes('Basic Word text preview'));
