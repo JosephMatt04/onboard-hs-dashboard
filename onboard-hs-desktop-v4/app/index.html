@@ -2601,6 +2601,7 @@ html[data-theme="dark"] body .ppe-scan-result.missing{background:#523d2a!importa
 html[data-theme="dark"] body .ppe-stock-register table code{color:#c5ec9b!important;background:#263d30!important}
 @media(max-width:1000px){.ppe-scan-form{grid-template-columns:repeat(2,minmax(0,1fr))}.ppe-scan-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.ppe-scan-header,.ppe-stock-register .section-title{align-items:flex-start;flex-direction:column}.ppe-scan-form{grid-template-columns:1fr}.ppe-scan-wide{grid-column:1}.ppe-scan-metrics{grid-template-columns:1fr}}
+.ppe-print-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.ppe-print-actions .btn{white-space:nowrap}@media(max-width:820px){.ppe-print-actions{justify-content:flex-start}}
 </style>
 </head>
 <body>
@@ -3128,7 +3129,7 @@ function ppeScannerHTML(){
   const item=db.ppeStock.find(r=>r.id===t.itemId);
   return '<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.type==='issue'?'Issued':'Received')+'</td><td>'+esc(t.itemName||item?.item||'PPE item')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.recordedBy||'—')+'</td><td>'+esc(t.before)+' → '+esc(t.after)+'</td></tr>';
  }).join('');
- return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><button type="button" class="btn primary" id="ppe-print-all">Print barcode labels</button></div>'+
+ return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print barcode labels</button></div></div>'+
  '<div class="ppe-scan-metrics"><div><b>'+db.ppeStock.length+'</b><span>Registered PPE products</span></div><div><b>'+stock+'</b><span>Units in stock</span></div><div><b>'+low+'</b><span>At or below minimum</span></div><div><b>'+moves.length+'</b><span>Stock movements recorded</span></div></div>'+
  '<section class="panel ppe-scan-panel"><div class="section-title"><h2>Scan PPE barcode</h2><span class="muted">USB barcode scanners or manual entry</span></div>'+
  '<form id="ppe-scan-form" class="ppe-scan-form"><label><span>Transaction type</span><select id="ppe-scan-type" class="field"><option value="issue">Issue PPE / remove from stock</option><option value="receive">Receive PPE / add to stock</option></select></label>'+
@@ -3152,6 +3153,8 @@ function ppeStockRegisterHTML(){
 }
 function bindPpeScanner(){
  document.getElementById('ppe-print-all')?.addEventListener('click',()=>printPpeLabels());
+ document.getElementById('ppe-print-stock')?.addEventListener('click',()=>printPpeReport('stock'));
+ document.getElementById('ppe-print-history')?.addEventListener('click',()=>printPpeReport('history'));
  document.getElementById('ppe-focus-scan')?.addEventListener('click',()=>document.getElementById('ppe-scan-code')?.focus());
  const code=document.getElementById('ppe-scan-code'),result=document.getElementById('ppe-scan-result'),form=document.getElementById('ppe-scan-form');
  if(!form)return;
@@ -3193,6 +3196,28 @@ function bindPpeScanner(){
   document.getElementById('ppe-scan-code')?.focus();
  });
 }
+
+function printPpeReport(kind){
+ if(kind!=='stock'&&kind!=='history')return;
+ if(!ensurePpeBarcodes())return;
+ const stockMode=kind==='stock';
+ const title=stockMode?'PPE Stock Report':'PPE Issue & Receipt History';
+ const items=db.ppeStock.slice().sort((a,b)=>String(a.item||'').localeCompare(String(b.item||'')));
+ const moves=(db.ppeTransactions||[]).slice().reverse();
+ const cell=v=>'<td>'+esc(v===undefined||v===null||v===''?'—':v)+'</td>';
+ const date=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('en-GB')};
+ const head=stockMode?['PPE item','Category','Size','Barcode','In stock','Minimum','Storage location']:['Date / time','Movement','PPE item','Barcode','Quantity','Employee','Recorded by','Stock before → after'];
+ const rows=stockMode?items.map(r=>[r.item,r.category,r.size,r.barcode,r.stock,r.minStock,r.location]):moves.map(t=>[date(t.timestamp),t.type==='issue'?'Issued':'Received',t.itemName,t.barcode,t.quantity,t.employee,t.recordedBy,String(t.before)+' → '+String(t.after)]);
+ const htmlRows=rows.map(values=>'<tr>'+values.map(cell).join('')+'</tr>').join('');
+ const count=stockMode?items.length:moves.length;
+ const caption=stockMode?count+' PPE product records · '+items.reduce((n,r)=>n+(Number(r.stock)||0),0)+' total units':count+' stock movements';
+ const style='<style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{font:11px Arial,sans-serif;background:white;color:#202d25;margin:0}.toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#e9f2e8;margin-bottom:22px}.toolbar button{background:#20744a;border:0;color:white;padding:9px 15px;border-radius:5px;cursor:pointer}.brand{font-weight:900;color:#226b3c;font-size:15px;letter-spacing:.6px}header{border-bottom:3px solid #6b9c43;padding-bottom:10px;margin-bottom:15px}h1{font-size:24px;margin:8px 0 5px}p{margin:5px 0;color:#5c6c60}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{padding:8px 7px;text-align:left;border:1px solid #cddcd1;overflow-wrap:anywhere;font-size:10px;vertical-align:top}th{background:#e7f2e8;font-weight:800}tr{break-inside:avoid}footer{margin-top:18px;padding-top:9px;border-top:1px solid #d6e1d8;font-size:10px;color:#637369}@media print{.toolbar{display:none!important}thead{display:table-header-group}header{break-after:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>';
+ const doc='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>'+esc(title)+'</title>'+style+'</head><body><div class="toolbar"><span>Onboard PPE Print Mode · '+esc(title)+'</span><button type="button" onclick="window.print()">Print / Save as PDF</button></div><header><div class="brand">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</div><h1>'+esc(title)+'</h1><p>Generated '+esc(new Date().toLocaleString('en-GB'))+' · '+esc(caption)+'</p></header>'+(rows.length?'<table><thead><tr>'+head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+htmlRows+'</tbody></table>':'<p>No records to print.</p>')+'<footer>Onboard Corrugated · Locally maintained PPE records. Verify quantities against physical stock.</footer></body></html>';
+ const win=window.open('','_blank');
+ if(!win){alert('Your browser blocked the PPE print window. Allow pop-ups for the dashboard and try again.');return}
+ win.document.open();win.document.write(doc);win.document.close();win.focus();
+}
+
 function printPpeLabels(id){
  if(!ensurePpeBarcodes())return;
  const products=id?db.ppeStock.filter(x=>x.id===id):db.ppeStock;
