@@ -2346,6 +2346,147 @@ html[data-theme="dark"] body .ops-table-name,html[data-theme="dark"] body .ops-t
 @media(max-width:1150px){.ops-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ops-grid,.ops-grid-bottom{grid-template-columns:1fr}.ops-actions{flex-direction:column;align-items:flex-start}.ops-action-list{justify-content:flex-start}}
 @media(max-width:660px){.ops-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-header{align-items:flex-start;flex-direction:column}.ops-home .ops-panel{padding:16px}.ops-actions{padding:16px}}
 @media(max-width:450px){.ops-kpi-grid{grid-template-columns:1fr}.ops-table-head,.ops-table-row{grid-template-columns:45px minmax(0,1fr) 78px 8px}.ops-table-date{font-size:10px}}
+
+/* v4 Safety Operations: charcoal black + Onboard green, replacing old forest-green panels. */
+html[data-theme="dark"]{
+ --work-bg:#141719!important;
+ --work-deep:#0e1112!important;
+ --work-panel:#22282a!important;
+ --work-panel-hi:#2a3133!important;
+ --work-border:#414d4b!important;
+ --work-text:#f0f5f1!important;
+ --work-muted:#b9c9c0!important;
+ --work-lime:#bdea25!important;
+ --brand-green:#a3d729!important;
+ --brand-lime:#c6f427!important;
+}
+html[data-theme="dark"] body{
+ background:linear-gradient(145deg,#202628 0%,#171c1e 48%,#121617 100%)!important;
+ color:#edf5f0!important
+}
+html[data-theme="dark"] body .side{
+ background:linear-gradient(180deg,#232a2c 0%,#191f21 100%)!important;
+ border-right:1px solid #394746!important
+}
+html[data-theme="dark"] body .workspace-topbar{
+ background:#202729f5!important;
+ border-bottom:1px solid #394846!important
+}
+html[data-theme="dark"] body .side .nav button.active{
+ background:#303938!important;
+ color:#d5f77b!important;
+ border-color:#a4d732!important;
+ box-shadow:inset 3px 0 #bce822!important
+}
+html[data-theme="dark"] body .side .nav button:hover{
+ background:#323d3c!important;
+ border-color:#596b64!important
+}
+html[data-theme="dark"] body .ops-home .ops-kpi,
+html[data-theme="dark"] body .ops-home .ops-panel,
+html[data-theme="dark"] body .ops-home .ops-actions{
+ background:#22282a!important;
+ color:#eef5f1!important;
+ border:1px solid #424e4b!important;
+ box-shadow:0 6px 22px #080d0e33!important
+}
+html[data-theme="dark"] body .ops-home .ops-kpi{
+ border-left:3px solid #a4d52f!important
+}
+html[data-theme="dark"] body .ops-home .ops-kpi:hover,
+html[data-theme="dark"] body .ops-home .ops-panel:hover{
+ border-color:#64885e!important
+}
+html[data-theme="dark"] body .ops-home .ops-header h1,
+html[data-theme="dark"] body .ops-home .ops-panel h2,
+html[data-theme="dark"] body .ops-home .ops-actions h2,
+html[data-theme="dark"] body .ops-home .ops-kpi strong,
+html[data-theme="dark"] body .ops-home .ops-kpi-title,
+html[data-theme="dark"] body .ops-home .ops-row-copy strong,
+html[data-theme="dark"] body .ops-home .ops-followup strong,
+html[data-theme="dark"] body .ops-home .ops-table-name{
+ color:#f2f7f3!important
+}
+html[data-theme="dark"] body .ops-home .ops-eyebrow,
+html[data-theme="dark"] body .ops-home .ops-kpi-icon{
+ color:#b7e934!important
+}
+html[data-theme="dark"] body .ops-home .ops-header p,
+html[data-theme="dark"] body .ops-home .ops-panel-header p,
+html[data-theme="dark"] body .ops-home .ops-kpi small,
+html[data-theme="dark"] body .ops-home .ops-row-copy small,
+html[data-theme="dark"] body .ops-home .ops-followup small,
+html[data-theme="dark"] body .ops-home .ops-table-date,
+html[data-theme="dark"] body .ops-home .ops-status-note,
+html[data-theme="dark"] body .ops-home .ops-status-grid small,
+html[data-theme="dark"] body .ops-home .ops-empty,
+html[data-theme="dark"] body .ops-home .ops-actions p{
+ color:#b7c9c1!important
+}
+html[data-theme="dark"] body .ops-home .ops-attention-row,
+html[data-theme="dark"] body .ops-home .ops-table-row,
+html[data-theme="dark"] body .ops-home .ops-followup{
+ background:transparent!important;
+ color:#e8f2eb!important;
+ border-color:#394642!important
+}
+html[data-theme="dark"] body .ops-home .ops-attention-row:hover,
+html[data-theme="dark"] body .ops-home .ops-table-row:hover,
+html[data-theme="dark"] body .ops-home .ops-followup:hover{
+ background:#2c3835!important
+}
+html[data-theme="dark"] body .ops-home .ops-table-head{
+ background:#303938!important;
+ color:#d3e2d8!important
+}
+html[data-theme="dark"] body .ops-home .ops-type{
+ background:#334b35!important;
+ color:#d5f6ba!important
+}
+html[data-theme="dark"] body .ops-home .ops-value:not(.warning){
+ background:#334c37!important;
+ color:#c8f58a!important
+}
+html[data-theme="dark"] body .ops-home .ops-value.warning{
+ background:#5a4628!important;
+ color:#ffdb9b!important
+}
+html[data-theme="dark"] body .ops-home .ops-alert-icon{
+ background:#34443b!important;
+ color:#aee261!important
+}
+html[data-theme="dark"] body .ops-home .ops-alert-icon.hot{
+ background:#53402d!important;
+ color:#ffd29a!important
+}
+html[data-theme="dark"] body .ops-home .ops-chevron,
+html[data-theme="dark"] body .ops-home .ops-kpi-arrow{
+ color:#bbccc2!important
+}
+html[data-theme="dark"] body .ops-home .ops-new{
+ background:#b8e72d!important;
+ color:#182218!important;
+ border-color:#b8e72d!important
+}
+html[data-theme="dark"] body .ops-home .ops-link,
+html[data-theme="dark"] body .ops-home .ops-quick-button{
+ background:#2b3533!important;
+ border:1px solid #66885a!important;
+ color:#d8f5bb!important
+}
+html[data-theme="dark"] body .ops-home .ops-new:hover,
+html[data-theme="dark"] body .ops-home .ops-quick-button:hover{
+ filter:brightness(1.12)
+}
+html[data-theme="dark"] body .ops-home .ops-status-bar{
+ background:linear-gradient(90deg,#ba8c40,#a25737)!important
+}
+html[data-theme="dark"] body .ops-home .ops-status-bar>span{
+ background:#7dbd36!important
+}
+html[data-theme="dark"] body .ops-home .ops-status-grid strong{
+ color:#b5e76d!important
+}
 </style>
 </head>
 <body>
