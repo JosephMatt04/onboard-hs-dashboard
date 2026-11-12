@@ -2515,6 +2515,7 @@ const allowedExtensions=/\.(pdf|doc|docx|xls|xlsx|xlsm|xlsb|csv|ods|jpg|jpeg|png
 function bytesUsed(data=db){return Object.values(data).flat().flatMap(r=>r.attachments||[]).reduce((sum,a)=>sum+(a.size||0),0)}
 function attachmentHTML(arr){return arr.length?arr.map((a,i)=>`<div class="attachment-item"><span>📄 <strong>${esc(a.name)}</strong> ${a.role==='Operating Manual'?'<span class="status good">Operating manual</span>':''} ${/\.pdf$/i.test(a.name)?'<span class="status good">Accurate page preview</span>':/\.docx?$/i.test(a.name)?'<span class="muted">Word original</span>':''} <span class="muted">(${Math.round(a.size/1024)} KB)</span></span><div class="attachment-controls"><button type="button" class="btn small primary" data-preview="${i}">Open</button><button type="button" class="btn small" data-download="${i}">Download</button><button type="button" class="btn small danger" data-remove="${i}">Remove</button></div></div>`).join(''):'<p class="muted">No documents attached yet.</p>'}
 async function openAttachmentDirectly(a,k,id,index){
+ if(/\.(xlsx|xlsm|csv)$/i.test(a.name)){await previewAttachment(a,k,id);return}
  if(typeof window.onboardDesktop?.openAttachment==='function'){
   try{
    const result=await window.onboardDesktop.openAttachment(k,id,index);
@@ -2523,8 +2524,7 @@ async function openAttachmentDirectly(a,k,id,index){
   }catch(err){alert('Could not open this attachment: '+err.message+'\\nYou can still use Download.')}
   return;
  }
- // The browser-only dashboard cannot directly start installed Word or Excel
- // without a local Windows bridge. Keep inline PDF/image preview available.
+ // When the desktop bridge is not available, use a built-in preview.
  await previewAttachment(a,k,id);
 }
 function downloadAttachment(a){const link=document.createElement('a');link.href=a.data;link.download=a.name;document.body.append(link);link.click();link.remove()}
@@ -2647,11 +2647,133 @@ function matchingPdfForWord(a,k,id){
  if(!base)return null;
  return files.find(f=>/\.pdf$/i.test(f.name)&&f.name.replace(/\.pdf$/i,'').trim().toLowerCase()===base)||null;
 }
+
+/* Offline, read-only spreadsheet preview. No external services or document macros. */
+async function spreadsheetZipEntries(blob){
+ const data=new Uint8Array(await blob.arrayBuffer()),dv=new DataView(data.buffer,data.byteOffset,data.byteLength);
+ let eocd=-1;
+ for(let i=data.length-22;i>=Math.max(0,data.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break}}
+ if(eocd<0)throw Error('This workbook is not a valid XLSX file');
+ const count=dv.getUint16(eocd+10,true),entries=new Map();
+ let cursor=dv.getUint32(eocd+16,true);
+ for(let n=0;n<count;n++){
+  if(cursor+46>data.length||dv.getUint32(cursor,true)!==0x02014b50)break;
+  const method=dv.getUint16(cursor+10,true),size=dv.getUint32(cursor+20,true),rawSize=dv.getUint32(cursor+24,true);
+  const fn=dv.getUint16(cursor+28,true),extra=dv.getUint16(cursor+30,true),comment=dv.getUint16(cursor+32,true),local=dv.getUint32(cursor+42,true);
+  const name=new TextDecoder().decode(data.slice(cursor+46,cursor+46+fn));
+  if(name.startsWith('xl/')&&!name.includes('..')&&!name.includes('\\'))entries.set(name,{method,size,rawSize,local});
+  cursor+=46+fn+extra+comment;
+ }
+ const read=async name=>{
+  const entry=entries.get(name);if(!entry)return null;
+  if(entry.rawSize>25*1024*1024)throw Error('Worksheet is too large to preview');
+  const offset=entry.local;
+  if(offset+30>data.length||dv.getUint32(offset,true)!==0x04034b50)throw Error('Invalid workbook archive');
+  const start=offset+30+dv.getUint16(offset+26,true)+dv.getUint16(offset+28,true);
+  if(start+entry.size>data.length)throw Error('Workbook is incomplete');
+  const compressed=data.slice(start,start+entry.size);
+  let bytes=compressed;
+  if(entry.method===8){
+   if(typeof DecompressionStream==='undefined')throw Error('This version cannot decompress XLSX files');
+   const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+   bytes=new Uint8Array(await new Response(stream).arrayBuffer());
+  }else if(entry.method!==0)throw Error('Unsupported workbook compression');
+  return new TextDecoder().decode(bytes);
+ };
+ return {read,names:[...entries.keys()]};
+}
+function spreadsheetXml(xml){
+ const doc=new DOMParser().parseFromString(xml,'application/xml');
+ if(doc.querySelector('parsererror'))throw Error('Invalid Excel worksheet XML');
+ return doc;
+}
+function spreadsheetElements(root,tag){return [...root.getElementsByTagName('*')].filter(el=>el.localName===tag)}
+function spreadsheetColumnIndex(ref){
+ const letters=(ref.match(/^[A-Za-z]+/)||[''])[0].toUpperCase();
+ let n=0;for(const letter of letters)n=n*26+letter.charCodeAt(0)-64;
+ return n-1;
+}
+async function renderSpreadsheetPreview(a,target,info){
+ const filename=a.name.toLowerCase();
+ if(filename.endsWith('.csv')){
+  const input=await attachmentBlob(a).text(),rows=[];let row=[],field='',quoted=false;
+  for(let i=0;i<input.length&&rows.length<201;i++){
+   const c=input[i];
+   if(c==='"'){if(quoted&&input[i+1]==='"'){field+='"';i++}else quoted=!quoted}
+   else if(c===','&&!quoted){row.push(field);field=''}
+   else if((c==='\n'||c==='\r')&&!quoted){row.push(field);rows.push(row);row=[];field='';if(c==='\r'&&input[i+1]==='\n')i++}
+   else field+=c;
+  }
+  if(row.length||field)rows.push([...row,field]);
+  spreadsheetPreviewTable(rows,target,rows.length>200);
+  info.textContent='Read-only CSV preview · up to 200 rows and 35 columns. Download the original to edit.';
+  return;
+ }
+ if(!/\.xlsx?$|\.xlsm$/.test(filename)||filename.endsWith('.xls'))throw Error('Preview supports XLSX, XLSM and CSV. Download older XLS, XLSB or ODS files to view in Excel.');
+ const zip=await spreadsheetZipEntries(attachmentBlob(a));
+ const shared=zip.names.includes('xl/sharedStrings.xml')?spreadsheetElements(spreadsheetXml(await zip.read('xl/sharedStrings.xml')),'si').map(si=>spreadsheetElements(si,'t').map(t=>t.textContent||'').join('')):[];
+ const paths=zip.names.filter(n=>/^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort((a,b)=>Number(a.match(/sheet(\d+)/)[1])-Number(b.match(/sheet(\d+)/)[1]));
+ if(!paths.length)throw Error('No readable worksheets found');
+ const workbookXml=await zip.read('xl/workbook.xml');
+ const sheetNames=workbookXml?spreadsheetElements(spreadsheetXml(workbookXml),'sheet').map(x=>x.getAttribute('name')):[];
+ const picker=document.createElement('select');picker.className='field';picker.style.marginBottom='12px';picker.setAttribute('aria-label','Choose worksheet');
+ for(let i=0;i<paths.length;i++){const option=document.createElement('option');option.value=String(i);option.textContent=sheetNames[i]||('Sheet '+(i+1));picker.append(option)}
+ const sheetBox=document.createElement('div');target.append(picker,sheetBox);
+ async function show(index){
+  sheetBox.textContent='Reading worksheet…';
+  try{
+   const doc=spreadsheetXml(await zip.read(paths[index]));
+   const nodes=spreadsheetElements(doc,'sheetData')[0];
+   const rows=[],cells=nodes?spreadsheetElements(nodes,'row'):[];
+   for(const sourceRow of cells){
+    if(rows.length>=200)break;
+    const row=[];
+    for(const cell of spreadsheetElements(sourceRow,'c')){
+     const col=spreadsheetColumnIndex(cell.getAttribute('r')||'');
+     if(col<0||col>=35)continue;
+     const type=cell.getAttribute('t');
+     const value=spreadsheetElements(cell,'v')[0]?.textContent||'';
+     const inline=spreadsheetElements(cell,'is')[0];
+     row[col]=type==='s'?(shared[Number(value)]||''):type==='inlineStr'?(inline?spreadsheetElements(inline,'t').map(t=>t.textContent||'').join(''):''):type==='b'?(value==='1'?'TRUE':'FALSE'):value;
+    }
+    rows.push(row);
+   }
+   sheetBox.textContent='';
+   spreadsheetPreviewTable(rows,sheetBox,cells.length>200);
+   info.textContent='Read-only Excel preview · first 200 populated rows and 35 columns per sheet. Formulas show saved values; formatting may differ from Excel.';
+  }catch(error){sheetBox.textContent='Preview unavailable: '+error.message+'. Download the original to view it in Excel.'}
+ }
+ picker.onchange=()=>show(Number(picker.value));
+ await show(0);
+}
+function spreadsheetPreviewTable(rows,root,truncated){
+ const wrap=document.createElement('div');wrap.style.cssText='max-height:55vh;overflow:auto;border:1px solid #aab8b3;border-radius:8px;background:#fff;color:#18241f';
+ const table=document.createElement('table');table.style.cssText='border-collapse:collapse;width:max-content;min-width:100%;font:13px Segoe UI,Arial,sans-serif;color:#18241f;background:#fff';
+ const cols=Math.min(35,Math.max(1,...rows.map(row=>row.length)));
+ const head=document.createElement('thead'),hr=document.createElement('tr');
+ for(let col=-1;col<cols;col++){
+  const th=document.createElement('th');th.textContent=col<0?'#':String.fromCharCode(65+col)+(col>=26?'':'');
+  if(col>=26)th.textContent='A'+String.fromCharCode(65+col-26);
+  th.style.cssText='position:sticky;top:0;background:#e9efed;color:#20312b;padding:7px 11px;border:1px solid #d3ddd8;z-index:2';
+  hr.append(th);
+ }
+ head.append(hr);table.append(head);
+ const body=document.createElement('tbody');
+ rows.forEach((row,i)=>{
+  const tr=document.createElement('tr'),rh=document.createElement('th');rh.textContent=String(i+1);rh.style.cssText='background:#f2f6f3;color:#34463e;border:1px solid #d3ddd8;padding:6px 8px;position:sticky;left:0';tr.append(rh);
+  for(let j=0;j<cols;j++){const td=document.createElement('td');td.textContent=String(row[j]??'');td.style.cssText='background:#fff;color:#18241f;border:1px solid #d3ddd8;padding:6px 9px;min-width:85px;max-width:320px;overflow-wrap:anywhere';tr.append(td)}
+  body.append(tr);
+ });
+ table.append(body);wrap.append(table);root.append(wrap);
+ if(truncated){const p=document.createElement('p');p.textContent='Preview limited to the first 200 rows. Download the original for the complete file.';root.append(p)}
+}
+
 async function previewAttachment(a,k,id){
  const name=a.name.toLowerCase(),pdf=name.endsWith('.pdf'),img=/\.(jpg|jpeg|png)$/.test(name),txt=name.endsWith('.txt'),docx=name.endsWith('.docx'),word=docx||name.endsWith('.doc');
  const pairedPdf=word?matchingPdfForWord(a,k,id):null;
- if(/\.(xls|xlsx|xlsm|xlsb|csv|ods)$/.test(name)){downloadAttachment(a);toast('Spreadsheet saved to Downloads. Open the file in Excel.');return}
- if(!pdf&&!img&&!txt&&!word){alert('This file type cannot be previewed directly in an offline browser. Download it to open in its original application.');return}
+ const spreadsheet=/\.(xlsx|xlsm|csv)$/.test(name);
+ if(/\.(xls|xlsb|ods)$/.test(name)){alert('This legacy spreadsheet format cannot be previewed inside the dashboard yet. Use Download to open it in Excel.');return}
+ if(!pdf&&!img&&!txt&&!word&&!spreadsheet){alert('This file type cannot be previewed directly in an offline browser. Download it to open in its original application.');return}
  let objectUrl=null;
  const root=document.getElementById('modal-root');
  const close=()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);documentPanel(k,id)};
@@ -2661,7 +2783,8 @@ async function previewAttachment(a,k,id){
  root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))close()};
  try{
   const body=root.querySelector('#preview-body'),info=root.querySelector('#preview-info');
-  if(pairedPdf){
+  if(spreadsheet){await renderSpreadsheetPreview(a,body,info);
+  }else if(pairedPdf){
    const blob=attachmentBlob(pairedPdf);objectUrl=URL.createObjectURL(blob);
    const frame=document.createElement('iframe');frame.className='preview-frame';frame.title='PDF preview of '+a.name;frame.src=objectUrl;body.append(frame);
    info.textContent='Showing the matching PDF for reliable page layout. Download original retrieves your editable Word document.';
