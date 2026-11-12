@@ -2650,7 +2650,7 @@ function matchingPdfForWord(a,k,id){
 async function previewAttachment(a,k,id){
  const name=a.name.toLowerCase(),pdf=name.endsWith('.pdf'),img=/\.(jpg|jpeg|png)$/.test(name),txt=name.endsWith('.txt'),docx=name.endsWith('.docx'),word=docx||name.endsWith('.doc');
  const pairedPdf=word?matchingPdfForWord(a,k,id):null;
- if(/\.(xls|xlsx|xlsm|xlsb|csv|ods)$/.test(name)){alert('Opening Excel files directly requires the desktop app or the local Windows dashboard. Download original to use the file in this browser.');return}
+ if(/\.(xls|xlsx|xlsm|xlsb|csv|ods)$/.test(name)){downloadAttachment(a);toast('Spreadsheet saved to Downloads. Open the file in Excel.');return}
  if(!pdf&&!img&&!txt&&!word){alert('This file type cannot be previewed directly in an offline browser. Download it to open in its original application.');return}
  let objectUrl=null;
  const root=document.getElementById('modal-root');
