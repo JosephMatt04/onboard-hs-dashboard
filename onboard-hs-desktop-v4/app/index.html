@@ -2241,6 +2241,50 @@ html[data-theme="dark"] body .mock-home-shell .mock-attention-copy small{color:#
 @media(max-width:760px){.mock-hero{grid-template-columns:1fr}.mock-hero-image{opacity:.27;inset:0;clip-path:none}.mock-hero-copy{padding:28px 24px}.mock-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mock-home-extras{grid-template-columns:1fr}}
 @media(max-width:480px){.mock-kpi-grid{grid-template-columns:1fr}.mock-attention-pill{display:none}.mock-home-shell .mock-hero h2{font-size:33px!important}}
 @media(prefers-reduced-motion:reduce){.mock-home-shell .mock-kpi-card{transition:none!important}}
+
+/* Minimal homepage — removes ornamental cards, gradients and duplicate modules. */
+.minimal-home{width:100%;max-width:1450px;margin:0 auto;padding:8px 0 48px;display:flex;flex-direction:column;gap:26px}
+.minimal-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;padding:0 0 23px;border-bottom:1px solid #dae4df}
+.minimal-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:#648174}
+.minimal-heading h1{font-size:32px;font-weight:800;letter-spacing:-.045em;margin:8px 0 5px;color:#18382c;line-height:1.15}
+.minimal-heading p{font-size:13px;color:#6b8074;margin:0}
+.minimal-primary{border:0;background:#174e3b;color:#fff;font-size:12px;font-weight:750;border-radius:9px;padding:12px 18px;cursor:pointer;white-space:nowrap}
+.minimal-primary:hover{background:#0e6547}
+.minimal-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.minimal-home .minimal-stat{display:flex;flex-direction:column;min-width:0;align-items:flex-start;text-align:left;background:#fff!important;border:1px solid #dce6e0!important;border-radius:12px;box-shadow:none!important;padding:21px 22px;cursor:pointer;transition:border-color .15s}
+.minimal-home .minimal-stat:hover{border-color:#78a88e!important}
+.minimal-stat-label{color:#4a6959;font-size:12px;font-weight:700}
+.minimal-stat-value{font-size:35px;font-weight:800;line-height:1.15;letter-spacing:-.045em;color:#1e4231;margin:14px 0 9px}
+.minimal-stat-note{color:#7e8b82;font-size:11px}
+.minimal-columns{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.9fr);gap:17px;align-items:start}
+.minimal-home .minimal-panel{background:#fff!important;border:1px solid #dce6e0!important;border-radius:12px;box-shadow:none!important;padding:22px}
+.minimal-panel-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:18px}
+.minimal-home .minimal-panel-heading h2{margin:0!important;font-size:17px!important;font-weight:800!important;letter-spacing:-.015em;color:#1c4030!important}
+.minimal-panel-heading>span{font-size:11px;color:#83958b}
+.minimal-alerts{display:flex;flex-direction:column}
+.minimal-home .minimal-alert{width:100%;background:transparent!important;border:0;border-bottom:1px solid #e9efeb;display:flex;align-items:center;gap:13px;padding:15px 1px;text-align:left;cursor:pointer;color:#264333!important}
+.minimal-home .minimal-alert:last-child{border-bottom:0}
+.minimal-home .minimal-alert:hover{background:#f7faf8!important}
+.minimal-alert-dot{width:7px;height:7px;border-radius:50%;background:#a0b5a8;flex:none}
+.minimal-alert-dot.attention{background:#d58e39}
+.minimal-alert-label{flex:1;font-size:12px;font-weight:600}
+.minimal-alert-number{font-size:14px;font-weight:800;color:#28523b;min-width:25px;text-align:right}
+.minimal-arrow{font-size:19px;color:#829589;font-weight:350}
+.minimal-shortcuts{display:flex;flex-direction:column}
+.minimal-home .minimal-shortcut{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 2px;background:transparent!important;border:0;border-bottom:1px solid #e9efeb;color:#244a35!important;font-size:12px;font-weight:700;cursor:pointer}
+.minimal-home .minimal-shortcut:hover{color:#11804b!important}
+.minimal-shortcut span:last-child{font-size:17px;font-weight:400;color:#6b907b}
+.minimal-backup{display:flex;flex-direction:column;gap:8px;margin-top:25px;padding:17px 0 0;border-top:1px solid #e4ece6}
+.minimal-backup span{color:#75887c;font-size:11px}
+.minimal-backup button{align-self:flex-start;border:0;background:transparent;color:#126743;font-size:12px;font-weight:750;cursor:pointer;padding:3px 0}
+html[data-theme="dark"] body .minimal-heading{border-color:#355c49}
+html[data-theme="dark"] body .minimal-heading h1,html[data-theme="dark"] body .minimal-home .minimal-panel-heading h2{color:#f0fff5!important}
+html[data-theme="dark"] body .minimal-home .minimal-stat,html[data-theme="dark"] body .minimal-home .minimal-panel{background:#203b30!important;border-color:#3d6b51!important}
+html[data-theme="dark"] body .minimal-stat-value,html[data-theme="dark"] body .minimal-stat-label,html[data-theme="dark"] body .minimal-alert-label{color:#effbf0!important}
+html[data-theme="dark"] body .minimal-home .minimal-alert,html[data-theme="dark"] body .minimal-home .minimal-shortcut{color:#e5fae9!important;border-color:#38644b}
+html[data-theme="dark"] body .minimal-home .minimal-alert:hover{background:#28523a!important}
+@media(max-width:1020px){.minimal-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.minimal-columns{grid-template-columns:1fr}}
+@media(max-width:580px){.minimal-heading{align-items:flex-start;flex-direction:column}.minimal-stats{grid-template-columns:1fr}.minimal-home .minimal-panel{padding:17px}}
 </style>
 </head>
 <body>
@@ -2409,42 +2453,38 @@ function portalModules(){
 function portalSummary(){const review=[...(pinRestricted('risk')?[]:db.risk),...(pinRestricted('ssow')?[]:db.ssow)];const late=review.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;const soon=review.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;const open=pinRestricted('incidents')?'🔒':db.incidents.filter(r=>r.status!=='Closed').length;const actionStats=pinRestricted('incidents')?{open:'🔒',overdue:false}:incidentActionCounts();const cells=[['Open actions',actionStats.open,'Incident corrective actions awaiting verification',actionStats.overdue?'danger':'warning'],['Open incidents',open,'Incident records needing attention','danger'],['Overdue reviews',late,'Risk assessments and SSOWs','warning'],['Reviews due soon',soon,'Within the next 30 days','info'],['Training records',pinRestricted('training')?'🔒':db.training.length,'Employee training evidence','good']];return '<div class="portal-intro"><h2>Safety performance overview</h2><span class="muted">Based on records stored in this browser</span></div><div class="portal-kpis">'+cells.map(([name,value,detail,tone])=>'<div class="portal-kpi '+tone+'"><span class="kpi-caption">'+name+'</span><strong class="kpi-number">'+value+'</strong><span class="kpi-foot">'+detail+'</span></div>').join('')+'</div>'}
 function homeHTML(){
  const locked=k=>pinRestricted(k);
- const value=k=>locked(k)?'🔒':db[k].length;
- const riskOverdue=locked('risk')?null:db.risk.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
- const riskDue=locked('risk')?null:db.risk.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
- const ssowOverdue=locked('ssow')?null:db.ssow.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
- const ssowDue=locked('ssow')?null:db.ssow.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
+ const count=k=>locked(k)?'🔒':String(db[k].length);
+ const priority=k=>locked(k)?null:db[k].filter(r=>reviewPriority(r.reviewDate)==='Overdue review'||reviewPriority(r.reviewDate)==='Due in 30 days').length;
  const incidentOpen=locked('incidents')?null:db.incidents.filter(r=>r.status!=='Closed').length;
- const actionStats=locked('incidents')?null:incidentActionCounts();
+ const actions=locked('incidents')?null:incidentActionCounts();
  const trainingDue=locked('training')?null:db.training.filter(r=>r.expiryDate&&reviewPriority(r.expiryDate)!=='Up to date').length;
- const shown=n=>n===null?'🔒':String(n);
- const kpis=[
-  ['risk','◈','Risk Assessments',value('risk'),'Active assessments',riskOverdue===null?'Restricted':riskOverdue+' overdue'],
-  ['ssow','▤','SSOW / Safe Systems',value('ssow'),'Current SSOWs',ssowDue===null?'Restricted':ssowDue+' due soon'],
-  ['incidents','⚠','Incidents',shown(incidentOpen),'Open incidents',incidentOpen===null?'Restricted':'Require follow-up'],
-  ['training','▥','Training',value('training'),'Training records',trainingDue===null?'Restricted':trainingDue+' due / overdue'],
-  ['incidents','☷','Related Actions',shown(actionStats?actionStats.open:null),'Outstanding actions',actionStats?actionStats.overdue+' overdue':'Restricted']
+ const metric=[
+  ['risk','Risk assessments',count('risk'),'Total recorded'],
+  ['ssow','Safe systems of work',count('ssow'),'Total procedures'],
+  ['incidents','Open incidents',incidentOpen===null?'🔒':String(incidentOpen),'Awaiting closure'],
+  ['incidents','Outstanding actions',actions===null?'🔒':String(actions.open),'Corrective actions']
  ];
- const cards=kpis.map(([k,icon,title,n,desc,tag])=>'<button type="button" class="mock-kpi-card" data-nav="'+k+'"><div class="mock-kpi-top"><span class="mock-kpi-icon" aria-hidden="true">'+icon+'</span><span class="mock-kpi-arrow" aria-hidden="true">›</span></div><strong class="mock-kpi-title">'+esc(title)+'</strong><strong class="mock-kpi-value">'+esc(String(n))+'</strong><span class="mock-kpi-sub">'+esc(desc)+'</span><span class="mock-kpi-tag">'+esc(tag)+'</span></button>').join('');
- const attention=[
-  ['incidents','⚠','Open incidents awaiting action','Recent incidents requiring investigation, action or closure',incidentOpen,'open','alert'],
-  ['risk','▣','Risk assessments due for review','Assessments reaching or past their review date',riskDue===null?null:riskDue+riskOverdue,'due','warn'],
-  ['training','▥','Training records due for review','Training expiry dates due or overdue',trainingDue,'due','warn'],
-  ['ssow','▤','SSOWs due for review','Safe Systems of Work approaching their review date',ssowDue===null?null:ssowDue+ssowOverdue,'due','neutral']
+ const metrics=metric.map(([k,label,value,note])=>'<button type="button" class="minimal-stat" data-nav="'+k+'"><span class="minimal-stat-label">'+esc(label)+'</span><strong class="minimal-stat-value">'+esc(value)+'</strong><span class="minimal-stat-note">'+esc(note)+'</span></button>').join('');
+ const notices=[
+  ['risk','Risk assessments needing review',priority('risk')],
+  ['ssow','SSOWs needing review',priority('ssow')],
+  ['incidents','Open incident investigations',incidentOpen],
+  ['incidents','Overdue corrective actions',actions===null?null:actions.overdue],
+  ['training','Training due or overdue',trainingDue]
  ];
- const attentionHTML=attention.map(([k,icon,title,detail,n,unit,tone])=>'<button type="button" class="mock-attention-row" data-nav="'+k+'"><span class="mock-attention-icon '+tone+'" aria-hidden="true">'+icon+'</span><span class="mock-attention-copy"><strong>'+esc(title)+'</strong><small>'+esc(detail)+'</small></span><span class="mock-attention-pill '+tone+'">'+(n===null?'🔒':esc(String(n))+' '+unit)+'</span><span class="mock-attention-chevron" aria-hidden="true">›</span></button>').join('');
- const quick=[
-  ['risk','add','＋','Create Risk Assessment'],
-  ['ssow','add','▤','Create / Update SSOW'],
-  ['incidents','add','⚠','Log an Incident'],
-  ['training','add','▥','Record Training'],
-  ['ppeStock','nav','◇','Manage PPE / Assets']
+ const alerts=notices.map(([k,label,n])=>'<button type="button" class="minimal-alert" data-nav="'+k+'"><span class="minimal-alert-dot'+(n!==null&&n>0?' attention':'')+'"></span><span class="minimal-alert-label">'+esc(label)+'</span><strong class="minimal-alert-number">'+(n===null?'🔒':String(n))+'</strong><span class="minimal-arrow" aria-hidden="true">›</span></button>').join('');
+ const shortcuts=[
+  ['risk','add','New risk assessment'],
+  ['ssow','add','New safe system of work'],
+  ['incidents','add','Log an incident'],
+  ['training','nav','Training records']
  ];
- const quickHTML=quick.map(([k,action,icon,label],i)=>'<button type="button" class="mock-quick-action'+(i===0?' primary':'')+'" '+(action==='add'?'data-action="add" data-section="'+k+'"':'data-nav="'+k+'"')+'><span class="mock-quick-icon" aria-hidden="true">'+icon+'</span><strong>'+esc(label)+'</strong><span class="mock-quick-arrow" aria-hidden="true">→</span></button>').join('');
- return '<div class="mock-home-shell">'+
- '<section class="mock-kpi-grid" aria-label="Safety dashboard statistics">'+cards+'</section>'+
- '<section class="mock-bottom-grid"><div class="mock-attention-panel"><div class="mock-panel-head"><div><h3>Needs Attention</h3><p>Live counts from your registers — not a substitute for checking the underlying records.</p></div><button type="button" class="mock-view-all" data-nav="risk">View All ›</button></div><div class="mock-attention-list">'+attentionHTML+'</div></div><div class="mock-quick-panel"><div class="mock-quick-head"><h3>ϟ &nbsp; Quick Actions</h3><p>Common tasks to keep your workplace safe and compliant.</p></div><div class="mock-quick-list">'+quickHTML+'</div></div></section>'+
- '<div class="mock-home-extras"><section class="panel home-panel"><div class="section-title"><h2>Review schedule</h2></div>'+reviewReminderPanel()+'</section><section class="panel home-panel"><div class="section-title"><h2>Records &amp; backups</h2></div><p>Export regular backups of local records and retain controlled copies of signed H&amp;S documents.</p><div class="home-backup-actions"><button type="button" class="btn primary" data-action="export">Export backup</button><button type="button" class="btn" data-nav="backup">Backup settings</button></div></section></div>'+
+ const actionsHtml=shortcuts.map(([k,action,label])=>'<button type="button" class="minimal-shortcut" '+(action==='add'?'data-action="add" data-section="'+k+'"':'data-nav="'+k+'"')+'><span>'+esc(label)+'</span><span aria-hidden="true">↗</span></button>').join('');
+ return '<div class="minimal-home">'+
+ '<header class="minimal-heading"><div><span class="minimal-eyebrow">ONBOARD CORRUGATED / HEALTH &amp; SAFETY</span><h1>Overview</h1><p>Your safety records at a glance.</p></div><button type="button" class="minimal-primary" data-action="add" data-section="risk">＋ New assessment</button></header>'+
+ '<section class="minimal-stats" aria-label="Key figures">'+metrics+'</section>'+
+ '<div class="minimal-columns"><section class="minimal-panel"><div class="minimal-panel-heading"><h2>Needs attention</h2><span>Live register figures</span></div><div class="minimal-alerts">'+alerts+'</div></section>'+
+ '<section class="minimal-panel"><div class="minimal-panel-heading"><h2>Quick access</h2><span>Common tasks</span></div><div class="minimal-shortcuts">'+actionsHtml+'</div><div class="minimal-backup"><span>Records are saved locally on this PC.</span><button type="button" data-action="export">Export backup ↗</button></div></section></div>'+
  '</div>';
 }
 function statusOptions(k){const field=k==='ppe'?'claimStatus':'status';const definition=config[k]?.fields.find(([name])=>name===field);return definition?.[4]||[]}
