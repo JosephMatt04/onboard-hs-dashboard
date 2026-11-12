@@ -3154,7 +3154,7 @@ function ppeScannerHTML(){
   const item=db.ppeStock.find(r=>r.id===t.itemId);
   return '<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.type==='issue'?'Issued':'Received')+'</td><td>'+esc(t.itemName||item?.item||'PPE item')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.recordedBy||'—')+'</td><td>'+esc(t.before)+' → '+esc(t.after)+'</td></tr>';
  }).join('');
- return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print PPE Barcode Sheet</button></div></div>'+
+ return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print PPE Desk Register</button></div></div>'+
  '<div class="ppe-scan-metrics"><div><b>'+db.ppeStock.length+'</b><span>Registered PPE products</span></div><div><b>'+stock+'</b><span>Units in stock</span></div><div><b>'+low+'</b><span>At or below minimum</span></div><div><b>'+moves.length+'</b><span>Stock movements recorded</span></div></div>'+
  '<section class="panel ppe-scan-panel"><div class="section-title"><h2>Scan PPE barcode</h2><span class="muted">USB barcode scanners or manual entry</span></div>'+
  '<form id="ppe-scan-form" class="ppe-scan-form"><label><span>Transaction type</span><select id="ppe-scan-type" class="field"><option value="issue">Issue PPE / remove from stock</option><option value="receive">Receive PPE / add to stock</option></select></label>'+
@@ -3171,7 +3171,7 @@ function ppeScannerHTML(){
 }
 function ppeStockRegisterHTML(){
  return '<div class="ppe-tabs" role="group" aria-label="PPE sections"><button type="button" class="ppe-tab active" data-action="ppe-tab" data-section="ppeStock">'+sidebarPictogram('ppeStock')+'<span>PPE Inventory</span></button><button type="button" class="ppe-tab" data-action="ppe-tab" data-section="ppe">'+sidebarPictogram('ppe')+'<span>Safety Boot Claims</span></button></div>'+
- '<section class="panel ppe-stock-register"><div class="section-title"><div><h2>PPE inventory and barcode labels</h2><p class="muted">Each PPE product / size has one unique Onboard barcode. Adjust stock through Scan PPE so transactions are logged.</p></div><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div>'+
+ '<section class="panel ppe-stock-register"><div class="section-title"><div><h2>PPE inventory and barcode labels</h2><p class="muted">Each product has a delivery barcode. Prepare individual codes for each available piece, then issue using its desk barcode.</p></div><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div>'+
  (db.ppeStock.length?'<div class="table-wrap"><table><thead><tr><th>PPE item</th><th>Category</th><th>Size / colour</th><th>Barcode</th><th>In stock</th><th>Minimum</th><th>Actions</th></tr></thead><tbody>'+
  db.ppeStock.map(r=>'<tr><td>'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td>'+esc([r.size,r.colour].filter(Boolean).join(' · ')||'—')+'</td><td><code>'+esc(r.barcode||'Not assigned')+'</code></td><td>'+esc(r.stock)+'</td><td>'+esc(r.minStock||'0')+'</td><td class="actions"><button class="btn small" type="button" data-action="ppe-label" data-section="ppeStock" data-id="'+esc(r.id)+'">Print barcode sheet</button><button class="btn small" type="button" data-action="ppe-units" data-section="ppeStock" data-id="'+esc(r.id)+'">Prepare individual codes</button><button class="btn small" type="button" data-action="edit" data-section="ppeStock" data-id="'+esc(r.id)+'">Edit</button><button class="btn small" type="button" data-action="docs" data-section="ppeStock" data-id="'+esc(r.id)+'">Files</button><button class="btn small" type="button" data-action="delete" data-section="ppeStock" data-id="'+esc(r.id)+'">Delete</button></td></tr>').join('')+
  '</tbody></table></div>':'<p class="muted">No PPE products yet. Add a PPE item to generate its unique barcode.</p>')+'</section>';
@@ -3251,7 +3251,9 @@ function printPpeReport(kind){
 
 function printPpeLabels(id){
  if(!ensurePpeBarcodes())return;
- const products=(id?db.ppeStock.filter(x=>x.id===id):db.ppeStock.slice()).sort((a,b)=>String(a.category||'').localeCompare(String(b.category||''))||String(a.item||'').localeCompare(String(b.item||''))||String(a.size||'').localeCompare(String(b.size||'')));
+ const source=id?db.ppeStock.filter(x=>x.id===id):db.ppeStock.slice();
+ const products=source.flatMap(r=>{const units=ppeUnitsFor(r.id);return units.length?units.filter(u=>u.status==='In Stock').map(u=>({...r,barcode:u.barcode,unit:true,size:u.size,colour:u.colour})): [{...r,unit:false}]}).sort((a,b)=>String(a.category||'').localeCompare(String(b.category||''))||String(a.item||'').localeCompare(String(b.item||''))||String(a.colour||'').localeCompare(String(b.colour||''))||String(a.size||'').localeCompare(String(b.size||''))||String(a.barcode||'').localeCompare(String(b.barcode||'')));
+ if(!products.length&&source.length){alert('No available individual PPE codes remain for this selection.');return}
  if(!products.length){alert('No PPE products available. Add a PPE item first.');return}
  const pageSize=8;
  const totalPages=Math.ceil(products.length/pageSize);
@@ -3260,8 +3262,8 @@ function printPpeLabels(id){
   for(let start=0;start<products.length;start+=pageSize){
    const items=products.slice(start,start+pageSize);
    const number=Math.floor(start/pageSize)+1;
-   pages+='<section class="sheet"><header><div class="brand">ONBOARD <span>CORRUGATED</span></div><div class="sheet-title">PPE BARCODE REFERENCE SHEET</div><p>Scan the matching code when issuing or receiving PPE. Confirm each stock transaction in the dashboard.</p></header>'+
-     '<main class="barcode-grid">'+items.map(r=>'<article class="barcode-card"><div class="ppe-name">'+esc(r.item||'PPE product')+'</div><div class="ppe-meta">'+esc(r.size||'Standard size')+' &nbsp;·&nbsp; '+esc(r.category||'PPE')+'</div><div class="code">'+ppeBarcodeSvg(r.barcode)+'</div></article>').join('')+'</main>'+
+   pages+='<section class="sheet"><header><div class="brand">ONBOARD <span>CORRUGATED</span></div><div class="sheet-title">PPE BARCODE REFERENCE SHEET</div><p>Scan an OI code to issue one piece. Use the OC product code for deliveries. Confirm each stock transaction.</p></header>'+
+     '<main class="barcode-grid">'+items.map(r=>'<article class="barcode-card"><div class="ppe-name">'+esc(r.item||'PPE product')+'</div><div class="ppe-meta">'+esc([r.colour,r.size,r.category].filter(Boolean).join(' · ')||'Standard PPE')+'</div><div class="code">'+ppeBarcodeSvg(r.barcode)+'</div></article>').join('')+'</main>'+
      '<footer><span>ONBOARD H&amp;S · DESK SCANNING REFERENCE</span><span>Page '+number+' of '+totalPages+'</span></footer></section>';
   }
  }catch(e){alert('Could not generate PPE barcode sheet: '+e.message);return}
