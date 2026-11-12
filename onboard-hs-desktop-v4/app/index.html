@@ -2077,6 +2077,73 @@ html[data-theme="dark"] body .risk-category-chip.themed.active .risk-category-na
  text-shadow:none!important;
  filter:none!important;
 }
+
+/* Onboard 2026 Control Centre – functional homepage redesign */
+.oc-dashboard{max-width:1560px!important;width:100%!important;margin:0 auto!important;gap:0!important}
+.oc-dashboard .oc-hero{position:relative;display:flex;align-items:center;min-height:345px;padding:40px clamp(26px,5.4vw,76px);overflow:hidden;border-radius:19px;margin-bottom:20px;background:linear-gradient(110deg,#073f30 0%,#07503c 52%,#173d37 100%);box-shadow:0 16px 32px #102c2730;color:#fff;text-align:left}
+.oc-hero-copy{position:relative;z-index:3;width:67%;min-width:0;text-align:left}
+.oc-dashboard .oc-eyebrow{letter-spacing:.19em;font-size:11px;color:#d2ffb8;font-weight:850;margin-bottom:12px}
+.oc-dashboard .oc-location{letter-spacing:.1em;font-size:10px;color:#d7f6df;font-weight:750;margin-bottom:11px}
+.oc-dashboard .oc-hero h2{color:#fff!important;text-align:left!important;font-weight:850!important;font-size:clamp(33px,3.5vw,51px)!important;line-height:1.06!important;letter-spacing:-.045em!important;margin:0 0 13px!important;text-shadow:none!important}
+.oc-dashboard .oc-hero p{font-size:14px;color:#e5f2eb!important;line-height:1.5;margin:0 0 22px;max-width:600px}
+.oc-hero-buttons{display:flex;gap:12px;flex-wrap:wrap}
+.oc-dashboard .oc-hero-buttons button{cursor:pointer;border-radius:10px;min-height:45px;padding:10px 17px;font-weight:750;font-size:13px;transition:transform .15s ease,box-shadow .15s ease}
+.oc-dashboard .oc-hero-primary{background:#c5f51b;border:1px solid #e4ff71;color:#182b20;min-width:230px}
+.oc-dashboard .oc-hero-primary span{float:right;margin-left:12px}
+.oc-dashboard .oc-hero-secondary{background:#0a473b;border:1px solid #d4efe0;color:#fff}
+.oc-dashboard .oc-hero-buttons button:hover{transform:translateY(-2px)}
+.oc-dashboard .oc-hero-link{display:block;background:none;border:0;color:#e8f9ea;text-decoration:underline;font-size:12px;font-weight:650;margin-top:15px;padding:0;cursor:pointer;text-align:left}
+.oc-hero-art{position:absolute;z-index:1;right:0;top:0;bottom:0;width:41%;overflow:hidden;transform:skewX(-16deg) translateX(55px);transform-origin:bottom center;border-left:14px solid #a4d434;background:linear-gradient(125deg,#25433c,#60716a 45%,#a17c40 65%,#3d3830);box-shadow:-25px 0 0 #2b9b50}
+.oc-hero-art:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 36px,#0004 38px 43px,transparent 45px 77px),linear-gradient(0deg,#19292790,transparent);opacity:.6}
+.oc-cardboard{position:absolute;right:0;left:14%;height:45px;border-radius:5px;transform:skewX(16deg);background:repeating-linear-gradient(90deg,#8f6c3b 0 6px,#d2a767 7px 14px,#785833 15px 19px);border-top:9px solid #deb77b;border-bottom:9px solid #5e4629;box-shadow:0 9px 18px #0009}
+.oc-cardboard.one{bottom:18%;}.oc-cardboard.two{bottom:29%;left:23%}.oc-cardboard.three{bottom:40%;left:32%}.oc-cardboard.four{bottom:51%;left:39%}
+.oc-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin:0 0 22px}
+.oc-dashboard .oc-kpi{display:flex;flex-direction:column;text-align:left;min-width:0;padding:17px 16px 15px;background:#fbfcfb!important;color:#142e27!important;border:1px solid #d8e3df!important;border-radius:15px;box-shadow:0 5px 14px #162f2710;cursor:pointer;transition:transform .16s,box-shadow .16s}
+.oc-dashboard .oc-kpi:hover{transform:translateY(-3px);box-shadow:0 11px 23px #162f2728}
+.oc-kpi-top{display:flex;align-items:center;gap:9px;min-height:35px}
+.oc-kpi-icon{display:grid;place-items:center;background:#eaf9df;color:#16643c;border-radius:10px;width:34px;height:34px;flex-shrink:0;font-size:19px;font-weight:800}
+.oc-kpi-title{font-weight:800;font-size:12px;flex:1;line-height:1.25;color:#152e27}
+.oc-chevron{font-size:25px;font-weight:350;color:#315247;line-height:1}
+.oc-kpi-value{font-size:32px;letter-spacing:-.05em;font-weight:850;line-height:1.2;color:#122d25;margin:13px 0 4px}
+.oc-kpi-bottom{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#4d615c}
+.oc-kpi-detail{font-weight:700;color:#2d7848}
+.oc-panels{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,.95fr);gap:17px;margin-bottom:23px}
+.oc-attention-panel,.oc-quick-panel{min-width:0;border-radius:17px;padding:22px 23px;box-shadow:0 8px 19px #132e2716}
+.oc-attention-panel{background:#fbfcfb!important;border:1px solid #d9e4df!important}
+.oc-attention-panel header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:13px}
+.oc-dashboard .oc-attention-panel h2,.oc-dashboard .oc-quick-panel h2{font-size:21px!important;font-weight:850!important;margin:0 0 5px!important;line-height:1.2!important}
+.oc-dashboard .oc-attention-panel h2{color:#1c352a!important}
+.oc-dashboard .oc-attention-panel p{color:#657771!important;font-size:12px;margin:0}
+.oc-view-all{flex-shrink:0;background:#fff;border:1px solid #d2ded8;border-radius:9px;font-weight:700;color:#214738;cursor:pointer;padding:8px 11px}
+.oc-attention-list{display:flex;flex-direction:column}
+.oc-dashboard .oc-attention-row{display:flex;align-items:center;gap:12px;width:100%;border:0;border-top:1px solid #e6ece9;background:transparent!important;color:#152b25!important;text-align:left;padding:11px 2px;cursor:pointer}
+.oc-dashboard .oc-attention-row:hover{background:#f0f8f1!important}
+.oc-attention-symbol{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#e5eee8;color:#24473b;flex-shrink:0;font-size:19px}
+.oc-attention-symbol.alert{background:#ffe7e7;color:#c32724}.oc-attention-symbol.warn{background:#fff3d0;color:#a5760a}
+.oc-attention-copy{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.oc-attention-copy strong{font-size:12px;color:#182c26;font-weight:780}
+.oc-attention-copy small{font-size:11px;color:#6d7974}
+.oc-attention-value{font-size:11px;font-weight:800;color:#4b6258;white-space:nowrap;padding:5px 9px;background:#edf2ef;border-radius:20px}
+.oc-attention-value.alert{background:#ffe2e2;color:#a52121}.oc-attention-value.warn{background:#fff1c8;color:#815b0a}
+.oc-quick-panel{background:linear-gradient(145deg,#074d39,#063528)!important;color:#fff!important;border:1px solid #165d48!important}
+.oc-dashboard .oc-quick-panel h2{color:#fff!important}.oc-dashboard .oc-quick-panel p{margin:0 0 17px;color:#d0e6da!important;font-size:12px}
+.oc-quick-list{display:flex;flex-direction:column;gap:8px}
+.oc-dashboard .oc-quick-action{display:flex;gap:10px;align-items:center;width:100%;min-height:39px;background:#114f3f!important;color:#fff!important;border:1px solid #83ae9b!important;border-radius:9px;text-align:left;padding:8px 14px;cursor:pointer}
+.oc-quick-action span:first-child{font-size:20px;min-width:25px}.oc-quick-action strong{font-size:12px;flex:1}.oc-quick-action span:last-child{font-size:20px}
+.oc-dashboard .oc-quick-action.primary{background:#c5f51b!important;color:#162c1d!important;border-color:#dafe65!important}
+.oc-dashboard .oc-quick-action:hover{filter:brightness(1.12)}
+.oc-extra-sections{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.oc-extra-sections .home-panel{min-width:0}
+html[data-theme="dark"] body .oc-dashboard .oc-kpi,html[data-theme="dark"] body .oc-dashboard .oc-attention-panel{background:#293538!important;border-color:#526465!important}
+html[data-theme="dark"] body .oc-dashboard .oc-kpi-title,html[data-theme="dark"] body .oc-dashboard .oc-kpi-value,html[data-theme="dark"] body .oc-dashboard .oc-attention-panel h2,html[data-theme="dark"] body .oc-dashboard .oc-attention-copy strong{color:#f1f7f2!important}
+html[data-theme="dark"] body .oc-dashboard .oc-attention-row{color:#f1f7f2!important;border-color:#4b5d58}
+html[data-theme="dark"] body .oc-dashboard .oc-attention-row:hover{background:#364743!important}
+html[data-theme="dark"] body .oc-dashboard .oc-attention-copy small,html[data-theme="dark"] body .oc-dashboard .oc-attention-panel p,html[data-theme="dark"] body .oc-dashboard .oc-kpi-bottom{color:#c2d3cb!important}
+@media(max-width:1100px){.oc-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.oc-panels{grid-template-columns:1fr}.oc-hero-art{width:35%}.oc-hero-copy{width:80%}}
+@media(max-width:700px){.oc-dashboard .oc-hero{min-height:0;padding:28px 22px}.oc-hero-art{opacity:.2;width:55%}.oc-hero-copy{width:100%}.oc-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.oc-extra-sections{grid-template-columns:1fr}.oc-attention-panel header{flex-direction:column}}
+@media(max-width:460px){.oc-kpi-grid{grid-template-columns:1fr}.oc-attention-value{display:none}.oc-dashboard .oc-hero h2{font-size:29px!important}}
+@media(prefers-reduced-motion:reduce){.oc-dashboard .oc-kpi,.oc-dashboard .oc-hero-buttons button{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -2241,44 +2308,46 @@ function portalModules(){return '<div class="portal-modules" role="group" aria-l
 function portalSummary(){const review=[...(pinRestricted('risk')?[]:db.risk),...(pinRestricted('ssow')?[]:db.ssow)];const late=review.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;const soon=review.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;const open=pinRestricted('incidents')?'🔒':db.incidents.filter(r=>r.status!=='Closed').length;const actionStats=pinRestricted('incidents')?{open:'🔒',overdue:false}:incidentActionCounts();const cells=[['Open actions',actionStats.open,'Incident corrective actions awaiting verification',actionStats.overdue?'danger':'warning'],['Open incidents',open,'Incident records needing attention','danger'],['Overdue reviews',late,'Risk assessments and SSOWs','warning'],['Reviews due soon',soon,'Within the next 30 days','info'],['Training records',pinRestricted('training')?'🔒':db.training.length,'Employee training evidence','good']];return '<div class="portal-intro"><h2>Safety performance overview</h2><span class="muted">Based on records stored in this browser</span></div><div class="portal-kpis">'+cells.map(([name,value,detail,tone])=>'<div class="portal-kpi '+tone+'"><span class="kpi-caption">'+name+'</span><strong class="kpi-number">'+value+'</strong><span class="kpi-foot">'+detail+'</span></div>').join('')+'</div>'}
 function homeHTML(){
  const locked=k=>pinRestricted(k);
- const reviews=[...(locked('risk')?[]:db.risk),...(locked('ssow')?[]:db.ssow)];
- const overdue=reviews.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
- const due=reviews.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
- const openIncidents=locked('incidents')?'🔒':db.incidents.filter(r=>r.status!=='Closed').length;
+ const count=k=>locked(k)?'🔒':db[k].length;
+ const num=k=>locked(k)?null:db[k].length;
+ const riskOverdue=locked('risk')?null:db.risk.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
+ const riskDue=locked('risk')?null:db.risk.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
+ const ssowOverdue=locked('ssow')?null:db.ssow.filter(r=>reviewPriority(r.reviewDate)==='Overdue review').length;
+ const ssowDue=locked('ssow')?null:db.ssow.filter(r=>reviewPriority(r.reviewDate)==='Due in 30 days').length;
+ const openIncidents=locked('incidents')?null:db.incidents.filter(r=>r.status!=='Closed').length;
  const actionStats=locked('incidents')?null:incidentActionCounts();
- const overdueValue=locked('risk')||locked('ssow')?'🔒':overdue;
- const dueValue=locked('risk')||locked('ssow')?'🔒':due;
- const stats=[
-  ['Open corrective actions',actionStats?actionStats.open:'🔒','incident actions awaiting verification','incidents','amber'],
-  ['Overdue reviews',overdueValue,'Risk assessments and SSOW','risk','red'],
-  ['Reviews due soon',dueValue,'Within the next 30 days','ssow','blue'],
-  ['Open incidents',openIncidents,'Incidents requiring attention','incidents','green']
+ const trainingDue=locked('training')?null:db.training.filter(r=>r.expiryDate&&reviewPriority(r.expiryDate)!=='Up to date').length;
+ const show=v=>v===null?'🔒':String(v);
+ const summary=[
+  ['risk','◈','Risk Assessments',count('risk'),'Recorded assessments',riskOverdue===null?'Restricted':riskOverdue+' overdue reviews'],
+  ['ssow','▤','Safe Systems of Work',count('ssow'),'Recorded procedures',ssowDue===null?'Restricted':ssowDue+' reviews due soon'],
+  ['incidents','⚠','Incidents',show(openIncidents),'Open incidents',openIncidents===null?'Restricted':'Require follow-up'],
+  ['training','▣','Training',count('training'),'Training records',trainingDue===null?'Restricted':trainingDue+' due or overdue'],
+  ['incidents','☷','Outstanding Actions',show(actionStats?actionStats.open:null),'Open corrective actions',actionStats?actionStats.overdue+' overdue':'Restricted']
  ];
- const tiles=[
-  ['Risk assessments','risk',locked('risk')?'🔒':db.risk.length,'Assess and control hazards','◈'],
-  ['Safe systems of work','ssow',locked('ssow')?'🔒':db.ssow.length,'Machine and task procedures','▤'],
-  ['Training records','training',locked('training')?'🔒':db.training.length,'Competence and certificates','▥'],
-  ['PPE inventory','ppeStock',locked('ppeStock')?'🔒':db.ppeStock.length,'Stock and issue records','◇'],
-  ['Asset register','assets',locked('assets')?'🔒':db.assets.length,'Equipment and manuals','▣'],
-  ['Incident register','incidents',locked('incidents')?'🔒':db.incidents.length,'Investigations and actions','⚑']
+ const cards=summary.map(([k,icon,title,value,hint,detail])=>'<button type="button" class="oc-kpi" data-nav="'+k+'"><span class="oc-kpi-top"><span class="oc-kpi-icon">'+icon+'</span><span class="oc-kpi-title">'+esc(title)+'</span><span class="oc-chevron">›</span></span><span class="oc-kpi-value">'+esc(value)+'</span><span class="oc-kpi-bottom"><span>'+esc(hint)+'</span><span class="oc-kpi-detail">'+esc(detail)+'</span></span></button>').join('');
+ const attention=[
+  ['incidents','⚠','Open incidents awaiting action','Incidents that are not yet recorded as closed',openIncidents,'alert'],
+  ['risk','▣','Risk assessments due for review','Assessments overdue or due in the next 30 days',riskDue===null?null:riskDue+riskOverdue,'warn'],
+  ['ssow','▤','Safe systems due for review','Procedures overdue or approaching review',ssowDue===null?null:ssowDue+ssowOverdue,'warn'],
+  ['incidents','☷','Overdue corrective actions','Open incident actions past their due date',actionStats?actionStats.overdue:null,'alert'],
+  ['training','▥','Training records due for review','Training expiry dates overdue or within 30 days',trainingDue,'neutral']
  ];
- const recent=[
-  ...(locked('risk')?[]:db.risk).map(r=>({name:r.title,kind:'Risk assessment',status:r.status,date:r.reviewDate,k:'risk'})),
-  ...(locked('ssow')?[]:db.ssow).map(r=>({name:r.machine,kind:'SSOW',status:r.status,date:r.reviewDate,k:'ssow'})),
-  ...(locked('incidents')?[]:db.incidents).map(r=>({name:r.location,kind:'Incident',status:r.status,date:r.date,k:'incidents'})),
-  ...(locked('assets')?[]:db.assets).map(r=>({name:r.name,kind:'Asset',status:r.status,date:r.inspectionDate,k:'assets'}))
- ].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,6);
- const safeCount=stats.map(([name,value,detail,k,tone])=>'<div class="home-metric '+tone+'"><div class="home-metric-caption">'+esc(name)+'</div><strong>'+esc(String(value))+'</strong><p>'+esc(detail)+'</p><button type="button" data-nav="'+k+'" class="home-text-action">View records →</button></div>').join('');
- const quick=tiles.map(([name,k,value,hint,symbol])=>'<button type="button" class="home-quick-tile" data-nav="'+k+'"><span class="home-quick-symbol" aria-hidden="true">'+symbol+'</span><span class="home-quick-copy"><strong>'+esc(name)+'</strong><small>'+esc(hint)+'</small></span><span class="home-quick-count">'+esc(String(value))+'</span></button>').join('');
- const activity=recent.length?recent.map(r=>'<div class="home-activity-row"><div><strong>'+esc(r.name||'Untitled')+'</strong><small>'+esc(r.kind)+' · '+dateFmt(r.date)+'</small></div><div class="home-activity-end">'+statusHTML(r.status)+'<button type="button" class="home-text-action" data-nav="'+r.k+'">Open →</button></div></div>').join(''):'<p class="empty">No recent records in unlocked sections.</p>';
-return '<div class="home-redesign control-centre"><section class="control-centre-hero"><span class="control-centre-kicker">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</span><div class="control-centre-online">● LOCAL WORKSPACE</div><h2>Health &amp; Safety<br>Control Centre</h2><p>Everything you need to manage workplace safety, all in one place.</p><div class="control-centre-command"><div class="control-centre-command-head"><span class="control-command-icon">✦</span><div><h3>What would you like to do?</h3><p>Choose an action to open your safety workspace.</p></div></div><div class="control-centre-actions"><button type="button" class="control-centre-main-action" data-nav="risk">◈ &nbsp; OPEN RISK ASSESSMENTS</button><button type="button" class="control-centre-secondary-action" data-action="add" data-section="risk">＋ &nbsp; ADD NEW ASSESSMENT</button><button type="button" class="control-centre-quiet-action" data-nav="incidents">View incidents and outstanding actions →</button></div></div></section>'+
- '<div class="home-heading-row"><div><h2>Needs attention</h2><p>Live counts from your registers — not a substitute for checking the underlying records.</p></div></div>'+
- '<div class="home-metrics">'+safeCount+'</div>'+
- '<div class="home-heading-row"><div><h2>Quick access</h2><p>Jump straight to the records you use most.</p></div></div>'+
- '<div class="home-quick-grid">'+quick+'</div>'+
- '<div class="home-heading-row"><div><h2>Review schedule</h2><p>Upcoming and overdue RA and SSOW reviews.</p></div></div>'+reviewReminderPanel()+
- '<div class="home-bottom-grid"><section class="panel home-panel"><div class="section-title"><h2>Record highlights</h2><span class="muted">Latest dated entries</span></div>'+activity+'</section>'+
- '<section class="panel home-panel"><div class="section-title"><h2>Data &amp; backups</h2></div><p>Keep a current backup of your safety records and attachments before significant changes.</p><div class="home-backup-actions"><button type="button" class="btn primary" data-action="export">Export backup</button><button type="button" class="btn" data-nav="backup">Backup settings</button></div><p class="muted">Your records are stored locally on this PC. Keep separately controlled originals of signed H&amp;S documents.</p></section></div></div>';
+ const rows=attention.map(([k,icon,title,description,value,tone])=>'<button class="oc-attention-row" type="button" data-nav="'+k+'"><span class="oc-attention-symbol '+tone+'">'+icon+'</span><span class="oc-attention-copy"><strong>'+esc(title)+'</strong><small>'+esc(description)+'</small></span><span class="oc-attention-value '+(value>0?tone:'')+'">'+(value===null?'🔒':value+' '+(value===1?'item':'items'))+'</span><span class="oc-chevron">›</span></button>').join('');
+ const actions=[
+  ['risk','add','＋','Create Risk Assessment'],
+  ['ssow','add','▤','Create Safe System of Work'],
+  ['incidents','add','⚠','Log an Incident'],
+  ['training','add','▥','Record Training'],
+  ['ppeStock','nav','◇','Manage PPE & Assets']
+ ].map(([k,action,icon,label],i)=>'<button type="button" class="oc-quick-action'+(i===0?' primary':'')+'" '+(action==='add'?'data-action="add" data-section="'+k+'"':'data-nav="'+k+'"')+'><span>'+icon+'</span><strong>'+esc(label)+'</strong><span>→</span></button>').join('');
+ return '<div class="home-redesign control-centre oc-dashboard">'+
+ '<section class="oc-hero"><div class="oc-hero-copy"><div class="oc-eyebrow">ONBOARD CORRUGATED · HEALTH &amp; SAFETY</div><div class="oc-location">● LOCAL WORKSPACE</div><h2>Health &amp; Safety<br>Control Centre</h2><p>Everything you need to manage workplace safety, all in one place.</p><div class="oc-hero-buttons"><button type="button" data-nav="risk" class="oc-hero-primary">◈ &nbsp; Open Risk Assessments <span>→</span></button><button type="button" data-action="add" data-section="risk" class="oc-hero-secondary">＋ &nbsp; Add New Assessment</button></div><button type="button" class="oc-hero-link" data-nav="incidents">View incidents and outstanding actions →</button></div><div class="oc-hero-art" aria-hidden="true"><div class="oc-cardboard one"></div><div class="oc-cardboard two"></div><div class="oc-cardboard three"></div><div class="oc-cardboard four"></div></div></section>'+
+ '<section class="oc-kpi-grid" aria-label="Dashboard statistics">'+cards+'</section>'+
+ '<div class="oc-panels"><section class="oc-attention-panel"><header><div><h2>⚠ &nbsp; Needs Attention</h2><p>Live counts from your registers — check individual records for details.</p></div><button type="button" data-nav="risk" class="oc-view-all">View assessments ›</button></header><div class="oc-attention-list">'+rows+'</div></section>'+
+ '<section class="oc-quick-panel"><header><h2>ϟ &nbsp; Quick Actions</h2><p>Common tasks to keep your workplace safe.</p></header><div class="oc-quick-list">'+actions+'</div></section></div>'+
+ '<div class="oc-extra-sections"><section class="panel home-panel"><div class="section-title"><h2>Review schedule</h2></div>'+reviewReminderPanel()+'</section><section class="panel home-panel"><div class="section-title"><h2>Records &amp; backups</h2></div><p>Records and attachments are stored locally. Export regular backups and keep controlled originals of signed safety documents.</p><div class="home-backup-actions"><button type="button" class="btn primary" data-action="export">Export backup</button><button type="button" class="btn" data-nav="backup">Backup settings</button></div></section></div>'+
+ '</div>';
 }
 function statusOptions(k){const field=k==='ppe'?'claimStatus':'status';const definition=config[k]?.fields.find(([name])=>name===field);return definition?.[4]||[]}
 const factoryAuditTemplates={
