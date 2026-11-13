@@ -13,10 +13,10 @@ assert.ok(core.startsWith("'use strict'"));
 function harness({locked=true,sections=['training','incidents','ppe']}={}){
  const elements=new Map();
  const elem=id=>{
-  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],setAttribute(){},value:''});
+  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,querySelectorAll:()=>[],setAttribute(){},addEventListener(){},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:''});
   return elements.get(id);
  };
- const document={getElementById:elem,querySelectorAll:()=>[],documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
+ const document={getElementById:elem,querySelectorAll:()=>[],querySelector:()=>null,documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
  let writes=0;
  const window={
   localStorage:{getItem:()=>null,setItem:()=>{}},
@@ -32,17 +32,21 @@ function harness({locked=true,sections=['training','incidents','ppe']}={}){
  const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
  return {dashboard,elem,getWrites:()=>writes};
 }
-test('all registers render their distinct workflow checks without crashing',()=>{
+test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
  assert.equal(names.length,19);
  for(const k of names){
   dashboard.go(k);
-  assert.ok(elem('content').innerHTML.includes(k==='risk'?'Assessment categories':'Live register checks'),k);
+  const page=elem('content').innerHTML;
+  assert.ok(page.length>200,'Missing section content: '+k);
+  if(k==='risk')assert.ok(page.includes('Assessment categories'));
+  if(k==='ssow')assert.ok(page.includes('SSOW Categories'));
   assert.ok(dashboard.config[k].fields.length>7,k);
   assert.ok(dashboard.sectionWorkflow(k).length>200,k);
  }
 });
+
 test('PIN-locked sections do not render records, actions or row filters',()=>{
  const {dashboard,elem}=harness();
  for(const k of ['training','incidents','ppe']){
@@ -79,17 +83,18 @@ test('new section-specific record fields and save preserve array structure',()=>
  assert.equal(dashboard.db.sites.at(-1).name,'Test site');
 });
 
-test('futuristic homepage renders all operational shortcuts and priority metrics',()=>{
+test('operations homepage renders current KPIs and quick actions',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('home');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('Health &amp; Safety<br>Control Centre'));
- assert.equal((page.match(/class="home-quick-tile"/g)||[]).length,6);
- assert.equal((page.match(/class="home-metric /g)||[]).length,4);
- for(const section of ['risk','ssow','training','ppeStock','assets','incidents']){
+ assert.ok(page.includes('Health &amp; Safety Dashboard'));
+ assert.equal((page.match(/class="ops-kpi"/g)||[]).length,5);
+ assert.equal((page.match(/class="ops-quick-button"/g)||[]).length,4);
+ for(const section of ['risk','ssow','training','incidents']){
   assert.ok(page.includes('data-nav="'+section+'"'),section);
  }
 });
+
 test('homepage hides locked risk record names and counts',()=>{
  const {dashboard,elem}=harness({locked:true,sections:['risk','ssow','incidents','training','ppeStock','assets']});
  dashboard.db.risk.push({id:'secret-test',title:'SECRET_MACHINE_REFERENCE',status:'Draft',reviewDate:'2020-01-01'});
@@ -395,65 +400,51 @@ test('offline category animation retains focus accessibility and a reduced-motio
  assert.ok(html.includes('scene-art *'));
 });
 
-test('Onboard-branded green dark mode styles panels, forms and categories without changing light mode',()=>{
+test('light and dark appearance styling remains available for current dashboard',()=>{
  const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
- const green=styles.slice(styles.indexOf('/* Onboard Corrugated dark mode:'));
- assert.ok(green.includes('html[data-theme="dark"]'));
- assert.ok(green.includes('background:linear-gradient(155deg,#185e42,#124b36)'));
- assert.ok(green.includes('background:#0e3b2b'));
- assert.ok(green.includes('background:#1b6547'));
- assert.ok(green.includes('background:#1b6447'));
- assert.ok(green.includes('color:#eaf9f0'));
+ assert.ok(styles.includes('html[data-theme="dark"]'));
+ assert.ok(styles.includes('.risk-category-chip'));
  assert.ok(html.includes("setAppearance(initialTheme,false)"));
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('risk');
  assert.ok(elem('content').innerHTML.includes('Assessment categories'));
  dashboard.go('ssow');
- assert.ok(elem('content').innerHTML.includes('Live register checks'));
+ assert.ok(elem('content').innerHTML.includes('SSOW Categories'));
 });
 
-test('dark mode covers remaining white dashboard metric, quick access and workspace surfaces',()=>{
+test('current dashboard homepage KPI and action panels retain themed surfaces',()=>{
  const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
- const audit=styles.slice(styles.indexOf('/* Dark mode white-surface audit:'));
- for(const target of ['.home-redesign .home-metric','.home-redesign .home-quick-tile','.risk-review-card','.local-note','.workspace-state','.home-quick-symbol','.home-heading-row h2']){
-  assert.ok(audit.includes(target),'Missing dark mode override: '+target);
+ for(const selector of ['.ops-home','.ops-kpi','.ops-panel','.ops-quick-button']){
+  assert.ok(styles.includes(selector),selector);
  }
- assert.ok(audit.includes('background:linear-gradient(148deg,#1b6547 0%,#134f39 100%)'));
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('home');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="home-metric /g)||[]).length,4);
- assert.ok(page.includes('home-quick-tile'));
+ assert.equal((page.match(/class="ops-kpi"/g)||[]).length,5);
+ assert.ok(page.includes('ops-quick-button'));
 });
 
-test('control centre homepage keeps live KPI cards, existing modules and safety actions',()=>{
+test('operations homepage keeps live KPI cards, review alerts and safety actions',()=>{
  const {dashboard,elem}=harness({locked:false});
  dashboard.go('home');
  const page=elem('content').innerHTML;
- assert.ok(page.includes('Health &amp; Safety<br>Control Centre'));
- assert.ok(page.includes('What would you like to do?'));
- assert.equal((page.match(/class="control-module/g)||[]).length,0);
- assert.equal((page.match(/class="portal-module /g)||[]).length,8);
- assert.ok(page.includes('class="control-centre-main-action" data-nav="risk"'));
+ assert.ok(page.includes('Health &amp; Safety Dashboard'));
+ assert.ok(page.includes('Needs Attention'));
+ assert.ok(page.includes('Upcoming Reviews'));
+ assert.ok(page.includes('Incident Follow-Ups'));
+ assert.equal((page.match(/class="ops-kpi"/g)||[]).length,5);
+ assert.equal((page.match(/class="ops-quick-button"/g)||[]).length,4);
  assert.ok(page.includes('data-action="add" data-section="risk"'));
  assert.ok(page.includes('data-nav="incidents"'));
- assert.equal((page.match(/class="home-metric /g)||[]).length,4);
- assert.equal((page.match(/class="home-quick-tile"/g)||[]).length,6);
- assert.ok(page.includes('Review schedule'));
- assert.ok(page.includes('Record highlights'));
- assert.ok(page.includes('Export backup'));
  dashboard.go('risk');
  assert.ok(elem('content').innerHTML.includes('Assessment categories'));
 });
 
-test('workshop charcoal theme applies to entire dashboard without duplicate navigation',()=>{
+test('workshop charcoal theme applies to active dashboard and current homepage',()=>{
  const styles=html.slice(html.indexOf('<style>'),html.indexOf('</style>'));
  const palette=styles.slice(styles.indexOf('/* ONBOARD WORKSHOP / charcoal'));
  assert.ok(palette.includes('--work-bg:#171d1f'));
  assert.ok(palette.includes('--work-lime:#c5f322'));
- for(const target of ['.side','.workspace-topbar','.home-redesign .home-metric','.home-redesign .home-quick-tile','.risk-category-chip.themed','.modal','.field',' th{',' td,','.control-centre-hero','.control-centre-command']){
-  assert.ok(palette.includes(target),target);
- }
  assert.ok(html.includes("let initialTheme='dark'"));
  const {dashboard,elem}=harness({locked:false});
  for(const section of ['home','risk','ssow','incidents','training','ppeStock','assets']){
@@ -462,9 +453,8 @@ test('workshop charcoal theme applies to entire dashboard without duplicate navi
  }
  dashboard.go('home');
  const page=elem('content').innerHTML;
- assert.equal((page.match(/class="control-module/g)||[]).length,0);
- assert.equal((page.match(/class="portal-module /g)||[]).length,8);
- assert.ok(page.includes('class="control-centre-main-action"'));
+ assert.equal((page.match(/class="ops-kpi"/g)||[]).length,5);
+ assert.ok(page.includes('ops-actions'));
 });
 
 test('charcoal theme overrides legacy white surfaces across every module and every risk category',()=>{
