@@ -29,7 +29,7 @@ function harness({locked=true,sections=['training','incidents','ppe']}={}){
   },
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
- const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
+ const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
  return {dashboard,elem,getWrites:()=>writes};
 }
 test('all registers render their distinct workflow checks without crashing',()=>{
@@ -566,4 +566,20 @@ test('DOCX preview is clearly labelled approximate and leaves original untouched
  assert.ok(html.includes("className=\'docx-preview-sheet\'"));
  assert.ok(html.includes('html[data-theme="dark"] body .docx-preview-sheet'));
  assert.ok(!html.includes('Basic Word text preview'));
+});
+
+test('PPE barcode generator supports scanner-readable Onboard identifiers',()=>{
+ const {dashboard}=harness({locked:false});
+ assert.ok(dashboard.ppeBarcodeSvg('OI001').includes('OI001'));
+ assert.ok(dashboard.ppeBarcodeSvg('oc001').includes('OC001'));
+ assert.throws(()=>dashboard.ppeBarcodeSvg('OI 001'),/Invalid barcode format/);
+ assert.throws(()=>dashboard.ppeBarcodeSvg('<script>'),/Invalid barcode format/);
+});
+test('PPE scanning maintains distinct product and individual code sequences',()=>{
+ const {dashboard}=harness({locked:false});
+ dashboard.db.ppeStock.push({id:'test-item',item:'Hi-Vis Vest',barcode:'OC001',stock:'1',size:'XL',colour:'Orange'});
+ dashboard.db.ppeUnits.push({id:'test-unit',itemId:'test-item',barcode:'OI001',status:'In Stock'});
+ assert.equal(dashboard.nextPpeBarcode(),'OC002');
+ assert.equal(dashboard.nextPpeUnitBarcode(),'OI002');
+ assert.equal(dashboard.ppeTabForItem(dashboard.db.ppeStock.at(-1)),'Hi-Vis');
 });
