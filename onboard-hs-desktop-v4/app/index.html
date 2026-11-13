@@ -3136,14 +3136,40 @@ function nextPpeBarcode(){
 }
 function ensurePpeBarcodes(){
  const snapshot=db.ppeStock.map(r=>r.barcode);
- let changed=false;const used=new Set((db.ppeTransactions||[]).map(t=>String(t.barcode||'').toUpperCase()));
+ let changed=false;
+ // Historical codes must not be reassigned to a different product.
+ const historical=new Map();
+ for(const t of (db.ppeTransactions||[])){
+  const code=String(t.barcode||'').trim().toUpperCase();
+  if(!/^OC[0-9]{3,7}$/.test(code))continue;
+  if(!historical.has(code))historical.set(code,t.itemId);
+  else if(historical.get(code)!==t.itemId)historical.set(code,null);
+ }
+ const used=new Set();
  db.ppeStock.forEach(r=>{
   const value=String(r.barcode||'').trim().toUpperCase();
-  if(/^OC[0-9]{3,7}$/.test(value)&&(!used.has(value)||(db.ppeTransactions||[]).some(t=>t.itemId===r.id&&String(t.barcode).toUpperCase()===value))){r.barcode=value;used.add(value)}
-  else{r.barcode='';changed=true}
+  const owner=historical.get(value);
+  if(/^OC[0-9]{3,7}$/.test(value)&&!used.has(value)&&(!historical.has(value)||owner===r.id)){
+   if(r.barcode!==value){r.barcode=value;changed=true}
+   used.add(value);
+  }else{
+   r.barcode='';
+   changed=true;
+  }
  });
- for(const r of db.ppeStock)if(!r.barcode){r.barcode=nextPpeBarcode();used.add(r.barcode);changed=true}
- if(changed&&!save()){db.ppeStock.forEach((r,i)=>{if(snapshot[i]===undefined)delete r.barcode;else r.barcode=snapshot[i]});return false}return true;
+ // Reserve every historical code, even for products that have been deleted.
+ for(const code of historical.keys())used.add(code);
+ let number=1;
+ for(const r of db.ppeStock)if(!r.barcode){
+  while(used.has('OC'+String(number).padStart(3,'0')))number++;
+  const code='OC'+String(number).padStart(3,'0');
+  r.barcode=code;used.add(code);changed=true;number++;
+ }
+ if(changed&&!save()){
+  db.ppeStock.forEach((r,i)=>{if(snapshot[i]===undefined)delete r.barcode;else r.barcode=snapshot[i]});
+  return false;
+ }
+ return true;
 }
 
 /* Optional logical unit tracking: one barcode per piece; printed on the desk register. */
@@ -3308,16 +3334,27 @@ function bindPpeScanner(){
  if(!form)return;
  const update=()=>{
   const barcode=code.value.trim().toUpperCase();code.value=barcode;
-  const unit=(db.ppeUnits||[]).find(u=>u.barcode===barcode);
+  const unit=(db.ppeUnits||[]).find(u=>String(u.barcode||'').toUpperCase()===barcode);
   const item=unit?db.ppeStock.find(r=>r.id===unit.itemId):db.ppeStock.find(r=>r.barcode===barcode);
-  result.textContent=unit?(unit.itemName+' · '+[unit.colour,unit.size].filter(Boolean).join(' · ')+' · '+unit.status):!barcode?'Scan or enter an Onboard barcode to identify the product.':item?item.item+' · '+(item.size||'No size')+' · '+item.stock+' in stock':'Barcode not found. Check the label or add the PPE product first.';
-  result.classList.toggle('found',!!item);result.classList.toggle('missing',!!barcode&&!item);
+  const available=!!item&&(!unit||unit.status==='In Stock');
+  result.textContent=!barcode?'Scan or enter an Onboard barcode to identify the product.':!item?'Barcode not found. Check the label or add the PPE product first.':unit?(item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+(unit.status==='In Stock'?'Individual item available':'Already issued — cannot issue again')):item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+item.stock+' in stock';
+  result.classList.toggle('found',available);
+  result.classList.toggle('missing',!!barcode&&!available);
  };
  code.addEventListener('input',update);code.addEventListener('change',update);
- code.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();update();document.getElementById('ppe-scan-qty')?.focus()}});
+ code.addEventListener('keydown',e=>{if(e.key==='Enter'){
+  e.preventDefault();
+  update();
+  const barcode=code.value.trim().toUpperCase();
+  const unit=(db.ppeUnits||[]).find(u=>String(u.barcode||'').toUpperCase()===barcode);
+  const item=unit?db.ppeStock.find(r=>r.id===unit.itemId):db.ppeStock.find(r=>r.barcode===barcode);
+  if(!item||unit&&unit.status!=='In Stock'){code.focus();return}
+  const target=document.getElementById(document.getElementById('ppe-scan-type')?.value==='issue'?'ppe-scan-employee':'ppe-scan-qty');
+  target?.focus();
+ }});
  form.addEventListener('submit',e=>{
   e.preventDefault();
-  const barcode=code.value.trim().toUpperCase(),unit=(db.ppeUnits||[]).find(u=>u.barcode===barcode),item=unit?db.ppeStock.find(r=>r.id===unit.itemId):db.ppeStock.find(r=>r.barcode===barcode);
+  const barcode=code.value.trim().toUpperCase(),unit=(db.ppeUnits||[]).find(u=>String(u.barcode||'').toUpperCase()===barcode),item=unit?db.ppeStock.find(r=>r.id===unit.itemId):db.ppeStock.find(r=>r.barcode===barcode);
   if(!item){alert('Barcode not recognised. Scan a registered Onboard PPE label.');code.focus();return}
   const type=document.getElementById('ppe-scan-type').value;
   const raw=document.getElementById('ppe-scan-qty').value.trim(),quantity=Number(raw);
