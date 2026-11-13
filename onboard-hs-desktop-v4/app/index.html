@@ -3273,17 +3273,28 @@ function ppeTabForItem(r){
  if(category.includes('protective clothing')||/\bcoveralls?\b|\baprons?\b/.test(name))return 'Protective Clothing';
  return 'Other';
 }
+/* Removed Hi-Vis variants remain in saved records for stock/history integrity, but are not offered in the active PPE inventory or desk register. */
+function ppeVisibleStockItems(){
+ return db.ppeStock.filter(r=>{
+  const name=String(r.item||'').trim().toLowerCase().replace(/[–—]/g,'-');
+  const category=String(r.category||'').toLowerCase();
+  const hiVis=/\bhi[\s-]?vis\b|\bhigh[\s-]?visibility\b/.test(name)||category.includes('high visibility');
+  return !(hiVis&&/\b(sweatshirts?|waterproof\s+coats?|trousers?)\b/.test(name));
+ });
+}
 function ppeInventoryCategoryTabs(){
  return '<nav class="ppe-inventory-tabs" aria-label="Filter PPE inventory by type">'+PPE_INVENTORY_TABS.map(([name,icon])=>{
-  const count=name==='All PPE'?db.ppeStock.length:db.ppeStock.filter(r=>ppeTabForItem(r)===name).length;
+  const visible=ppeVisibleStockItems();
+  const count=name==='All PPE'?visible.length:visible.filter(r=>ppeTabForItem(r)===name).length;
   return '<button type="button" class="ppe-inventory-tab'+(ppeInventoryTab===name?' active':'')+'" data-ppe-inventory-tab="'+esc(name)+'" aria-pressed="'+(ppeInventoryTab===name?'true':'false')+'"><span>'+esc(name)+'</span><span class="ppe-inventory-tab-count">'+count+'</span></button>';
  }).join('')+'</nav>';
 }
 
 function ppeStockRegisterHTML(){
- const shown=db.ppeStock.filter(r=>ppeInventoryTab==='All PPE'||ppeTabForItem(r)===ppeInventoryTab);
+ const visible=ppeVisibleStockItems();
+ const shown=visible.filter(r=>ppeInventoryTab==='All PPE'||ppeTabForItem(r)===ppeInventoryTab);
  return '<div class="ppe-tabs" role="group" aria-label="PPE sections"><button type="button" class="ppe-tab active" data-action="ppe-tab" data-section="ppeStock">'+sidebarPictogram('ppeStock')+'<span>PPE Inventory</span></button><button type="button" class="ppe-tab" data-action="ppe-tab" data-section="ppe">'+sidebarPictogram('ppe')+'<span>Safety Boot Claims</span></button></div>'+
- ppeInventoryCategoryTabs()+'<section class="panel ppe-stock-register"><div class="section-title"><div><h2>'+esc(ppeInventoryTab)+' inventory</h2><p class="muted">'+shown.length+' of '+db.ppeStock.length+' products · Each product has a delivery barcode. Prepare individual codes for each available piece, then issue using its desk barcode.</p></div><div class="ppe-print-actions"><button type="button" class="btn" data-action="ppe-seed" data-section="ppeStock">+ Load PPE catalogue</button><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div></div>'+
+ ppeInventoryCategoryTabs()+'<section class="panel ppe-stock-register"><div class="section-title"><div><h2>'+esc(ppeInventoryTab)+' inventory</h2><p class="muted">'+shown.length+' of '+visible.length+' products · Each product has a delivery barcode. Prepare individual codes for each available piece, then issue using its desk barcode.</p></div><div class="ppe-print-actions"><button type="button" class="btn" data-action="ppe-seed" data-section="ppeStock">+ Load PPE catalogue</button><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div></div>'+
  (shown.length?'<div class="table-wrap"><table><thead><tr><th>PPE item</th><th>Category</th><th>Size / colour</th><th>Barcode</th><th>In stock</th><th>Minimum</th><th>Actions</th></tr></thead><tbody>'+
  shown.map(r=>'<tr><td>'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td>'+esc([r.size,r.colour].filter(Boolean).join(' · ')||'—')+'</td><td><code>'+esc(r.barcode||'Not assigned')+'</code></td><td>'+esc(r.stock)+'</td><td>'+esc(r.minStock||'0')+'</td><td class="actions"><button class="btn small" type="button" data-action="ppe-label" data-section="ppeStock" data-id="'+esc(r.id)+'">Print barcode sheet</button><button class="btn small" type="button" data-action="ppe-units" data-section="ppeStock" data-id="'+esc(r.id)+'">Prepare individual codes</button><button class="btn small" type="button" data-action="edit" data-section="ppeStock" data-id="'+esc(r.id)+'">Edit</button><button class="btn small" type="button" data-action="docs" data-section="ppeStock" data-id="'+esc(r.id)+'">Files</button><button class="btn small" type="button" data-action="delete" data-section="ppeStock" data-id="'+esc(r.id)+'">Delete</button></td></tr>').join('')+
  '</tbody></table></div>' :'<p class="muted">No PPE products in '+esc(ppeInventoryTab)+' yet. Add an item or load the PPE catalogue above.</p>')+'</section>';
@@ -3384,7 +3395,7 @@ function printPpeReport(kind){
 
 function printPpeLabels(id){
  if(!ensurePpeBarcodes())return;
- const source=id?db.ppeStock.filter(x=>x.id===id):db.ppeStock.slice();
+ const source=id?ppeVisibleStockItems().filter(x=>x.id===id):ppeVisibleStockItems();
  const products=source.flatMap(r=>{const units=ppeUnitsFor(r.id);return units.length?units.filter(u=>u.status==='In Stock').map(u=>({...r,barcode:u.barcode,unit:true,size:u.size,colour:u.colour})): [{...r,unit:false}]}).sort((a,b)=>String(a.category||'').localeCompare(String(b.category||''))||String(a.item||'').localeCompare(String(b.item||''))||String(a.colour||'').localeCompare(String(b.colour||''))||String(a.size||'').localeCompare(String(b.size||''))||String(a.barcode||'').localeCompare(String(b.barcode||'')));
  if(!products.length&&source.length){alert('No available individual PPE codes remain for this selection.');return}
  if(!products.length){alert('No PPE products available. Add a PPE item first.');return}
