@@ -690,3 +690,59 @@ test('product code assignment repairs duplicates but protects historical codes a
  assert.equal(dashboard.db.ppeStock.find(x=>x.id==='itemB').barcode,'OC009');
  assert.ok(!['OC009','OC010'].includes(dashboard.db.ppeStock.find(x=>x.id==='itemA').barcode));
 });
+
+
+test('scanner rejects issue without employee or with invalid quantity and leaves stock unchanged',()=>{
+ const {dashboard,elem,errors}=harness({locked:false});
+ const item={id:'validation-item',item:'Gloves',barcode:'OC311',stock:'2',size:'10',colour:'',status:'Available',minStock:''};
+ dashboard.db.ppeStock.push(item);
+ dashboard.bindPpeScanner();
+ elem('ppe-scan-code').value='OC311';elem('ppe-scan-type').value='issue';
+ elem('ppe-scan-qty').value='1';elem('ppe-scan-employee').value='';
+ elem('ppe-scan-person').value='Safety Officer';elem('ppe-scan-notes').value='';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.ok(errors.some(s=>s.includes('employee receiving')));
+ assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
+ elem('ppe-scan-employee').value='Test Employee';
+ elem('ppe-scan-qty').value='1.5';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.ok(errors.some(s=>s.includes('valid whole-number')));
+ assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
+ elem('ppe-scan-qty').value='3';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.ok(errors.some(s=>s.includes('Not enough stock')));
+ assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
+});
+test('scanner accepts product OC code for receipt, but never allows receiving on individual OI barcode',()=>{
+ const {dashboard,elem,errors}=harness({locked:false});
+ const item={id:'receipt-item',item:'Hi-Vis Vest',barcode:'OC321',stock:'2',size:'M',colour:'Orange',status:'Available',minStock:''};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'receipt-unit',itemId:item.id,itemName:item.item,barcode:'OI321',status:'In Stock',colour:'Orange',size:'M',issuedTo:'',issuedAt:''});
+ dashboard.bindPpeScanner();
+ elem('ppe-scan-code').value='OI321';elem('ppe-scan-type').value='receive';
+ elem('ppe-scan-qty').value='2';elem('ppe-scan-employee').value='';
+ elem('ppe-scan-person').value='Safety Officer';elem('ppe-scan-notes').value='';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
+ assert.ok(errors.some(s=>s.includes('product barcode for deliveries')));
+ elem('ppe-scan-code').value='oc321';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.equal(item.stock,'4');
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+ assert.equal(dashboard.db.ppeTransactions[0].barcode,'OC321');
+ assert.equal(dashboard.db.ppeTransactions[0].type,'receive');
+});
+test('scanner requires available OI code when individual desk labels exist',()=>{
+ const {dashboard,elem,errors}=harness({locked:false});
+ const item={id:'desk-item',item:'Hi-Vis Jacket',barcode:'OC411',stock:'1',size:'S',colour:'Yellow',status:'Available',minStock:''};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'desk-unit',itemId:item.id,itemName:item.item,barcode:'OI411',status:'In Stock',colour:'Yellow',size:'S',issuedTo:'',issuedAt:''});
+ dashboard.bindPpeScanner();
+ elem('ppe-scan-code').value='OC411';elem('ppe-scan-type').value='issue';
+ elem('ppe-scan-qty').value='1';elem('ppe-scan-employee').value='Test Employee';
+ elem('ppe-scan-person').value='Safety Officer';elem('ppe-scan-notes').value='';
+ elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ assert.equal(item.stock,'1');
+ assert.equal(dashboard.db.ppeTransactions.length,0);
+ assert.ok(errors.some(s=>s.includes('individual OI barcode')));
+});
