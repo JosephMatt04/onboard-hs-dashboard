@@ -29,7 +29,7 @@ function harness({locked=true,sections=['training','incidents','ppe']}={}){
   },
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
- const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
+ const dashboard=new Function('window','document','alert','confirm',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,()=>{},()=>true);
  return {dashboard,elem,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -572,4 +572,29 @@ test('PPE scanning maintains distinct product and individual code sequences',()=
  assert.equal(dashboard.nextPpeBarcode(),'OC002');
  assert.equal(dashboard.nextPpeUnitBarcode(),'OI002');
  assert.equal(dashboard.ppeTabForItem(dashboard.db.ppeStock.at(-1)),'Hi-Vis');
+});
+
+test('retired Hi-Vis clothing is hidden from existing inventory without deleting data',()=>{
+ const {dashboard}=harness({locked:false});
+ const items=[
+  ['Hi-Vis Vest','High Visibility Clothing'],
+  ['Hi-Vis Jacket','High Visibility Clothing'],
+  ['Hi-Vis Sweatshirt','High Visibility Clothing'],
+  ['Hi-Vis Waterproof Coat','High Visibility Clothing'],
+  ['Hi-Vis Trousers','High Visibility Clothing'],
+  ['Safety Gloves - Cut Resistant','Hand Protection']
+ ];
+ for(let i=0;i<items.length;i++)dashboard.db.ppeStock.push({id:'visibility-test-'+i,item:items[i][0],category:items[i][1],size:'XL',colour:'Orange',stock:'0',barcode:'OC'+String(i+1).padStart(3,'0')});
+ const visible=dashboard.ppeVisibleStockItems();
+ for(const removed of ['Hi-Vis Sweatshirt','Hi-Vis Waterproof Coat','Hi-Vis Trousers']){
+  assert.ok(dashboard.db.ppeStock.some(r=>r.item===removed),'Original PPE data must remain');
+  assert.ok(!visible.some(r=>r.item===removed),'Removed type must not appear');
+ }
+ for(const retained of ['Hi-Vis Vest','Hi-Vis Jacket','Safety Gloves - Cut Resistant'])assert.ok(visible.some(r=>r.item===retained),retained);
+ const page=dashboard.ppeStockRegisterHTML();
+ assert.ok(!page.includes('Hi-Vis Sweatshirt'));
+ assert.ok(!page.includes('Hi-Vis Waterproof Coat'));
+ assert.ok(!page.includes('Hi-Vis Trousers'));
+ assert.ok(page.includes('Hi-Vis Vest'));
+ assert.ok(page.includes('Hi-Vis Jacket'));
 });
