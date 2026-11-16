@@ -36,7 +36,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
- assert.equal(names.length,19);
+ assert.equal(names.length,20);
  for(const k of names){
   dashboard.go(k);
   const page=elem('content').innerHTML;
@@ -745,4 +745,24 @@ test('scanner requires available OI code when individual desk labels exist',()=>
  assert.equal(item.stock,'1');
  assert.equal(dashboard.db.ppeTransactions.length,0);
  assert.ok(errors.some(s=>s.includes('individual OI barcode')));
+});
+
+test('verbal warnings is a separate register beneath incidents with confidential fields',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('home');
+ const names=Object.keys(dashboard.config);
+ assert.ok(names.includes('verbalWarnings'));
+ const fields=dashboard.config.verbalWarnings.fields.map(f=>f[0]);
+ for(const name of ['date','employee','area','subject','description','employeeResponse','expectedImprovement','issuedBy','followUpDate','status'])assert.ok(fields.includes(name),name);
+ dashboard.db.verbalWarnings.push({id:'warning-test',date:'2026-11-16',employee:'Example Employee',area:'Warehouse',subject:'Unsafe conduct',description:'Safety discussion',expectedImprovement:'Follow safe procedure',issuedBy:'Example Manager',status:'Follow-up Required'});
+ dashboard.go('verbalWarnings');
+ assert.ok(elem('content').innerHTML.includes('Example Employee'));
+ assert.ok(dashboard.sectionWorkflow('verbalWarnings').includes('Safety conversation follow-up'));
+});
+test('verbal warnings register respects its own PIN selection',()=>{
+ const {dashboard,elem}=harness({locked:true,sections:['verbalWarnings']});
+ dashboard.db.verbalWarnings.push({id:'secret',employee:'CONFIDENTIAL EXAMPLE',date:'2026-11-16',subject:'Safety issue'});
+ dashboard.go('verbalWarnings');
+ assert.ok(elem('content').innerHTML.includes('PIN protected section'));
+ assert.ok(!elem('content').innerHTML.includes('CONFIDENTIAL EXAMPLE'));
 });
