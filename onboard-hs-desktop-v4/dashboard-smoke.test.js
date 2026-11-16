@@ -766,3 +766,14 @@ test('verbal warnings register respects its own PIN selection',()=>{
  assert.ok(elem('content').innerHTML.includes('PIN protected section'));
  assert.ok(!elem('content').innerHTML.includes('CONFIDENTIAL EXAMPLE'));
 });
+
+test('verbal warnings navigation appears once directly beneath incidents',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.go('home');
+ const nav=elem('nav').innerHTML;
+ const incidents=nav.indexOf('data-nav="incidents"');
+ const warnings=nav.indexOf('data-nav="verbalWarnings"');
+ const assets=nav.indexOf('data-nav="assets"');
+ assert.ok(incidents>=0&&warnings>incidents&&assets>warnings);
+ assert.equal((nav.match(/data-nav="verbalWarnings"/g)||[]).length,1);
+});
