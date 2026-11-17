@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -857,4 +857,33 @@ test('scanner input without Enter deducts PPE and reflects updated stock tab',()
  elem('ppe-allocate-scan-code').listeners.input();
  assert.equal(item.stock,'2');
  assert.equal(dashboard.db.ppeTransactions.length,1);
+});
+
+test('existing PPE stock quantity is editable and corrected counts are audited',()=>{
+ assert.ok(html.includes('name="stock" type="number" min="0" step="1" required'));
+ assert.ok(!html.includes('readonly title="Use Scan PPE to adjust stock'));
+ assert.ok(html.includes('Stock correction reason'));
+ assert.ok(html.includes("db.ppeStockAdjustments.push(adjustment)"));
+ const {dashboard}=harness({locked:false});
+ const item={id:'counted-item',item:'Hi-Vis Vest',colour:'Orange',size:'XL',stock:'10'};
+ dashboard.db.ppeStock.push(item);
+ const correction=dashboard.checkPpeStockCorrection(item,'12','Physical count','Safety Officer');
+ assert.ok(correction.ok);
+ assert.equal(correction.entry.before,10);
+ assert.equal(correction.entry.after,12);
+ assert.equal(correction.entry.reason,'Physical count');
+ assert.equal(dashboard.checkPpeStockCorrection(item,'12','','').ok,false);
+ assert.equal(dashboard.checkPpeStockCorrection(item,'9.5','Physical count','Officer').ok,false);
+ assert.equal(dashboard.checkPpeStockCorrection(item,'10','','').entry,null);
+});
+test('stock corrections cannot invalidate reserved or ready individual PPE barcodes',()=>{
+ const {dashboard}=harness({locked:false});
+ const item={id:'counted-item',item:'Gloves',stock:'5'};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'stock-unit',itemId:item.id,itemName:'Gloves',barcode:'OI800',status:'In Stock'});
+ dashboard.db.ppeAllocations.push({id:'stock-pending',itemId:item.id,barcode:'OI800',status:'Pending'});
+ assert.equal(dashboard.checkPpeStockCorrection(item,0,'Counted','Officer').ok,false);
+ assert.ok(dashboard.checkPpeStockCorrection(item,1,'Counted','Officer').ok);
+ assert.ok(dashboard.checkPpeStockCorrection(item,6,'Delivery counted','Officer').ok);
+ assert.equal(item.stock,'5');
 });
