@@ -3336,7 +3336,7 @@ function ppeAllocationHTML(){
  const choices=products.map(r=>'<option value="'+esc(r.id)+'">'+esc([r.item,r.colour,r.size].filter(Boolean).join(' · '))+' ('+esc(r.stock)+' in stock)</option>').join('');
  const pending=ppePendingAllocations().slice().reverse();
  const rows=pending.map(a=>'<tr><td>'+esc(a.employee)+'</td><td>'+esc(a.department||'—')+'</td><td>'+esc(a.itemName)+'</td><td><code>'+esc(a.barcode)+'</code></td><td>'+esc(a.createdAt.slice(0,10))+'</td><td class="actions"><button type="button" class="btn small" data-action="ppe-allocation-print" data-section="ppeStock" data-id="'+esc(a.id)+'">Print label</button></td></tr>').join('');
- return '<section class="panel"><div class="section-title"><div><h2>Allocate PPE</h2><p class="muted">Enter employee details, choose the PPE and generate an individual label. Scan that label to issue the PPE and save the employee record.</p></div></div>'+
+ return '<section class="panel"><div class="section-title"><div><h2>Allocate PPE</h2><p class="muted">Enter employee details, choose the PPE and generate an individual label. Scan that label to automatically issue the PPE and save the employee record.</p></div></div>'+
  '<form id="ppe-allocate-form" class="form-grid"><label class="form-field"><span>Employee full name</span><input id="ppe-allocate-employee" class="field" maxlength="120" required autocomplete="off"></label>'+
  '<label class="form-field"><span>Department / shift</span><input id="ppe-allocate-department" class="field" maxlength="100"></label>'+
  '<label class="form-field"><span>PPE product, colour and size</span><select id="ppe-allocate-product" class="field" required><option value="">Select a PPE product</option>'+choices+'</select></label>'+
@@ -3344,10 +3344,10 @@ function ppeAllocationHTML(){
  '<label class="form-field"><span>Allocated by</span><input id="ppe-allocate-person" class="field" maxlength="120" required></label>'+
  '<label class="form-field"><span>Notes / reason (optional)</span><input id="ppe-allocate-notes" class="field" maxlength="250"></label>'+
  '<div class="form-field full"><button class="btn primary" type="submit">Generate &amp; print allocation labels</button></div></form>'+
- '<p class="file-tip">The allocation reserves a unique OI barcode but does not deduct stock. Do not hand over the PPE until its label has been scanned and the issue confirmed.</p></section>'+
- '<section class="panel"><div class="section-title"><h2>Scan label to issue PPE</h2><span class="muted">One scan = one reserved item</span></div>'+
- '<form id="ppe-allocate-scan-form" class="ppe-scan-form"><label><span>Scan allocated OI barcode</span><input id="ppe-allocate-scan-code" class="field" maxlength="20" autocomplete="off" spellcheck="false" required placeholder="OI002"></label><div class="ppe-scan-wide" id="ppe-allocate-scan-result" role="status">Scan a pending allocation label. No stock will be deducted until you confirm.</div>'+
- '<div class="ppe-scan-wide"><button type="submit" class="btn primary">Confirm PPE issue</button></div></form></section>'+
+ '<p class="file-tip">The allocation reserves a unique OI barcode but does not deduct stock. Each valid scan completes the issue and deducts one item from stock. Duplicate scans cannot issue twice.</p></section>'+
+ '<section class="panel"><div class="section-title"><h2>Scan label to issue PPE</h2><span class="muted">One valid scan deducts one item</span></div>'+
+ '<form id="ppe-allocate-scan-form" class="ppe-scan-form"><label><span>Scan allocated OI barcode</span><input id="ppe-allocate-scan-code" class="field" maxlength="20" autocomplete="off" spellcheck="false" required placeholder="OI002"></label><div class="ppe-scan-wide" id="ppe-allocate-scan-result" role="status">Scan an allocated label to deduct one PPE item from stock and record it against the employee.</div>'+
+ '<div class="ppe-scan-wide"><button type="submit" class="btn">Issue manually (without scanner Enter)</button></div></form></section>'+
  '<section class="panel"><div class="section-title"><h2>Awaiting scan ('+pending.length+')</h2></div>'+
  (pending.length?'<div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>PPE</th><th>Individual code</th><th>Allocated</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="muted">No labels awaiting issue.</p>')+'</section>';
 }
@@ -3436,21 +3436,19 @@ function bindPpeAllocation(){
   const update=()=>{
    const code=input.value.trim().toUpperCase();input.value=code;
    const a=ppePendingAllocations().find(x=>x.barcode===code);
-   info.textContent=a?'Ready to issue '+a.itemName+' to '+a.employee+'. Confirm the issue to deduct one from stock.':code?'No pending allocation found. No stock will be changed.':'Scan a pending allocation label. No stock will be deducted until you confirm.';
+   info.textContent=a?'Ready: '+a.itemName+' allocated to '+a.employee+'. Scanner Enter will deduct one and save the issue.':code?'No pending allocation found. No stock will be changed.':'Scan an allocation label. A valid scan deducts one and saves the employee issue.';
   };
   input.addEventListener('input',update);
-  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();update();if(ppePendingAllocations().some(a=>a.barcode===input.value))scanForm.requestSubmit?.()}});
-  scanForm.addEventListener('submit',e=>{
-   e.preventDefault();
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();completeScan()}});
+  const completeScan=()=>{
    const code=input.value.trim().toUpperCase();
-   const a=ppePendingAllocations().find(x=>x.barcode===code);
-   if(!a){alert('No pending allocation exists for this barcode.');input.focus();return}
-   if(!confirm('Issue '+a.itemName+' to '+a.employee+' and deduct one item from stock?'))return;
    const result=issuePpeAllocation(code);
-   if(!result.ok){alert(result.error);return}
-   render();toast('Issued to '+result.transaction.employee+' · '+result.transaction.itemName);
+   if(!result.ok){info.textContent=result.error;info.classList?.add('missing');input.select?.();input.focus();return}
+   render();
+   toast('Issued 1 × '+result.transaction.itemName+' to '+result.transaction.employee+' · stock deducted');
    document.getElementById('ppe-allocate-scan-code')?.focus();
-  });
+  };
+  scanForm.addEventListener('submit',e=>{e.preventDefault();completeScan()});
  }
 }
 
