@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -886,4 +886,30 @@ test('stock corrections cannot invalidate reserved or ready individual PPE barco
  assert.ok(dashboard.checkPpeStockCorrection(item,1,'Counted','Officer').ok);
  assert.ok(dashboard.checkPpeStockCorrection(item,6,'Delivery counted','Officer').ok);
  assert.equal(item.stock,'5');
+});
+
+test('employee PPE issue search filters partial names and other issue details without changing records',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ dashboard.db.ppeTransactions.push(
+  {id:'issue-search-1',type:'issue',timestamp:'2026-11-17T12:00:00.000Z',employee:'Joseph Smith',department:'Production',itemName:'Orange Hi-Vis Vest XL',barcode:'OI922',quantity:1,recordedBy:'H&S Officer'},
+  {id:'issue-search-2',type:'issue',timestamp:'2026-11-17T13:00:00.000Z',employee:'Sarah Jones',department:'Warehouse',itemName:'Safety Gloves M',barcode:'OI923',quantity:1,recordedBy:'H&S Officer'},
+  {id:'receipt-search-3',type:'receive',timestamp:'2026-11-17T14:00:00.000Z',employee:'',itemName:'Orange Hi-Vis Vest XL',barcode:'OC900',quantity:2,recordedBy:'H&S Officer'}
+ );
+ assert.equal(dashboard.ppeIssueRecordsFiltered('jo').length,2);
+ assert.equal(dashboard.ppeIssueRecordsFiltered('joseph').length,1);
+ assert.equal(dashboard.ppeIssueRecordsFiltered('WAREHOUSE').length,1);
+ assert.equal(dashboard.ppeIssueRecordsFiltered('oi922').length,1);
+ assert.equal(dashboard.ppeIssueRecordsFiltered('oc900').length,0);
+ dashboard.go('ppeStock');
+ assert.ok(dashboard.ppeEmployeeIssueRecordsHTML().includes('ppe-issue-search'));
+ dashboard.bindPpeIssueSearch();
+ elem('ppe-issue-search').value='Joseph';
+ elem('ppe-issue-search').listeners.input();
+ assert.ok(elem('ppe-issue-record-rows').innerHTML.includes('Joseph Smith'));
+ assert.ok(!elem('ppe-issue-record-rows').innerHTML.includes('Sarah Jones'));
+ assert.equal(elem('ppe-issue-record-count').textContent,'1 of 2 issues');
+ elem('ppe-issue-search').value='not-an-employee';
+ elem('ppe-issue-search').listeners.input();
+ assert.ok(elem('ppe-issue-record-rows').innerHTML.includes('No matching PPE issue records'));
+ assert.equal(dashboard.db.ppeTransactions.length,3);
 });
