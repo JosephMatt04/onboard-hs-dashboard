@@ -834,3 +834,27 @@ test('allocated PPE scan fails safely when disk write fails',()=>{
  assert.equal(allocation.status,'Pending');
  assert.equal(dashboard.db.ppeTransactions.length,0);
 });
+
+test('scanner input without Enter deducts PPE and reflects updated stock tab',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ const item={id:'scan-no-enter',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'3',minStock:'',status:'Available'};
+ dashboard.db.ppeStock.push(item);
+ const created=dashboard.createPpeAllocation({employee:'Example Worker',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
+ assert.ok(created.ok);
+ const code=created.allocations[0].barcode;
+ assert.equal(item.stock,'3');
+ dashboard.bindPpeAllocation();
+ elem('ppe-allocate-scan-code').value=code;
+ elem('ppe-allocate-scan-code').listeners.input();
+ assert.equal(item.stock,'2');
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+ assert.equal(dashboard.db.ppeTransactions[0].before,3);
+ assert.equal(dashboard.db.ppeTransactions[0].after,2);
+ const display=dashboard.ppeAllocationHTML();
+ assert.ok(display.includes('Stock: 3 → 2'));
+ assert.ok(dashboard.ppeStockRegisterHTML().includes('<td>2</td>'));
+ elem('ppe-allocate-scan-code').value=code;
+ elem('ppe-allocate-scan-code').listeners.input();
+ assert.equal(item.stock,'2');
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+});
