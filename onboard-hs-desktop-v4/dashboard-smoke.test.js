@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeWorkspaceTabs,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -776,4 +776,22 @@ test('verbal warnings navigation appears once directly beneath incidents',()=>{
  const assets=nav.indexOf('data-nav="assets"');
  assert.ok(incidents>=0&&warnings>incidents&&assets>warnings);
  assert.equal((nav.match(/data-nav="verbalWarnings"/g)||[]).length,1);
+});
+
+test('Individual PPE Labels tab shows codes per product and no issue side effects',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ const item={id:'label-test',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC555'};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'label-unit-1',itemId:item.id,barcode:'OI555',status:'In Stock',colour:'Orange',size:'XL',itemName:item.item,issuedTo:'',issuedAt:''});
+ dashboard.db.ppeUnits.push({id:'label-unit-2',itemId:item.id,barcode:'OI556',status:'Issued',colour:'Orange',size:'XL',itemName:item.item,issuedTo:'Test Person',issuedAt:'2026-11-17'});
+ dashboard.go('ppeStock');
+ assert.ok(elem('content').innerHTML.includes('Individual PPE Labels'));
+ assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="labels"'));
+ const page=dashboard.individualPpeLabelsHTML();
+ assert.ok(page.includes('Hi-Vis Vest'));
+ assert.ok(page.includes('Generate missing codes'));
+ assert.ok(page.includes('Print individual labels'));
+ assert.ok(page.includes('data-action="ppe-print-individual"'));
+ assert.equal(item.stock,'2');
+ assert.equal(dashboard.db.ppeTransactions.length,0);
 });
