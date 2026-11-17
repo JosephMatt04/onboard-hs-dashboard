@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeWorkspaceTabs,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -793,5 +793,46 @@ test('Individual PPE Labels tab shows codes per product and no issue side effect
  assert.ok(page.includes('Print individual labels'));
  assert.ok(page.includes('data-action="ppe-print-individual"'));
  assert.equal(item.stock,'2');
+ assert.equal(dashboard.db.ppeTransactions.length,0);
+});
+
+test('allocated PPE scan Enter automatically deducts exactly once and creates employee record',()=>{
+ const {dashboard,elem}=harness({locked:false});
+ const item={id:'alloc-stock',item:'Hi-Vis Vest',category:'High Visibility Clothing',colour:'Orange',size:'XL',stock:'2',minStock:'',status:'Available'};
+ dashboard.db.ppeStock.push(item);
+ const result=dashboard.createPpeAllocation({employee:'Test Employee',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
+ assert.ok(result.ok);
+ assert.equal(item.stock,'2');
+ assert.equal(dashboard.db.ppeTransactions.length,0);
+ const barcode=result.allocations[0].barcode;
+ dashboard.bindPpeAllocation();
+ elem('ppe-allocate-scan-code').value=barcode;
+ let prevented=false;
+ elem('ppe-allocate-scan-code').listeners.keydown({key:'Enter',preventDefault(){prevented=true}});
+ assert.ok(prevented);
+ assert.equal(item.stock,'1');
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+ assert.equal(dashboard.db.ppeTransactions[0].employee,'Test Employee');
+ assert.equal(dashboard.db.ppeTransactions[0].department,'Production');
+ assert.equal(dashboard.db.ppeTransactions[0].barcode,barcode);
+ assert.equal(result.allocations[0].status,'Issued');
+ elem('ppe-allocate-scan-code').value=barcode;
+ elem('ppe-allocate-scan-code').listeners.keydown({key:'Enter',preventDefault(){}});
+ assert.equal(item.stock,'1');
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+});
+test('allocated PPE scan fails safely when disk write fails',()=>{
+ const {dashboard,elem}=harness({locked:false,writeFails:true});
+ const item={id:'alloc-fail',item:'Gloves',category:'Hand Protection',size:'9',stock:'1',minStock:'',status:'Available'};
+ dashboard.db.ppeStock.push(item);
+ const unit={id:'alloc-unit',itemId:item.id,itemName:'Gloves',barcode:'OI773',status:'In Stock',issuedTo:'',issuedAt:''};
+ const allocation={id:'alloc-pending',unitId:unit.id,itemId:item.id,itemName:'Gloves · 9',barcode:unit.barcode,employee:'Test Employee',department:'Production',person:'Safety Officer',notes:'',createdAt:new Date().toISOString(),status:'Pending',issuedAt:''};
+ dashboard.db.ppeUnits.push(unit);dashboard.db.ppeAllocations.push(allocation);
+ dashboard.bindPpeAllocation();
+ elem('ppe-allocate-scan-code').value='OI773';
+ elem('ppe-allocate-scan-code').listeners.keydown({key:'Enter',preventDefault(){}});
+ assert.equal(item.stock,'1');
+ assert.equal(unit.status,'In Stock');
+ assert.equal(allocation.status,'Pending');
  assert.equal(dashboard.db.ppeTransactions.length,0);
 });
