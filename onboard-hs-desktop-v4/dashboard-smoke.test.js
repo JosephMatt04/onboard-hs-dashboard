@@ -778,20 +778,18 @@ test('verbal warnings navigation appears once directly beneath incidents',()=>{
  assert.equal((nav.match(/data-nav="verbalWarnings"/g)||[]).length,1);
 });
 
-test('Individual PPE Labels tab shows codes per product and no issue side effects',()=>{
+test('Allocate PPE tab displays employee allocation fields and does not issue on opening',()=>{
  const {dashboard,elem}=harness({locked:false});
  const item={id:'label-test',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC555'};
  dashboard.db.ppeStock.push(item);
- dashboard.db.ppeUnits.push({id:'label-unit-1',itemId:item.id,barcode:'OI555',status:'In Stock',colour:'Orange',size:'XL',itemName:item.item,issuedTo:'',issuedAt:''});
- dashboard.db.ppeUnits.push({id:'label-unit-2',itemId:item.id,barcode:'OI556',status:'Issued',colour:'Orange',size:'XL',itemName:item.item,issuedTo:'Test Person',issuedAt:'2026-11-17'});
  dashboard.go('ppeStock');
- assert.ok(elem('content').innerHTML.includes('Individual PPE Labels'));
- assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="labels"'));
- const page=dashboard.individualPpeLabelsHTML();
+ assert.ok(elem('content').innerHTML.includes('Allocate PPE'));
+ assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="allocate"'));
+ const page=dashboard.ppeAllocationHTML();
+ assert.ok(page.includes('Employee full name'));
+ assert.ok(page.includes('Generate &amp; print allocation labels'));
+ assert.ok(page.includes('Scan label to issue PPE'));
  assert.ok(page.includes('Hi-Vis Vest'));
- assert.ok(page.includes('Generate missing codes'));
- assert.ok(page.includes('Print individual labels'));
- assert.ok(page.includes('data-action="ppe-print-individual"'));
  assert.equal(item.stock,'2');
  assert.equal(dashboard.db.ppeTransactions.length,0);
 });
