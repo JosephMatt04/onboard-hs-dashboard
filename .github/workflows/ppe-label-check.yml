@@ -1,0 +1,27 @@
+name: PPE label layout checks
+
+on:
+  pull_request:
+    paths:
+      - 'onboard-hs-desktop-v4/app/index.html'
+      - 'onboard-hs-desktop-v4/dashboard-smoke.test.js'
+      - '.github/workflows/ppe-label-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:syntax
+      - name: Test dashboard and PPE label layout
+        working-directory: onboard-hs-desktop-v4
+        run: npm run test:dashboard
