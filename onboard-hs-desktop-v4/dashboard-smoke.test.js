@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,printPpeDeskRegister,ppeRollLabelDocument,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -912,4 +912,33 @@ test('employee PPE issue search filters partial names and other issue details wi
  elem('ppe-issue-search').listeners.input();
  assert.ok(elem('ppe-issue-record-rows').innerHTML.includes('No matching PPE issue records'));
  assert.equal(dashboard.db.ppeTransactions.length,3);
+});
+
+
+test('PPE label document prints one 62 x 100 mm page per item, not an A4 sheet',()=>{
+ const {dashboard}=harness({locked:false});
+ const labels=[
+  {itemName:'HI-VIS VEST',size:'XL',colour:'YELLOW',barcode:'OI002',productCode:'OC001'},
+  {itemName:'SAFETY GLOVES',size:'L',colour:'GREY',barcode:'OI003',productCode:'OC002'}
+ ];
+ const page=dashboard.ppeRollLabelDocument(labels,'PPE label test');
+ assert.match(page,/@page\{size:62mm 100mm;margin:0\}/);
+ assert.doesNotMatch(page,/@page\{size:A4/);
+ assert.equal((page.match(/<article class="ppe-roll-label">/g)||[]).length,2);
+ assert.match(page,/HI-VIS VEST/);
+ assert.match(page,/OI002/);
+ assert.match(page,/PRODUCT STOCK CODE: OC001/);
+ assert.match(page,/page-break-after:always/);
+ assert.match(page,/SCAN TO IDENTIFY PPE/);
+});
+test('PPE allocation labels include the recipient and the exact individual scan code',()=>{
+ const {dashboard}=harness({locked:false});
+ const page=dashboard.ppeRollLabelDocument([
+  {itemName:'HI-VIS VEST',size:'XL',colour:'YELLOW',barcode:'OI004',productCode:'OC001',employee:'Test Employee',department:'Production'}
+ ],'PPE allocation');
+ assert.match(page,/Test Employee/);
+ assert.match(page,/Production/);
+ assert.match(page,/OI004/);
+ assert.match(page,/SCAN TO ISSUE PPE/);
+ assert.match(page,/@page\{size:62mm 100mm;margin:0\}/);
 });
