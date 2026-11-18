@@ -18,11 +18,13 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
  };
  const document={getElementById:elem,querySelectorAll:()=>[],querySelector:()=>null,documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
  let writes=0;
+ const openedAttachments=[];
  const window={
   localStorage:{getItem:()=>null,setItem:()=>{}},
   onboardDesktop:{
    read:()=>({ok:true,data:null}),
    write:()=>{writes++;return writeFails?{ok:false,error:'Simulated storage failure'}:{ok:true}},
+   openAttachment:(section,id,index)=>{openedAttachments.push({section,id,index});return Promise.resolve({ok:true})},
    pinStatus:()=>({enabled:true,sections,unlocked:!locked}),
    pinConfigure:()=>Promise.resolve({ok:true}),
    pinLock:()=>Promise.resolve({enabled:true,sections,unlocked:false})
@@ -30,8 +32,8 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
- return {dashboard,elem,errors,getWrites:()=>writes};
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ return {dashboard,elem,errors,openedAttachments,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
@@ -964,4 +966,15 @@ test('Excel boot claim preview preserves date meaning and merged expense form ra
  assert.equal(dashboard.spreadsheetRange('C3:A1'),null);
  assert.ok(html.includes('Open in Excel (original layout)'));
  assert.ok(html.includes('spreadsheetStyles(await zip.read'));
+});
+
+test('Open original uses the Windows document app for Excel, Word and PDF without preview or downloads',async()=>{
+ const {dashboard,openedAttachments,errors}=harness({locked:false});
+ const filenames=['Boot Claim.xlsm','Boot Claim.xlsx','Risk Assessment.docx','Approved Permit.pdf','Training Record.jpg'];
+ for(let i=0;i<filenames.length;i++)await dashboard.openAttachmentDirectly({name:filenames[i]},'ppe','claim-1',i);
+ assert.deepEqual(openedAttachments,filenames.map((_,index)=>({section:'ppe',id:'claim-1',index})));
+ assert.equal(errors.length,0);
+ const controls=dashboard.attachmentHTML([{name:'Boot Claim.xlsm',size:1024}]);
+ assert.ok(controls.includes('Open original'));
+ assert.ok(!controls.includes('Accurate page preview'));
 });
