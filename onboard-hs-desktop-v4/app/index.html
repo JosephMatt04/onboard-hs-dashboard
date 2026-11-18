@@ -3381,6 +3381,23 @@ function removePpeIssueRecord(id,reason){
  if(ppeLastIssue?.id===id)ppeLastIssue=null;
  return {ok:true};
 }
+function openPpeIssueRemovalDialog(id){
+ if(pinRestricted('ppeStock')){alert('Unlock the PPE section before removing an issue record.');return}
+ const entry=(db.ppeTransactions||[]).find(t=>t.id===id&&t.type==='issue'&&!t.voided);
+ if(!entry){alert('This issue record was already removed or could not be found.');refreshPpeIssueRecords();return}
+ const root=document.getElementById('modal-root');
+ root.innerHTML=`<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="ppe-issue-remove-title"><h2 id="ppe-issue-remove-title">Remove employee PPE issue</h2><p class="sub">Review the issue before removing it from the employee list.</p><div class="callout"><strong>${esc(entry.employee||'Employee')}</strong><p>${esc(entry.itemName||'PPE item')} · ${esc(entry.barcode||'No barcode')} · Quantity ${esc(entry.quantity||1)}</p></div><p class="notice">This action hides the record from Employee PPE Issue Records. The stock quantity will <strong>not</strong> change, and the original movement remains in the audit history marked as voided. Correct test stock quantities separately in PPE Inventory.</p><form id="ppe-issue-remove-form"><label class="form-field full"><span>Reason for removal</span><input id="ppe-issue-remove-reason" class="field" maxlength="250" autocomplete="off" placeholder="e.g. Test entry or duplicate record" required></label><div class="modal-actions"><button type="button" class="btn" id="ppe-issue-remove-cancel">Cancel</button><button type="submit" class="btn danger" id="ppe-issue-remove-confirm">Remove issue record</button></div></form></div></div>`;
+ root.querySelector('#ppe-issue-remove-cancel').onclick=closeModal;
+ root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))closeModal()};
+ root.querySelector('#ppe-issue-remove-form').onsubmit=e=>{
+  e.preventDefault();
+  const reason=root.querySelector('#ppe-issue-remove-reason').value;
+  const result=removePpeIssueRecord(id,reason);
+  if(!result.ok){alert(result.error);return}
+  closeModal();refreshPpeIssueRecords();toast('Employee PPE issue removed from the active list');
+ };
+ root.querySelector('#ppe-issue-remove-reason').focus();
+}
 function refreshPpeIssueRecords(){
  const field=document.getElementById('ppe-issue-search');
  if(!field)return;
@@ -3389,15 +3406,7 @@ function refreshPpeIssueRecords(){
  document.getElementById('ppe-issue-record-count').textContent=filtered.length+' of '+total+' issues';
  document.getElementById('ppe-issue-record-rows').innerHTML=filtered.length?ppeIssueRecordRowsHTML(filtered):'<tr><td colspan="8">No matching PPE issue records.</td></tr>';
  document.querySelectorAll('[data-ppe-issue-remove]').forEach(button=>button.onclick=()=>{
-  const entry=(db.ppeTransactions||[]).find(t=>t.id===button.dataset.ppeIssueRemove&&t.type==='issue'&&!t.voided);
-  if(!entry){alert('This issue record was already removed.');refreshPpeIssueRecords();return}
-  const reason=prompt('Reason for removing the issue for '+(entry.employee||'this employee')+' ('+(entry.barcode||'PPE')+'):', 'Test entry');
-  if(reason===null)return;
-  if(!reason.trim()||reason.trim().length>250){alert('Please enter a reason of up to 250 characters.');return}
-  if(!confirm('Remove this issue from the employee records?\n\n'+(entry.employee||'Employee')+' · '+(entry.itemName||'PPE item')+' · '+(entry.barcode||'No barcode')+'\n\nThe stock quantity will NOT change. The original movement remains in the audit history marked as voided.'))return;
-  const result=removePpeIssueRecord(entry.id,reason);
-  if(!result.ok){alert(result.error);return}
-  refreshPpeIssueRecords();toast('Employee PPE issue removed from the active list');
+  openPpeIssueRemovalDialog(button.dataset.ppeIssueRemove);
  });
 }
 function bindPpeIssueSearch(){
