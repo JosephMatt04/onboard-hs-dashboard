@@ -30,7 +30,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,printPpeDeskRegister,ppeRollLabelDocument,ppeBarcodeSvg,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
  return {dashboard,elem,errors,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -951,4 +951,17 @@ test('PPE delivery label uses its OC product code rather than an issue instructi
  assert.match(page,/PRODUCT CODE<\/span><strong>OC009<\/strong>/);
  assert.match(page,/SCAN FOR STOCK DELIVERY/);
  assert.doesNotMatch(page,/SCAN TO ISSUE PPE/);
+});
+
+test('Excel boot claim preview preserves date meaning and merged expense form ranges',()=>{
+ const {dashboard}=harness({locked:false});
+ assert.equal(dashboard.spreadsheetDisplayValue('46344','n',{numFmtId:14}),'18/11/2026');
+ assert.equal(dashboard.spreadsheetDisplayValue('46327','n',{numFmtId:165,format:'mmmm'}),'November');
+ assert.equal(dashboard.spreadsheetDisplayValue('30','n',{numFmtId:166,format:'£#,##0.00'}),'£30.00');
+ assert.equal(dashboard.spreadsheetDisplayValue('46344','s',{numFmtId:14}),'46344');
+ assert.deepEqual(dashboard.spreadsheetRange('A1:C2'),{row:0,col:0,rowSpan:2,colSpan:3});
+ assert.deepEqual(dashboard.spreadsheetRange('E6:E6'),{row:5,col:4,rowSpan:1,colSpan:1});
+ assert.equal(dashboard.spreadsheetRange('C3:A1'),null);
+ assert.ok(html.includes('Open in Excel (original layout)'));
+ assert.ok(html.includes('spreadsheetStyles(await zip.read'));
 });

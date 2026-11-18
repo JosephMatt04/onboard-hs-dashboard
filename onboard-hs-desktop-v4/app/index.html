@@ -3905,6 +3905,48 @@ function spreadsheetColumnIndex(ref){
  let n=0;for(const letter of letters)n=n*26+letter.charCodeAt(0)-64;
  return n-1;
 }
+function spreadsheetRange(ref){
+ const parts=String(ref||'').split(':');
+ const parse=value=>{const m=/^([A-Z]+)([1-9]\d*)$/i.exec(value||'');return m?{col:spreadsheetColumnIndex(m[1]),row:Number(m[2])-1}:null};
+ const first=parse(parts[0]),last=parse(parts[1]||parts[0]);
+ return first&&last&&first.row<=last.row&&first.col<=last.col?{row:first.row,col:first.col,rowSpan:last.row-first.row+1,colSpan:last.col-first.col+1}:null;
+}
+function spreadsheetStyleColour(node){
+ const value=node?.getAttribute('rgb')||'';
+ return /^[0-9a-f]{8}$/i.test(value)?'#'+value.slice(2):/^[0-9a-f]{6}$/i.test(value)?'#'+value:'';
+}
+function spreadsheetStyles(xml){
+ if(!xml)return [];
+ const doc=spreadsheetXml(xml);
+ const byParent=(tag,child)=>{const root=spreadsheetElements(doc,tag)[0];return root?[...root.children].filter(e=>e.localName===child):[]};
+ const formats=new Map(byParent('numFmts','numFmt').map(el=>[Number(el.getAttribute('numFmtId')),el.getAttribute('formatCode')||'']));
+ const fonts=byParent('fonts','font').map(el=>({bold:!!spreadsheetElements(el,'b').length,italic:!!spreadsheetElements(el,'i').length,size:Number(spreadsheetElements(el,'sz')[0]?.getAttribute('val'))||0,color:spreadsheetStyleColour(spreadsheetElements(el,'color')[0])}));
+ const fills=byParent('fills','fill').map(el=>spreadsheetStyleColour(spreadsheetElements(el,'fgColor')[0]));
+ return byParent('cellXfs','xf').map(el=>{
+  const fmt=Number(el.getAttribute('numFmtId'))||0,alignment=spreadsheetElements(el,'alignment')[0];
+  return {numFmtId:fmt,format:formats.get(fmt)||'',font:fonts[Number(el.getAttribute('fontId'))]||{},fill:fills[Number(el.getAttribute('fillId'))]||'',align:alignment?.getAttribute('horizontal')||'',wrap:alignment?.getAttribute('wrapText')==='1'};
+ });
+}
+function spreadsheetDisplayValue(raw,type,style,date1904=false){
+ if(type!=='n'||raw===''||!Number.isFinite(Number(raw)))return raw;
+ const format=String(style?.format||'').replace(/"[^"]*"|\[[^\]]*\]/g,'');
+ const id=Number(style?.numFmtId)||0;
+ const isDate=[14,15,16,17,18,19,20,21,22,45,46,47].includes(id)||/[dy]/i.test(format)&&/[mdy]/i.test(format)||/m{3,4}/i.test(format);
+ if(isDate){
+  const value=Number(raw),millis=Date.UTC(1899,11,30)+(value+(date1904?1462:0))*86400000;
+  const date=new Date(millis);if(!Number.isFinite(date.getTime()))return raw;
+  const day=String(date.getUTCDate()).padStart(2,'0'),month=String(date.getUTCMonth()+1).padStart(2,'0'),year=date.getUTCFullYear();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if(/mmmm/i.test(format))return date.toLocaleString('en-GB',{month:'long',year:/y/i.test(format)?'numeric':undefined,timeZone:'UTC'});
+  if(/mmm/i.test(format))return months[date.getUTCMonth()]+(/y/i.test(format)?' '+year:'');
+  if(/\byyyy\b/i.test(format)&&!/[dm]/i.test(format))return String(year);
+  return day+'/'+month+'/'+year;
+ }
+ if(/%/.test(format))return (Number(raw)*100).toLocaleString('en-GB',{maximumFractionDigits:2})+'%';
+ if(/[£$€]/.test(format))return (format.match(/[£$€]/)||['£'])[0]+Number(raw).toLocaleString('en-GB',{minimumFractionDigits:/\.00/.test(format)?2:0,maximumFractionDigits:2});
+ if(/\.0{2,}/.test(format))return Number(raw).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+ return raw;
+}
 async function renderSpreadsheetPreview(a,target,info){
  const filename=a.name.toLowerCase();
  if(filename.endsWith('.csv')){
@@ -3928,6 +3970,8 @@ async function renderSpreadsheetPreview(a,target,info){
  if(!paths.length)throw Error('No readable worksheets found');
  const workbookXml=await zip.read('xl/workbook.xml');
  const sheetNames=workbookXml?spreadsheetElements(spreadsheetXml(workbookXml),'sheet').map(x=>x.getAttribute('name')):[];
+ const styles=spreadsheetStyles(await zip.read('xl/styles.xml'));
+ const date1904=!!(workbookXml&&spreadsheetElements(spreadsheetXml(workbookXml),'workbookPr')[0]?.getAttribute('date1904')==='1');
  const picker=document.createElement('select');picker.className='field';picker.style.marginBottom='12px';picker.setAttribute('aria-label','Choose worksheet');
  for(let i=0;i<paths.length;i++){const option=document.createElement('option');option.value=String(i);option.textContent=sheetNames[i]||('Sheet '+(i+1));picker.append(option)}
  const sheetBox=document.createElement('div');target.append(picker,sheetBox);
@@ -3936,32 +3980,49 @@ async function renderSpreadsheetPreview(a,target,info){
   try{
    const doc=spreadsheetXml(await zip.read(paths[index]));
    const nodes=spreadsheetElements(doc,'sheetData')[0];
-   const rows=[],cells=nodes?spreadsheetElements(nodes,'row'):[];
+   const rows=[],cells=nodes?spreadsheetElements(nodes,'row'):[],heights={};
    for(const sourceRow of cells){
-    if(rows.length>=200)break;
-    const row=[];
+    const index=Number(sourceRow.getAttribute('r'))-1;
+    if(!Number.isInteger(index)||index<0||index>=200)continue;
+    const row=rows[index]||[];
+    const height=Number(sourceRow.getAttribute('ht'));if(height>0&&height<250)heights[index]=Math.round(height*4/3);
     for(const cell of spreadsheetElements(sourceRow,'c')){
      const col=spreadsheetColumnIndex(cell.getAttribute('r')||'');
      if(col<0||col>=35)continue;
      const type=cell.getAttribute('t');
      const value=spreadsheetElements(cell,'v')[0]?.textContent||'';
      const inline=spreadsheetElements(cell,'is')[0];
-     row[col]=type==='s'?(shared[Number(value)]||''):type==='inlineStr'?(inline?spreadsheetElements(inline,'t').map(t=>t.textContent||'').join(''):''):type==='b'?(value==='1'?'TRUE':'FALSE'):value;
+     const raw=type==='s'?(shared[Number(value)]||''):type==='inlineStr'?(inline?spreadsheetElements(inline,'t').map(t=>t.textContent||'').join(''):''):type==='b'?(value==='1'?'TRUE':'FALSE'):value;
+     const style=styles[Number(cell.getAttribute('s'))||0]||{};
+     row[col]={value:spreadsheetDisplayValue(raw,type||'n',style,date1904),style};
     }
-    rows.push(row);
+    rows[index]=row;
    }
+   const widths={};
+   spreadsheetElements(doc,'col').forEach(col=>{const min=Number(col.getAttribute('min')),max=Number(col.getAttribute('max')),width=Number(col.getAttribute('width'));if(width>0&&min>0&&max>=min)for(let c=min-1;c<Math.min(max,35);c++)widths[c]=Math.max(40,Math.min(400,Math.round(width*7+10)))});
+   const merges=spreadsheetElements(doc,'mergeCell').map(el=>spreadsheetRange(el.getAttribute('ref'))).filter(Boolean);
    sheetBox.textContent='';
-   spreadsheetPreviewTable(rows,sheetBox,cells.length>200);
-   info.textContent='Read-only Excel preview · first 200 populated rows and 35 columns per sheet. Formulas show saved values; formatting may differ from Excel.';
+   spreadsheetPreviewTable(Array.from({length:Math.min(200,rows.length)},(_,i)=>rows[i]||[]),sheetBox,cells.some(r=>Number(r.getAttribute('r'))>200),{merges,widths,heights});
+   info.textContent='Read-only Excel preview · dates, merged cells and basic formatting preserved. Some Excel layout details may still differ; open in Excel for the exact original.';
   }catch(error){sheetBox.textContent='Preview unavailable: '+error.message+'. Download the original to view it in Excel.'}
  }
  picker.onchange=()=>show(Number(picker.value));
  await show(0);
 }
-function spreadsheetPreviewTable(rows,root,truncated){
+function spreadsheetPreviewTable(rows,root,truncated,options={}){
  const wrap=document.createElement('div');wrap.style.cssText='max-height:55vh;overflow:auto;border:1px solid #aab8b3;border-radius:8px;background:#fff;color:#18241f';
  const table=document.createElement('table');table.style.cssText='border-collapse:collapse;width:max-content;min-width:100%;font:13px Segoe UI,Arial,sans-serif;color:#18241f;background:#fff';
- const cols=Math.min(35,Math.max(1,...rows.map(row=>row.length)));
+ const cols=Math.min(35,Math.max(1,...rows.map(row=>row.length),...(options.merges||[]).map(m=>m.col+m.colSpan)));
+ const merged=new Map(),covered=new Set();
+ for(const m of options.merges||[]){
+  if(m.row>=rows.length||m.col>=cols)continue;
+  const rowSpan=Math.min(m.rowSpan,rows.length-m.row),colSpan=Math.min(m.colSpan,cols-m.col);
+  merged.set(m.row+','+m.col,{rowSpan,colSpan});
+  for(let r=m.row;r<m.row+rowSpan;r++)for(let c=m.col;c<m.col+colSpan;c++)if(r!==m.row||c!==m.col)covered.add(r+','+c);
+ }
+ const columnGroup=document.createElement('colgroup');
+ for(let i=-1;i<cols;i++){const col=document.createElement('col');if(i>=0&&options.widths?.[i])col.style.width=options.widths[i]+'px';columnGroup.append(col)}
+ table.append(columnGroup);
  const head=document.createElement('thead'),hr=document.createElement('tr');
  for(let col=-1;col<cols;col++){
   const th=document.createElement('th');th.textContent=col<0?'#':String.fromCharCode(65+col)+(col>=26?'':'');
@@ -3973,7 +4034,16 @@ function spreadsheetPreviewTable(rows,root,truncated){
  const body=document.createElement('tbody');
  rows.forEach((row,i)=>{
   const tr=document.createElement('tr'),rh=document.createElement('th');rh.textContent=String(i+1);rh.style.cssText='background:#f2f6f3;color:#34463e;border:1px solid #d3ddd8;padding:6px 8px;position:sticky;left:0';tr.append(rh);
-  for(let j=0;j<cols;j++){const td=document.createElement('td');td.textContent=String(row[j]??'');td.style.cssText='background:#fff;color:#18241f;border:1px solid #d3ddd8;padding:6px 9px;min-width:85px;max-width:320px;overflow-wrap:anywhere';tr.append(td)}
+  if(options.heights?.[i])tr.style.height=options.heights[i]+'px';
+  for(let j=0;j<cols;j++){
+   if(covered.has(i+','+j))continue;
+   const td=document.createElement('td'),cell=row[j],value=cell&&typeof cell==='object'&&'value'in cell?cell.value:cell;
+   td.textContent=String(value??'');td.style.cssText='background:#fff;color:#18241f;border:1px solid #d3ddd8;padding:6px 9px;min-width:85px;max-width:400px;overflow-wrap:anywhere';
+   const merge=merged.get(i+','+j);if(merge){td.rowSpan=merge.rowSpan;td.colSpan=merge.colSpan}
+   const style=cell&&typeof cell==='object'?cell.style:null;
+   if(style){if(style.fill)td.style.backgroundColor=style.fill;if(style.font?.color)td.style.color=style.font.color;if(style.font?.bold)td.style.fontWeight='700';if(style.font?.italic)td.style.fontStyle='italic';if(style.font?.size>0&&style.font.size<48)td.style.fontSize=style.font.size+'pt';if(['left','center','right'].includes(style.align))td.style.textAlign=style.align;if(style.wrap)td.style.whiteSpace='normal'}
+   tr.append(td)
+  }
   body.append(tr);
  });
  table.append(body);wrap.append(table);root.append(wrap);
@@ -3995,7 +4065,19 @@ async function previewAttachment(a,k,id){
  root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))close()};
  try{
   const body=root.querySelector('#preview-body'),info=root.querySelector('#preview-info');
-  if(spreadsheet){await renderSpreadsheetPreview(a,body,info);
+  if(spreadsheet){
+   if(typeof window.onboardDesktop?.openAttachment==='function'){
+    const original=document.createElement('button');original.type='button';original.className='btn primary';original.textContent='Open in Excel (original layout)';
+    original.onclick=async()=>{
+     const record=(db[k]||[]).find(r=>r.id===id),index=(record?.attachments||[]).findIndex(file=>file===a||file.name===a.name&&file.data===a.data);
+     if(index<0){alert('This attachment is no longer available.');return}
+     original.disabled=true;
+     try{const result=await window.onboardDesktop.openAttachment(k,id,index);if(!result?.ok)throw Error(result?.error||'Could not open the file');toast('Opened a viewing copy in Excel. Changes are not saved back into the dashboard.');}
+     catch(error){alert('Could not open in Excel: '+error.message)}finally{original.disabled=false}
+    };
+    root.querySelector('.modal-actions').insertBefore(original,root.querySelector('#preview-download'));
+   }
+   await renderSpreadsheetPreview(a,body,info);
   }else if(pairedPdf){
    const blob=attachmentBlob(pairedPdf);objectUrl=URL.createObjectURL(blob);
    const frame=document.createElement('iframe');frame.className='preview-frame';frame.title='PDF preview of '+a.name;frame.src=objectUrl;body.append(frame);
