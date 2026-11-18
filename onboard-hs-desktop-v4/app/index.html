@@ -3208,7 +3208,7 @@ function ppeScannerHTML(){
  const moves=Array.isArray(db.ppeTransactions)?db.ppeTransactions:[];
  const history=moves.slice().reverse().slice(0,250).map(t=>{
   const item=db.ppeStock.find(r=>r.id===t.itemId);
-  return '<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.type==='issue'?'Issued':'Received')+'</td><td>'+esc(t.itemName||item?.item||'PPE item')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.recordedBy||'—')+'</td><td>'+esc(t.before)+' → '+esc(t.after)+'</td></tr>';
+  return '<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.voided?'Voided issue · '+(t.voidReason||'Removed from employee records'):t.type==='issue'?'Issued':'Received')+'</td><td>'+esc(t.itemName||item?.item||'PPE item')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.recordedBy||'—')+'</td><td>'+esc(t.before)+' → '+esc(t.after)+'</td></tr>';
  }).join('');
  return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print PPE Desk Register</button></div></div>'+
  '<div class="ppe-scan-metrics"><div><b>'+db.ppeStock.length+'</b><span>Registered PPE products</span></div><div><b>'+stock+'</b><span>Units in stock</span></div><div><b>'+low+'</b><span>At or below minimum</span></div><div><b>'+moves.length+'</b><span>Stock movements recorded</span></div></div>'+
@@ -3354,26 +3354,57 @@ function ppeAllocationHTML(){
 }
 function ppeIssueRecordsFiltered(query=''){
  const term=String(query||'').trim().toLocaleLowerCase('en-GB');
- return (db.ppeTransactions||[]).filter(t=>t.type==='issue'&&(!term||[t.employee,t.department,t.itemName,t.barcode,t.recordedBy].some(v=>String(v||'').toLocaleLowerCase('en-GB').includes(term)))).slice().reverse();
+ return (db.ppeTransactions||[]).filter(t=>t.type==='issue'&&!t.voided&&(!term||[t.employee,t.department,t.itemName,t.barcode,t.recordedBy].some(v=>String(v||'').toLocaleLowerCase('en-GB').includes(term)))).slice().reverse();
 }
 function ppeIssueRecordRowsHTML(records){
- return records.map(t=>'<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.department||'—')+'</td><td>'+esc(t.itemName||'—')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.recordedBy||'—')+'</td></tr>').join('');
+ return records.map(t=>'<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.department||'—')+'</td><td>'+esc(t.itemName||'—')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.recordedBy||'—')+'</td><td class="actions"><button type="button" class="btn small danger" data-ppe-issue-remove="'+esc(t.id)+'" aria-label="Remove PPE issue for '+esc(t.employee||'employee')+'">Remove</button></td></tr>').join('');
 }
 function ppeEmployeeIssueRecordsHTML(){
  const rows=ppeIssueRecordsFiltered();
  return '<section class="panel"><div class="section-title"><h2>Employee PPE Issue Records</h2><span id="ppe-issue-record-count" class="muted">'+rows.length+' recorded issues</span></div>'+
  '<label class="form-field" style="max-width:460px;margin-bottom:16px"><span>Search employee or PPE issue</span><input id="ppe-issue-search" class="field" type="search" autocomplete="off" placeholder="Search employee name, department, PPE or barcode…" aria-label="Search employee PPE issue records"></label>'+
- '<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Employee</th><th>Department</th><th>PPE, colour &amp; size</th><th>Barcode</th><th>Qty</th><th>Issued by</th></tr></thead><tbody id="ppe-issue-record-rows">'+(rows.length?ppeIssueRecordRowsHTML(rows):'<tr><td colspan="7">No PPE has been issued yet.</td></tr>')+'</tbody></table></div></section>';
+ '<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Employee</th><th>Department</th><th>PPE, colour &amp; size</th><th>Barcode</th><th>Qty</th><th>Issued by</th><th>Action</th></tr></thead><tbody id="ppe-issue-record-rows">'+(rows.length?ppeIssueRecordRowsHTML(rows):'<tr><td colspan="8">No PPE has been issued yet.</td></tr>')+'</tbody></table></div>'+
+ '<p class="file-tip">Remove hides an incorrect or test issue from this employee list, but keeps an audit entry in stock movement history. Stock is not automatically restored. Correct any test quantities separately in PPE Inventory using a recorded stock adjustment.</p></section>';
+}
+function removePpeIssueRecord(id,reason){
+ if(pinRestricted('ppeStock'))return {ok:false,error:'Unlock the PPE section before removing an issue record.'};
+ const transaction=(db.ppeTransactions||[]).find(t=>t.id===id&&t.type==='issue'&&!t.voided);
+ if(!transaction)return {ok:false,error:'This issue record was already removed or could not be found.'};
+ const note=String(reason||'').trim();
+ if(!note||note.length>250)return {ok:false,error:'Enter a reason of up to 250 characters.'};
+ const old={voided:transaction.voided,voidedAt:transaction.voidedAt,voidReason:transaction.voidReason};
+ transaction.voided=true;transaction.voidedAt=new Date().toISOString();transaction.voidReason=note;
+ if(!save()){
+  for(const key of ['voided','voidedAt','voidReason']){if(old[key]===undefined)delete transaction[key];else transaction[key]=old[key]}
+  return {ok:false,error:'Unable to save. The employee issue record was not removed.'};
+ }
+ if(ppeLastIssue?.id===id)ppeLastIssue=null;
+ return {ok:true};
+}
+function refreshPpeIssueRecords(){
+ const field=document.getElementById('ppe-issue-search');
+ if(!field)return;
+ const filtered=ppeIssueRecordsFiltered(field.value);
+ const total=ppeIssueRecordsFiltered().length;
+ document.getElementById('ppe-issue-record-count').textContent=filtered.length+' of '+total+' issues';
+ document.getElementById('ppe-issue-record-rows').innerHTML=filtered.length?ppeIssueRecordRowsHTML(filtered):'<tr><td colspan="8">No matching PPE issue records.</td></tr>';
+ document.querySelectorAll('[data-ppe-issue-remove]').forEach(button=>button.onclick=()=>{
+  const entry=(db.ppeTransactions||[]).find(t=>t.id===button.dataset.ppeIssueRemove&&t.type==='issue'&&!t.voided);
+  if(!entry){alert('This issue record was already removed.');refreshPpeIssueRecords();return}
+  const reason=prompt('Reason for removing the issue for '+(entry.employee||'this employee')+' ('+(entry.barcode||'PPE')+'):', 'Test entry');
+  if(reason===null)return;
+  if(!reason.trim()||reason.trim().length>250){alert('Please enter a reason of up to 250 characters.');return}
+  if(!confirm('Remove this issue from the employee records?\n\n'+(entry.employee||'Employee')+' · '+(entry.itemName||'PPE item')+' · '+(entry.barcode||'No barcode')+'\n\nThe stock quantity will NOT change. The original movement remains in the audit history marked as voided.'))return;
+  const result=removePpeIssueRecord(entry.id,reason);
+  if(!result.ok){alert(result.error);return}
+  refreshPpeIssueRecords();toast('Employee PPE issue removed from the active list');
+ });
 }
 function bindPpeIssueSearch(){
  const field=document.getElementById('ppe-issue-search');
  if(!field)return;
- field.addEventListener('input',()=>{
-  const filtered=ppeIssueRecordsFiltered(field.value);
-  const total=ppeIssueRecordsFiltered().length;
-  document.getElementById('ppe-issue-record-count').textContent=filtered.length+' of '+total+' issues';
-  document.getElementById('ppe-issue-record-rows').innerHTML=filtered.length?ppeIssueRecordRowsHTML(filtered):'<tr><td colspan="7">No matching PPE issue records.</td></tr>';
- });
+ field.addEventListener('input',refreshPpeIssueRecords);
+ refreshPpeIssueRecords();
 }
 
 function createPpeAllocation(data){
@@ -3658,7 +3689,7 @@ function printPpeReport(kind){
  const cell=v=>'<td>'+esc(v===undefined||v===null||v===''?'—':v)+'</td>';
  const date=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('en-GB')};
  const head=stockMode?['PPE item','Category','Size','Barcode','In stock','Minimum','Storage location']:['Date / time','Movement','PPE item','Barcode','Quantity','Employee','Recorded by','Stock before → after'];
- const rows=stockMode?items.map(r=>[r.item,r.category,r.size,r.barcode,r.stock,r.minStock,r.location]):moves.map(t=>[date(t.timestamp),t.type==='issue'?'Issued':'Received',t.itemName,t.barcode,t.quantity,t.employee,t.recordedBy,String(t.before)+' → '+String(t.after)]);
+ const rows=stockMode?items.map(r=>[r.item,r.category,r.size,r.barcode,r.stock,r.minStock,r.location]):moves.map(t=>[date(t.timestamp),t.voided?'Voided issue · '+(t.voidReason||'Removed from employee records'):t.type==='issue'?'Issued':'Received',t.itemName,t.barcode,t.quantity,t.employee,t.recordedBy,String(t.before)+' → '+String(t.after)]);
  const htmlRows=rows.map(values=>'<tr>'+values.map(cell).join('')+'</tr>').join('');
  const count=stockMode?items.length:moves.length;
  const caption=stockMode?count+' PPE product records · '+items.reduce((n,r)=>n+(Number(r.stock)||0),0)+' total units':count+' stock movements';

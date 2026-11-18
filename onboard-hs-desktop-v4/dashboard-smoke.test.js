@@ -10,13 +10,14 @@ const end=html.lastIndexOf('</script>');
 const inline=html.slice(start+8,end);
 const core=inline.slice(inline.indexOf("'use strict';"),inline.lastIndexOf("document.addEventListener('keydown'"));
 assert.ok(core.startsWith("'use strict'"));
-function harness({locked=true,sections=['training','incidents','ppe'],writeFails=false}={}){
+function harness({locked=true,sections=['training','incidents','ppe'],writeFails=false,promptResponse='Test entry',confirmResult=true}={}){
  const elements=new Map();
  const elem=id=>{
   if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',hidden:false,onclick:null,listeners:{},focused:false,focus(){this.focused=true},querySelectorAll:()=>[],setAttribute(){},addEventListener(type,handler){this.listeners[type]=handler},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:''});
   return elements.get(id);
  };
- const document={getElementById:elem,querySelectorAll:()=>[],querySelector:()=>null,documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
+ const issueButtons=[];
+ const document={getElementById:elem,querySelectorAll:selector=>selector==='[data-ppe-issue-remove]'?issueButtons:[],querySelector:()=>null,documentElement:{setAttribute(){},getAttribute(){return 'dark'}}};
  let writes=0;
  const openedAttachments=[];
  const window={
@@ -32,8 +33,8 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>true,()=>0,()=>{});
- return {dashboard,elem,errors,openedAttachments,getWrites:()=>writes};
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout','prompt',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{},()=>promptResponse);
+ return {dashboard,elem,errors,openedAttachments,issueButtons,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
@@ -914,6 +915,80 @@ test('employee PPE issue search filters partial names and other issue details wi
  elem('ppe-issue-search').listeners.input();
  assert.ok(elem('ppe-issue-record-rows').innerHTML.includes('No matching PPE issue records'));
  assert.equal(dashboard.db.ppeTransactions.length,3);
+});
+
+test('employee PPE issue records offer a remove button that voids test entries without changing stock or barcode state',()=>{
+ const {dashboard,elem,issueButtons,getWrites}=harness({locked:false});
+ const item={id:'issue-item',item:'Safety Gloves',colour:'Grey',size:'L',stock:'5',status:'Available'};
+ const unit={id:'unit-1',itemId:item.id,barcode:'OI888',status:'Issued',issuedTo:'Test Employee',issuedAt:'2026-11-18T10:00:00Z'};
+ const allocation={id:'allocate-1',status:'Issued',barcode:'OI888',itemId:item.id,unitId:unit.id};
+ const transaction={id:'test-issue-1',type:'issue',itemId:item.id,itemName:'Safety Gloves · Grey · L',barcode:'OI888',quantity:1,employee:'Test Employee',recordedBy:'Joe',timestamp:'2026-11-18T10:00:00Z',before:6,after:5,notes:''};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push(unit);
+ dashboard.db.ppeAllocations.push(allocation);
+ dashboard.db.ppeTransactions.push(transaction);
+ dashboard.go('ppeStock');
+ const rows=dashboard.ppeEmployeeIssueRecordsHTML();
+ assert.match(rows,/data-ppe-issue-remove="test-issue-1"/);
+ assert.match(rows,/Stock is not automatically restored/);
+ issueButtons.push({dataset:{ppeIssueRemove:'test-issue-1'},onclick:null});
+ dashboard.bindPpeIssueSearch();
+ assert.equal(typeof issueButtons[0].onclick,'function');
+ const beforeWrites=getWrites();
+ issueButtons[0].onclick();
+ assert.equal(getWrites(),beforeWrites+1);
+ assert.equal(dashboard.ppeIssueRecordsFiltered().length,0);
+ assert.equal(dashboard.db.ppeTransactions.length,1);
+ assert.equal(transaction.voided,true);
+ assert.equal(transaction.voidReason,'Test entry');
+ assert.ok(transaction.voidedAt);
+ assert.equal(item.stock,'5');
+ assert.equal(unit.status,'Issued');
+ assert.equal(allocation.status,'Issued');
+ assert.match(elem('ppe-issue-record-rows').innerHTML,/No matching PPE issue records/);
+ assert.equal(elem('ppe-issue-record-count').textContent,'0 of 0 issues');
+ assert.match(html,/Voided issue ·/);
+});
+
+test('removing a PPE issue is cancelled safely and requires a reason',()=>{
+ const transaction={id:'cancel-issue',type:'issue',employee:'Test Employee',itemName:'Safety Gloves',barcode:'OI898',timestamp:'2026-11-18T10:00:00Z'};
+ const cancelled=harness({locked:false,promptResponse:null});
+ cancelled.dashboard.db.ppeTransactions.push({...transaction});
+ cancelled.issueButtons.push({dataset:{ppeIssueRemove:'cancel-issue'}});
+ cancelled.dashboard.bindPpeIssueSearch();
+ cancelled.issueButtons[0].onclick();
+ assert.equal(cancelled.dashboard.db.ppeTransactions[0].voided,undefined);
+ assert.equal(cancelled.getWrites(),0);
+ const rejected=harness({locked:false,promptResponse:'  '});
+ rejected.dashboard.db.ppeTransactions.push({...transaction});
+ rejected.issueButtons.push({dataset:{ppeIssueRemove:'cancel-issue'}});
+ rejected.dashboard.bindPpeIssueSearch();
+ rejected.issueButtons[0].onclick();
+ assert.equal(rejected.getWrites(),0);
+ assert.match(rejected.errors[0],/Please enter a reason/);
+ assert.equal(rejected.dashboard.removePpeIssueRecord('cancel-issue','').ok,false);
+ const notConfirmed=harness({locked:false,confirmResult:false});
+ notConfirmed.dashboard.db.ppeTransactions.push({...transaction});
+ notConfirmed.issueButtons.push({dataset:{ppeIssueRemove:'cancel-issue'}});
+ notConfirmed.dashboard.bindPpeIssueSearch();
+ notConfirmed.issueButtons[0].onclick();
+ assert.equal(notConfirmed.getWrites(),0);
+});
+
+test('failed disk write reverses PPE issue removal and duplicate removal is rejected',()=>{
+ const issue={id:'fail-issue',type:'issue',employee:'Test Person',barcode:'OI899',itemName:'Safety Gloves'};
+ const failed=harness({locked:false,writeFails:true});
+ failed.dashboard.db.ppeTransactions.push(issue);
+ assert.equal(failed.dashboard.removePpeIssueRecord(issue.id,'Test entry').ok,false);
+ assert.equal(issue.voided,undefined);
+ assert.equal(issue.voidedAt,undefined);
+ assert.equal(issue.voidReason,undefined);
+ assert.equal(failed.dashboard.ppeIssueRecordsFiltered().length,1);
+ const successful=harness({locked:false});
+ successful.dashboard.db.ppeTransactions.push({...issue});
+ assert.equal(successful.dashboard.removePpeIssueRecord(issue.id,'Test entry').ok,true);
+ assert.equal(successful.dashboard.removePpeIssueRecord(issue.id,'Test entry').ok,false);
+ assert.equal(successful.dashboard.db.ppeTransactions.length,1);
 });
 
 
