@@ -3443,23 +3443,47 @@ function ppeRollLabelDocument(labels,title){
   const colour=String(label.colour||'').trim();
   const employee=String(label.employee||'').trim();
   const department=String(label.department||'').trim();
-  const productCode=String(label.productCode||'').trim();
+  const barcode=String(label.barcode||'').trim().toUpperCase();
+  const individual=barcode.startsWith('OI');
   return '<article class="ppe-roll-label">'+
    '<div class="ppe-roll-brand">ONBOARD CORRUGATED</div>'+
    '<div class="ppe-roll-subtitle">'+(employee?'PPE ALLOCATION':'PPE STOCK CONTROL')+'</div>'+
-   '<div class="ppe-roll-name">'+esc(name)+'</div>'+
+   '<div class="ppe-roll-product"><span>PRODUCT</span><strong>'+esc(name)+'</strong></div>'+
    '<div class="ppe-roll-details">'+
      (size?'<div><span>SIZE</span><strong>'+esc(size)+'</strong></div>':'')+
      (colour?'<div><span>COLOUR</span><strong>'+esc(colour)+'</strong></div>':'')+
    '</div>'+
+   '<div class="ppe-roll-id"><span>'+(individual?'STOCK CODE':'PRODUCT CODE')+'</span><strong>'+esc(barcode)+'</strong></div>'+
    (employee?'<div class="ppe-roll-employee"><span>ALLOCATED TO</span><strong>'+esc(employee)+'</strong>'+(department?'<small>'+esc(department)+'</small>':'')+'</div>':'')+
-   '<div class="ppe-roll-barcode">'+ppeBarcodeSvg(label.barcode)+'</div>'+
-   '<div class="ppe-roll-code">SCAN CODE: <strong>'+esc(label.barcode)+'</strong></div>'+
-   (productCode?'<div class="ppe-roll-product-code">PRODUCT STOCK CODE: '+esc(productCode)+'</div>':'')+
-   '<div class="ppe-roll-instruction">'+(employee?'SCAN TO ISSUE PPE':'SCAN TO IDENTIFY PPE')+'</div>'+
+   '<div class="ppe-roll-instruction">'+(individual?'SCAN TO ISSUE PPE':'SCAN FOR STOCK DELIVERY')+'</div>'+
+   '<div class="ppe-roll-barcode">'+ppeBarcodeSvg(barcode)+'</div>'+
    '</article>';
  }).join('');
- const style='<style>@page{size:62mm 100mm;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;color:#111;background:white;font-family:Arial,Helvetica,sans-serif}.ppe-roll-label{width:62mm;height:100mm;padding:3mm;display:flex;flex-direction:column;align-items:stretch;overflow:hidden;background:white;break-after:page;page-break-after:always}.ppe-roll-label:last-child{break-after:auto;page-break-after:auto}.ppe-roll-brand{text-align:center;font-size:10pt;font-weight:900;letter-spacing:.2px;border-bottom:1.2pt solid #111;padding-bottom:2mm}.ppe-roll-subtitle{text-align:center;font-size:7pt;font-weight:700;letter-spacing:1px;margin-top:1.5mm}.ppe-roll-name{text-align:center;font-size:13pt;line-height:1.12;font-weight:900;overflow-wrap:anywhere;margin:4mm 0 2mm;max-height:19mm;overflow:hidden}.ppe-roll-details{display:flex;gap:2mm;justify-content:center;margin-bottom:2mm}.ppe-roll-details>div{flex:1;min-width:0;text-align:center;border:1px solid #999;padding:1.5mm 1mm}.ppe-roll-details span,.ppe-roll-employee span{display:block;font-size:6pt;font-weight:700;letter-spacing:.3px}.ppe-roll-details strong{display:block;font-size:10pt;overflow-wrap:anywhere}.ppe-roll-employee{text-align:center;margin:1mm 0 2mm;padding:1.5mm;border:1px solid #aaa}.ppe-roll-employee strong{display:block;font-size:9pt;overflow-wrap:anywhere}.ppe-roll-employee small{display:block;font-size:7pt}.ppe-roll-barcode{margin-top:auto;padding-top:2mm;display:flex;justify-content:center;align-items:center}.ppe-roll-barcode svg{display:block;width:100%!important;max-width:none!important;height:27mm!important;padding:1mm!important;background:white!important}.ppe-roll-code,.ppe-roll-product-code{text-align:center;font-size:8pt;font-weight:700;margin-top:1mm;overflow-wrap:anywhere}.ppe-roll-product-code{font-size:7pt;font-weight:400}.ppe-roll-instruction{border-top:1px solid #999;margin-top:2mm;padding-top:2mm;text-align:center;font-size:7pt;font-weight:800;letter-spacing:.3px}@media screen{body{background:#e8eeea;padding:12px}.ppe-roll-label{box-shadow:0 2px 9px #0002;margin:12px auto}}@media print{html,body{width:62mm;margin:0!important;padding:0!important;background:white!important}.ppe-roll-label{margin:0!important;box-shadow:none!important;break-inside:avoid;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>';
+ const style='<style>'+[
+  '@page{size:62mm 100mm;margin:0}',
+  '*{box-sizing:border-box}',
+  'html,body{margin:0;padding:0;color:#111;background:white;font-family:Arial,Helvetica,sans-serif}',
+  '.ppe-roll-label{width:62mm;height:100mm;padding:3mm;display:flex;flex-direction:column;overflow:hidden;background:white;break-after:page;page-break-after:always}',
+  '.ppe-roll-label:last-child{break-after:auto;page-break-after:auto}',
+  '.ppe-roll-brand{text-align:center;font-size:13pt;font-weight:900;letter-spacing:-.25px;border-bottom:1.3pt solid #111;padding-bottom:2mm}',
+  '.ppe-roll-subtitle{text-align:center;font-size:9pt;font-weight:800;letter-spacing:.5px;margin-top:1.5mm}',
+  '.ppe-roll-product{margin:3mm 0 2mm}',
+  '.ppe-roll-product span,.ppe-roll-details span,.ppe-roll-id span,.ppe-roll-employee span{display:block;font-size:9pt;font-weight:800;line-height:1.1}',
+  '.ppe-roll-product strong{display:block;font-size:15pt;line-height:1.08;margin-top:1mm;max-height:22mm;overflow:hidden;overflow-wrap:anywhere}',
+  '.ppe-roll-details{display:flex;gap:3mm;margin-top:1mm}',
+  '.ppe-roll-details>div{flex:1;min-width:0}',
+  '.ppe-roll-details strong{display:block;font-size:17pt;line-height:1.1;margin-top:1mm;overflow-wrap:anywhere}',
+  '.ppe-roll-id{margin-top:3mm}',
+  '.ppe-roll-id strong{display:block;font:900 17pt/1.1 monospace;margin-top:1mm}',
+  '.ppe-roll-employee{margin-top:3mm;padding-top:2mm;border-top:1px solid #999}',
+  '.ppe-roll-employee strong{display:block;font-size:12pt;margin-top:1mm;overflow-wrap:anywhere}',
+  '.ppe-roll-employee small{display:block;font-size:9pt}',
+  '.ppe-roll-instruction{margin-top:auto;text-align:center;font-size:10pt;font-weight:900;letter-spacing:.2px;padding-top:1.5mm}',
+  '.ppe-roll-barcode{display:flex;justify-content:center;align-items:center;margin-top:1mm}',
+  '.ppe-roll-barcode svg{display:block;width:100%!important;max-width:none!important;height:28mm!important;padding:0!important;background:white!important}',
+  '@media screen{body{background:#e8eeea;padding:12px}.ppe-roll-label{box-shadow:0 2px 9px #0002;margin:12px auto}}',
+  '@media print{html,body{width:62mm;margin:0!important;padding:0!important;background:white!important}.ppe-roll-label{margin:0!important;box-shadow:none!important;break-inside:avoid;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+ ].join('')+'</style>';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>'+esc(title)+'</title>'+style+'</head><body>'+cards+'</body></html>';
 }
 

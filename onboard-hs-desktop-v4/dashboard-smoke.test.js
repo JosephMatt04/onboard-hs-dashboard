@@ -927,9 +927,12 @@ test('PPE label document prints one 62 x 100 mm page per item, not an A4 sheet',
  assert.equal((page.match(/<article class="ppe-roll-label">/g)||[]).length,2);
  assert.match(page,/HI-VIS VEST/);
  assert.match(page,/OI002/);
- assert.match(page,/PRODUCT STOCK CODE: OC001/);
+ assert.match(page,/STOCK CODE<\/span><strong>OI002<\/strong>/);
  assert.match(page,/page-break-after:always/);
- assert.match(page,/SCAN TO IDENTIFY PPE/);
+ assert.match(page,/SCAN TO ISSUE PPE/);
+ assert.match(page,/\.ppe-roll-product strong\{display:block;font-size:15pt/);
+ assert.match(page,/\.ppe-roll-details strong\{display:block;font-size:17pt/);
+ assert.match(page,/height:28mm!important/);
 });
 test('PPE allocation labels include the recipient and the exact individual scan code',()=>{
  const {dashboard}=harness({locked:false});
@@ -941,4 +944,11 @@ test('PPE allocation labels include the recipient and the exact individual scan 
  assert.match(page,/OI004/);
  assert.match(page,/SCAN TO ISSUE PPE/);
  assert.match(page,/@page\{size:62mm 100mm;margin:0\}/);
+});
+test('PPE delivery label uses its OC product code rather than an issue instruction',()=>{
+ const {dashboard}=harness({locked:false});
+ const page=dashboard.ppeRollLabelDocument([{itemName:'Safety Gloves',size:'9',barcode:'OC009'}],'PPE receipt');
+ assert.match(page,/PRODUCT CODE<\/span><strong>OC009<\/strong>/);
+ assert.match(page,/SCAN FOR STOCK DELIVERY/);
+ assert.doesNotMatch(page,/SCAN TO ISSUE PPE/);
 });
