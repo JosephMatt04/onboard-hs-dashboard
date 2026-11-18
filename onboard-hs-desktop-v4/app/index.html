@@ -3725,7 +3725,7 @@ const baseRender=render;render=function(){baseRender();if(section!=='home'&&sect
 const MAX_FILE_BYTES=15*1024*1024,MAX_TOTAL_BYTES=200*1024*1024;
 const allowedExtensions=/\.(pdf|doc|docx|xls|xlsx|xlsm|xlsb|csv|ods|jpg|jpeg|png|txt)$/i;
 function bytesUsed(data=db){return Object.values(data).flat().flatMap(r=>r.attachments||[]).reduce((sum,a)=>sum+(a.size||0),0)}
-function attachmentHTML(arr){return arr.length?arr.map((a,i)=>`<div class="attachment-item"><span>📄 <strong>${esc(a.name)}</strong> ${a.role==='Operating Manual'?'<span class="status good">Operating manual</span>':''} <span class="muted">(${Math.round(a.size/1024)} KB)</span></span><div class="attachment-controls"><button type="button" class="btn small primary" data-preview="${i}">Open original</button><button type="button" class="btn small" data-download="${i}">Download</button><button type="button" class="btn small danger" data-remove="${i}">Remove</button></div></div>`).join(''):'<p class="muted">No documents attached yet.</p>'}
+function attachmentHTML(arr){return arr.length?arr.map((a,i)=>`<div class="attachment-item"><span>📄 <strong>${esc(a.name)}</strong> ${a.role==='Operating Manual'?'<span class="status good">Operating manual</span>':''} <span class="muted">(${Math.round(a.size/1024)} KB)</span></span><div class="attachment-controls"><button type="button" class="btn small primary" data-preview="${i}">Preview document</button><button type="button" class="btn small" data-download="${i}">Download</button><button type="button" class="btn small danger" data-remove="${i}">Remove</button></div></div>`).join(''):'<p class="muted">No documents attached yet.</p>'}
 async function openAttachmentDirectly(a,k,id,index){
  if(typeof window.onboardDesktop?.openAttachment==='function'){
   try{
@@ -4051,8 +4051,7 @@ function spreadsheetPreviewTable(rows,root,truncated,options={}){
 async function previewAttachment(a,k,id){
  const name=a.name.toLowerCase(),pdf=name.endsWith('.pdf'),img=/\.(jpg|jpeg|png)$/.test(name),txt=name.endsWith('.txt'),docx=name.endsWith('.docx'),word=docx||name.endsWith('.doc');
  const pairedPdf=word?matchingPdfForWord(a,k,id):null;
- const spreadsheet=/\.(xlsx|xlsm|csv)$/.test(name);
- if(/\.(xls|xlsb|ods)$/.test(name)){alert('This legacy spreadsheet format cannot be previewed inside the dashboard yet. Use Download to open it in Excel.');return}
+ const spreadsheet=/\.(xls|xlsx|xlsm|xlsb|csv|ods)$/.test(name);
  if(!pdf&&!img&&!txt&&!word&&!spreadsheet){alert('This file type cannot be previewed directly in an offline browser. Download it to open in its original application.');return}
  let objectUrl=null;
  const root=document.getElementById('modal-root');
@@ -4063,44 +4062,47 @@ async function previewAttachment(a,k,id){
  root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))close()};
  try{
   const body=root.querySelector('#preview-body'),info=root.querySelector('#preview-info');
-  if(spreadsheet){
-   if(typeof window.onboardDesktop?.openAttachment==='function'){
-    const original=document.createElement('button');original.type='button';original.className='btn primary';original.textContent='Open in Excel (original layout)';
-    original.onclick=async()=>{
-     const record=(db[k]||[]).find(r=>r.id===id),index=(record?.attachments||[]).findIndex(file=>file===a||file.name===a.name&&file.data===a.data);
-     if(index<0){alert('This attachment is no longer available.');return}
-     original.disabled=true;
-     try{const result=await window.onboardDesktop.openAttachment(k,id,index);if(!result?.ok)throw Error(result?.error||'Could not open the file');toast('Opened a viewing copy in Excel. Changes are not saved back into the dashboard.');}
-     catch(error){alert('Could not open in Excel: '+error.message)}finally{original.disabled=false}
-    };
-    root.querySelector('.modal-actions').insertBefore(original,root.querySelector('#preview-download'));
+  const addAction=(label,handler)=>{const button=document.createElement('button');button.type='button';button.className='btn';button.textContent=label;button.onclick=handler;root.querySelector('.modal-actions').insertBefore(button,root.querySelector('#preview-download'));return button};
+  const displayPdf=(attachment,title)=>{objectUrl=URL.createObjectURL(attachmentBlob(attachment));const frame=document.createElement('iframe');frame.className='preview-frame';frame.title=title;frame.src=objectUrl;body.append(frame)};
+  if(spreadsheet||word){
+   const record=(db[k]||[]).find(r=>r.id===id),index=(record?.attachments||[]).findIndex(file=>file===a||file.name===a.name&&file.data===a.data);
+   let officeError='';
+   if(index>=0&&typeof window.onboardDesktop?.previewAttachmentPdf==='function'){
+    info.textContent='Preparing the original page layout in '+(spreadsheet?'Microsoft Excel':'Microsoft Word')+'… This may take a moment.';
+    try{
+     const converted=await window.onboardDesktop.previewAttachmentPdf(k,id,index);
+     if(root.querySelector('#preview-info')!==info)return;
+     if(!converted?.ok||!/^data:application\/pdf;base64,/.test(converted.data||''))throw Error(converted?.error||'No PDF was produced');
+     displayPdf({name:'office-preview.pdf',type:'application/pdf',data:converted.data},'Original Office document layout');
+     info.textContent='Accurate print-layout preview generated by '+(spreadsheet?'Microsoft Excel':'Microsoft Word')+' on this PC. The saved original has not been changed.';
+     return;
+    }catch(error){officeError=error.message}
+   }else officeError=index<0?'The saved attachment could not be located.':'This dashboard version cannot generate Office previews. Install the latest Onboard Windows desktop update.';
+   if(pairedPdf){
+    displayPdf(pairedPdf,'Matching PDF of '+a.name);
+    info.textContent='Showing a separately attached PDF. Check that it is the same revision as your Word file. '+(officeError?'Live Office conversion was unavailable: '+officeError:'');
+    addAction('Download matching PDF',()=>downloadAttachment(pairedPdf));
+   }else{
+    info.textContent='Accurate preview unavailable: '+officeError+' Download the original to see the document in '+(spreadsheet?'Excel':'Word')+' with its full formatting.';
+    if(spreadsheet&&/\.(xlsx|xlsm|csv)$/.test(name)){
+     const show=addAction('Show approximate grid (not exact)',async()=>{show.disabled=true;try{await renderSpreadsheetPreview(a,body,info);info.textContent='Approximate spreadsheet grid only. Cell sizes and print layout may differ from Excel; do not use this to verify a claim form.'}catch(error){info.textContent='Grid preview unavailable: '+error.message}show.remove()});
+    }else if(docx){
+     const show=addAction('Show approximate text (not exact)',async()=>{show.disabled=true;try{const result=await renderDocxPreview(attachmentBlob(a),body);info.textContent='Approximate Word text only · '+result.tableCount+' table(s), '+result.paragraphCount+' paragraph(s). Not suitable for checking approved risk assessment layout; formatting may differ from Word.'}catch(error){info.textContent='Text preview unavailable: '+error.message}show.remove()});
+    }
+    if(index>=0&&typeof window.onboardDesktop?.openAttachment==='function')addAction('Open in '+(spreadsheet?'Excel':'Word'),()=>openAttachmentDirectly(a,k,id,index));
    }
-   await renderSpreadsheetPreview(a,body,info);
-  }else if(pairedPdf){
-   const blob=attachmentBlob(pairedPdf);objectUrl=URL.createObjectURL(blob);
-   const frame=document.createElement('iframe');frame.className='preview-frame';frame.title='PDF preview of '+a.name;frame.src=objectUrl;body.append(frame);
-   info.textContent='Showing the matching PDF for reliable page layout. Download original retrieves your editable Word document.';
-   const pdfButton=document.createElement('button');pdfButton.type='button';pdfButton.className='btn';pdfButton.textContent='Download matching PDF';pdfButton.onclick=()=>downloadAttachment(pairedPdf);
-   root.querySelector('.modal-actions').insertBefore(pdfButton,root.querySelector('#preview-download'));
   }else if(pdf){
-   const blob=attachmentBlob(a);objectUrl=URL.createObjectURL(blob);const frame=document.createElement('iframe');frame.className='preview-frame';frame.title='PDF preview';frame.src=objectUrl;body.append(frame);
+   displayPdf(a,'PDF preview');
    info.textContent='PDF preview · the document pages retain their saved layout. Use Download original if the browser cannot display PDFs.';
   }else if(img){
    const blob=attachmentBlob(a);objectUrl=URL.createObjectURL(blob);const picture=document.createElement('img');picture.className='preview-image';picture.alt=a.name;picture.src=objectUrl;body.append(picture);info.textContent='Image preview';
   }else if(txt){
    const pre=document.createElement('pre');pre.className='preview-text';pre.textContent=await attachmentBlob(a).text();body.append(pre);info.textContent='Text preview';
-  }else if(word){
-   info.textContent='Word files cannot be displayed with guaranteed Word formatting in this offline browser. Save a PDF copy from Word and attach it with the same filename (for example, Risk Assessment.docx and Risk Assessment.pdf). The dashboard will then show the PDF automatically while retaining the Word original.';
-   if(docx){
-    const show=document.createElement('button');show.type='button';show.className='btn';show.textContent='Show approximate text preview';
-    show.onclick=async()=>{show.disabled=true;try{const result=await renderDocxPreview(attachmentBlob(a),body);info.textContent='Approximate Word text preview only · '+result.tableCount+' table(s), '+result.paragraphCount+' paragraph(s). Not suitable for checking approved risk assessment layout; use the original Word file or add a matching PDF.';}catch(err){info.textContent='Word preview unavailable: '+err.message+'. Download the original instead.';}show.remove()};
-    root.querySelector('.modal-actions').insertBefore(show,root.querySelector('#preview-download'));
-   }
   }
  }catch(err){const info=root.querySelector('#preview-info');if(info)info.textContent='Preview unavailable: '+err.message+'. Download the original to open it in its normal program.'}
 }
 function fileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('Unable to read '+file.name));reader.readAsDataURL(file)})}
-function documentPanel(k,id){const record=db[k].find(r=>r.id===id);if(!record)return;const current=record.attachments||[];document.getElementById('modal-root').innerHTML=`<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="docs-title"><h2 id="docs-title">Attached documents</h2><p class="sub">${esc(record.title||record.machine||record.name||record.employee||record.location)}</p><div id="doc-items" class="attachment-list">${attachmentHTML(current)}</div>${k==='assets'?'<label class="checkrow" style="margin:10px 0"><input id="mark-manual" type="checkbox"> Mark new attachments as manufacturer operating manuals</label>':''}<label class="form-field full" style="margin-top:18px"><span>Add manuals, inspection certificates, photos or other supporting documents</span><input id="doc-file" class="field" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.xlsb,.csv,.ods,.jpg,.jpeg,.png,.txt"></label><p class="file-tip">Choose Open original to launch a viewing copy in the usual Windows app (Excel, Word or PDF viewer) with its original formatting. Changes to that viewing copy are not saved back into the dashboard. Download if you need a separate editable copy. 15 MB per file; 200 MB combined attachments. Files remain on this computer; export backups regularly.</p><div class="modal-actions"><button type="button" class="btn" id="cancel">Close</button><button type="button" class="btn primary" id="doc-add">Attach selected files</button></div></div></div>`;const root=document.getElementById('modal-root');root.querySelector('#cancel').onclick=closeModal;root.querySelectorAll('[data-preview]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.preview);openAttachmentDirectly(current[i],k,id,i)});root.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>downloadAttachment(current[Number(b.dataset.download)]));root.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{if(!confirm('Remove this attachment?'))return;const previous=[...current];record.attachments=current.filter((_,i)=>i!==Number(b.dataset.remove));if(!save()){record.attachments=previous;return}render();documentPanel(k,id);toast('Document removed')});root.querySelector('#doc-add').onclick=async()=>{const files=[...root.querySelector('#doc-file').files];if(!files.length){alert('Select one or more documents first.');return}const invalid=files.find(f=>!allowedExtensions.test(f.name)||f.size>MAX_FILE_BYTES||f.size===0);if(invalid){const reason=!allowedExtensions.test(invalid.name)?'Unsupported extension. Supported: PDF, DOC, DOCX, XLS, XLSX, XLSM, XLSB, CSV, ODS, JPG, PNG, TXT.':invalid.size===0?'The file is empty (0 bytes).':'The file is '+(invalid.size/1048576).toFixed(1)+' MB; the limit is 15 MB.';alert('Cannot attach "'+invalid.name+'". '+reason);return}if(bytesUsed()+files.reduce((sum,f)=>sum+f.size,0)>MAX_TOTAL_BYTES){alert('Attachments would exceed the 200 MB total storage limit. Remove older attachments or keep large files separately.');return}try{const items=[];for(const f of files)items.push({name:f.name,size:f.size,type:f.type||'application/octet-stream',role:k==='assets'&&root.querySelector('#mark-manual')?.checked?'Operating Manual':'Supporting Document',data:await fileAsDataURL(f)});const old=record.attachments;record.attachments=[...current,...items];if(!save()){record.attachments=old;return}render();documentPanel(k,id);toast('Document(s) attached')}catch(err){alert('Attachment failed: '+err.message)}};root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))closeModal()}}
+function documentPanel(k,id){const record=db[k].find(r=>r.id===id);if(!record)return;const current=record.attachments||[];document.getElementById('modal-root').innerHTML=`<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="docs-title"><h2 id="docs-title">Attached documents</h2><p class="sub">${esc(record.title||record.machine||record.name||record.employee||record.location)}</p><div id="doc-items" class="attachment-list">${attachmentHTML(current)}</div>${k==='assets'?'<label class="checkrow" style="margin:10px 0"><input id="mark-manual" type="checkbox"> Mark new attachments as manufacturer operating manuals</label>':''}<label class="form-field full" style="margin-top:18px"><span>Add manuals, inspection certificates, photos or other supporting documents</span><input id="doc-file" class="field" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.xlsb,.csv,.ods,.jpg,.jpeg,.png,.txt"></label><p class="file-tip">Choose Preview document to view it here. Excel and Word previews use Microsoft Office on this Windows PC to preserve printed page layout. Download keeps the full editable original. Files remain on this computer; 15 MB per file, 200 MB combined. Export backups regularly.</p><div class="modal-actions"><button type="button" class="btn" id="cancel">Close</button><button type="button" class="btn primary" id="doc-add">Attach selected files</button></div></div></div>`;const root=document.getElementById('modal-root');root.querySelector('#cancel').onclick=closeModal;root.querySelectorAll('[data-preview]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.preview);previewAttachment(current[i],k,id)});root.querySelectorAll('[data-download]').forEach(b=>b.onclick=()=>downloadAttachment(current[Number(b.dataset.download)]));root.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{if(!confirm('Remove this attachment?'))return;const previous=[...current];record.attachments=current.filter((_,i)=>i!==Number(b.dataset.remove));if(!save()){record.attachments=previous;return}render();documentPanel(k,id);toast('Document removed')});root.querySelector('#doc-add').onclick=async()=>{const files=[...root.querySelector('#doc-file').files];if(!files.length){alert('Select one or more documents first.');return}const invalid=files.find(f=>!allowedExtensions.test(f.name)||f.size>MAX_FILE_BYTES||f.size===0);if(invalid){const reason=!allowedExtensions.test(invalid.name)?'Unsupported extension. Supported: PDF, DOC, DOCX, XLS, XLSX, XLSM, XLSB, CSV, ODS, JPG, PNG, TXT.':invalid.size===0?'The file is empty (0 bytes).':'The file is '+(invalid.size/1048576).toFixed(1)+' MB; the limit is 15 MB.';alert('Cannot attach "'+invalid.name+'". '+reason);return}if(bytesUsed()+files.reduce((sum,f)=>sum+f.size,0)>MAX_TOTAL_BYTES){alert('Attachments would exceed the 200 MB total storage limit. Remove older attachments or keep large files separately.');return}try{const items=[];for(const f of files)items.push({name:f.name,size:f.size,type:f.type||'application/octet-stream',role:k==='assets'&&root.querySelector('#mark-manual')?.checked?'Operating Manual':'Supporting Document',data:await fileAsDataURL(f)});const old=record.attachments;record.attachments=[...current,...items];if(!save()){record.attachments=old;return}render();documentPanel(k,id);toast('Document(s) attached')}catch(err){alert('Attachment failed: '+err.message)}};root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))closeModal()}}
 function checkPpeStockCorrection(oldItem,newQty,reason,by){
  const before=Number(oldItem.stock),after=Number(newQty);
  if(!Number.isSafeInteger(before)||before<0||!Number.isSafeInteger(after)||after<0||after>1000000)return {ok:false,error:'Enter a whole-number stock quantity from 0 to 1,000,000.'};

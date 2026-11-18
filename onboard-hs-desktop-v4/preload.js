@@ -20,5 +20,6 @@ contextBridge.exposeInMainWorld('onboardDesktop', Object.freeze({
   chooseBackupFolder: () => ipcRenderer.invoke('backup:choose'),
   backupNow: () => ipcRenderer.invoke('backup:now'),
   openAttachment: (section,id,index) => ipcRenderer.invoke('attachments:open',section,id,index),
+  previewAttachmentPdf: (section,id,index) => ipcRenderer.invoke('attachments:preview-pdf',section,id,index),
   savePermitPDF: (html,reference) => ipcRenderer.invoke('permit:savepdf',html,reference)
 }));

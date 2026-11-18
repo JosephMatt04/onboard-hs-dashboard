@@ -99,6 +99,8 @@ const githubUpdates=createGithubDirectUpdates({app,updateEngine:updates});
 const {createLiveUiUpdates}=require('./live-ui-updates');
 const bundledUi=path.join(__dirname,'app','index.html');
 const liveUiUpdates=createLiveUiUpdates({app,getWindow:()=>mainWindow,bundledUi});
+const {createOfficePreview}=require('./office-preview');
+const previewSavedOfficeAttachment=createOfficePreview({readRecords,tempDirectory:()=>app.getPath('temp')});
 
 async function savePermitPDF(html,reference){
  if(typeof html!=='string'||html.length>1000000||!html.startsWith('<!doctype html>'))throw Error('Invalid permit document');
@@ -173,6 +175,7 @@ app.whenReady().then(() => {
   ipcMain.handle('backup:now',()=>backupNow());
   ipcMain.handle('permit:savepdf',(_event,html,reference)=>savePermitPDF(html,reference));
   ipcMain.handle('attachments:open',(_event,section,id,index)=>openSavedAttachment(section,id,index));
+  ipcMain.handle('attachments:preview-pdf',(_event,section,id,index)=>previewSavedOfficeAttachment(section,id,index));
   ipcMain.on('records:read', (event) => {event.returnValue = readRecords();});
   ipcMain.on('records:write', (event, data) => {event.returnValue = writeRecords(data);});
   ipcMain.handle('records:location', () => path.dirname(dbFile()));
