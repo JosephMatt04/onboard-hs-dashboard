@@ -5742,7 +5742,7 @@ function createPpeAllocation(data){
   for(let i=0;i<qty;i++){
    let unit=available[i];
    if(!unit){
-    unit={id:'ppe_unit_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),itemId:item.id,itemName:item.item,size:item.size||'',colour:item.colour||'',barcode:nextPpeUnitBarcode(),status:'In Stock',issuedTo:'',issuedAt:''};
+    unit={id:'ppe_unit_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),itemId:item.id,itemName:item.item,size:item.size||'',colour:item.colour||'',barcode:nextPpeUnitBarcode(item),status:'In Stock',issuedTo:'',issuedAt:''};
     db.ppeUnits.push(unit);
    }
    if(/^OI[0-9]+$/.test(String(unit.barcode||''))){
