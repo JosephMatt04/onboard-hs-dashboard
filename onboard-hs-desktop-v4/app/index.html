@@ -5426,7 +5426,7 @@ function ppeBarcodeSvg(raw){
  const value=String(raw||'').trim().toUpperCase();
  if(!/^[A-Z0-9-]{1,24}$/.test(value))throw Error('Invalid PPE QR identifier.');
  const qr=qrcode(0,'M');qr.addData(value,'Alphanumeric');qr.make();
- return '<div role="img" aria-label="QR code '+value+'" style="display:flex;flex-direction:column;align-items:center;background:#fff">'+qr.createSvgTag({cellSize:4,margin:4,scalable:true}).replace('<svg ','<svg style="display:block;width:33mm;height:33mm;max-width:100%" ')+'<strong style="font:700 13px monospace;color:#111">'+value+'</strong></div>';
+ return '<div role="img" aria-label="QR code '+value+'" style="display:flex;flex-direction:column;align-items:center;background:#fff">'+qr.createSvgTag({cellSize:4,margin:4,scalable:true}).replace('<svg ','<svg style="display:block;width:28mm;height:28mm;max-width:100%" ')+'<strong style="font:700 13px monospace;color:#111">'+value+'</strong></div>';
 }
 
 function ppeProductPrefix(item){
@@ -5795,53 +5795,41 @@ function ppeRollLabelDocument(labels,title){
  const cards=labels.map(label=>{
   const name=String(label.itemName||label.item||'PPE item');
   const size=String(label.size||'').trim();
-  const colour=String(label.colour||'').trim();
   const employee=String(label.employee||'').trim();
-  const department=String(label.department||'').trim();
   const barcode=String(label.barcode||'').trim().toUpperCase();
   const individual=!!label.unit||!!employee||barcode!==String(label.productCode||'').trim().toUpperCase();
   return '<article class="ppe-roll-label">'+
-   '<div class="ppe-roll-brand">ONBOARD CORRUGATED</div>'+
-   '<div class="ppe-roll-subtitle">'+(employee?'PPE ALLOCATION':'PPE STOCK CONTROL')+'</div>'+
-   '<div class="ppe-roll-product"><span>PRODUCT</span><strong>'+esc(name)+'</strong></div>'+
-   '<div class="ppe-roll-details">'+
-     (size?'<div><span>SIZE</span><strong>'+esc(size)+'</strong></div>':'')+
-     (colour?'<div><span>COLOUR</span><strong>'+esc(colour)+'</strong></div>':'')+
-   '</div>'+
-   '<div class="ppe-roll-id"><span>'+(individual?'STOCK CODE':'PRODUCT CODE')+'</span><strong>'+esc(barcode)+'</strong></div>'+
-   (employee?'<div class="ppe-roll-employee"><span>ALLOCATED TO</span><strong>'+esc(employee)+'</strong>'+(department?'<small>'+esc(department)+'</small>':'')+'</div>':'')+
-   '<div class="ppe-roll-instruction">'+(individual?'SCAN TO ISSUE PPE':'SCAN FOR STOCK DELIVERY')+'</div>'+
-   '<div class="ppe-roll-barcode">'+ppeBarcodeSvg(barcode)+'</div>'+
+    '<header class="ppe-roll-brand">ONBOARD CORRUGATED</header>'+
+    '<div class="ppe-roll-qr">'+ppeBarcodeSvg(barcode)+'</div>'+
+    '<div class="ppe-roll-product"><strong>'+esc(name)+'</strong></div>'+
+    (size?'<div class="ppe-roll-size">SIZE: '+esc(size)+'</div>':'')+
+    (employee?'<div class="ppe-roll-employee"><span>ISSUED TO</span><strong>'+esc(employee)+'</strong></div>':'')+
+    '<footer class="ppe-roll-instruction">'+(individual?'SCAN TO ISSUE PPE':'SCAN FOR STOCK DELIVERY')+'</footer>'+
    '</article>';
  }).join('');
  const style='<style>'+[
   '@page{size:62mm 100mm;margin:0}',
   '*{box-sizing:border-box}',
-  'html,body{margin:0;padding:0;color:#111;background:white;font-family:Arial,Helvetica,sans-serif}',
-  '.ppe-roll-label{width:62mm;height:100mm;padding:3mm;display:flex;flex-direction:column;overflow:hidden;background:white;break-after:page;page-break-after:always}',
+  'html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}',
+  '.ppe-roll-label{width:62mm;height:100mm;max-width:62mm;min-height:100mm;padding:4mm 5mm;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden;background:#fff;break-after:page;page-break-after:always}',
   '.ppe-roll-label:last-child{break-after:auto;page-break-after:auto}',
-  '.ppe-roll-brand{text-align:center;font-size:13pt;font-weight:900;letter-spacing:-.25px;border-bottom:1.3pt solid #111;padding-bottom:2mm}',
-  '.ppe-roll-subtitle{text-align:center;font-size:9pt;font-weight:800;letter-spacing:.5px;margin-top:1.5mm}',
-  '.ppe-roll-product{margin:3mm 0 2mm}',
-  '.ppe-roll-product span,.ppe-roll-details span,.ppe-roll-id span,.ppe-roll-employee span{display:block;font-size:9pt;font-weight:800;line-height:1.1}',
-  '.ppe-roll-product strong{display:block;font-size:15pt;line-height:1.08;margin-top:1mm;max-height:22mm;overflow:hidden;overflow-wrap:anywhere}',
-  '.ppe-roll-details{display:flex;gap:3mm;margin-top:1mm}',
-  '.ppe-roll-details>div{flex:1;min-width:0}',
-  '.ppe-roll-details strong{display:block;font-size:17pt;line-height:1.1;margin-top:1mm;overflow-wrap:anywhere}',
-  '.ppe-roll-id{margin-top:3mm}',
-  '.ppe-roll-id strong{display:block;font:900 17pt/1.1 monospace;margin-top:1mm}',
-  '.ppe-roll-employee{margin-top:3mm;padding-top:2mm;border-top:1px solid #999}',
-  '.ppe-roll-employee strong{display:block;font-size:12pt;margin-top:1mm;overflow-wrap:anywhere}',
-  '.ppe-roll-employee small{display:block;font-size:9pt}',
-  '.ppe-roll-instruction{margin-top:auto;text-align:center;font-size:10pt;font-weight:900;letter-spacing:.2px;padding-top:1.5mm}',
-  '.ppe-roll-barcode{display:flex;justify-content:center;align-items:center;margin-top:1mm}',
-  '.ppe-roll-barcode svg{display:block;width:33mm!important;height:33mm!important;max-width:100%!important;background:white!important}',
+  '.ppe-roll-brand{width:100%;border-bottom:1pt solid #276e43;padding:0 0 2mm;font-size:10pt;line-height:1.2;font-weight:900;color:#276e43;white-space:nowrap}',
+  '.ppe-roll-qr{width:100%;margin-top:4mm;display:flex;align-items:center;justify-content:center;flex:0 0 auto}',
+  '.ppe-roll-qr>div{width:34mm;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;background:#fff}',
+  '.ppe-roll-qr svg{display:block!important;width:28mm!important;height:28mm!important;min-width:28mm!important;min-height:28mm!important;max-width:28mm!important;max-height:28mm!important;background:#fff!important;overflow:visible}',
+  '.ppe-roll-qr strong{font:900 12pt/1.2 monospace!important;letter-spacing:.2px;overflow-wrap:anywhere;max-width:100%}',
+  '.ppe-roll-product{width:100%;margin-top:4mm;border-top:1px solid #cbd8cf;padding-top:3mm}',
+  '.ppe-roll-product strong{display:block;font-size:12pt;line-height:1.15;overflow-wrap:anywhere;max-height:17mm;overflow:hidden}',
+  '.ppe-roll-size{font-size:11pt;font-weight:800;margin-top:2mm;line-height:1.15}',
+  '.ppe-roll-employee{width:100%;margin-top:3mm;font-size:9pt;line-height:1.15;overflow-wrap:anywhere}',
+  '.ppe-roll-employee span{display:block;font-size:8pt;font-weight:700}',
+  '.ppe-roll-employee strong{display:block;font-size:10pt;margin-top:1mm;max-height:11mm;overflow:hidden}',
+  '.ppe-roll-instruction{width:100%;margin-top:auto;padding-top:3mm;font-size:9pt;line-height:1.2;font-weight:900;border-top:1px solid #e1e8e2}',
   '@media screen{body{background:#e8eeea;padding:12px}.ppe-roll-label{box-shadow:0 2px 9px #0002;margin:12px auto}}',
   '@media print{html,body{width:62mm;margin:0!important;padding:0!important;background:white!important}.ppe-roll-label{margin:0!important;box-shadow:none!important;break-inside:avoid;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
  ].join('')+'</style>';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>'+esc(title)+'</title>'+style+'</head><body>'+cards+'</body></html>';
 }
-
 function printPpeAllocation(ids){
  const wanted=Array.isArray(ids)?ids:[ids];
  const allocations=wanted.map(id=>(db.ppeAllocations||[]).find(a=>a.id===id&&a.status==='Pending')).filter(Boolean);
