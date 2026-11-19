@@ -5735,6 +5735,8 @@ function createPpeAllocation(data){
  if(!Number.isSafeInteger(stock)||stock<0||qty>stock-pending.length)return {ok:false,error:'Insufficient unallocated stock for this product.'};
  if(db.ppeAllocations.length+qty>100000)return {ok:false,error:'Allocation history limit reached.'};
  const originalUnits=db.ppeUnits.length,originalAllocations=db.ppeAllocations.length;
+ const originalUnitStates=db.ppeUnits.map(u=>({unit:u,barcode:u.barcode,legacyBarcodes:u.legacyBarcodes&&[...u.legacyBarcodes]}));
+ const restoreUnits=()=>{for(const state of originalUnitStates){state.unit.barcode=state.barcode;if(state.legacyBarcodes===undefined)delete state.unit.legacyBarcodes;else state.unit.legacyBarcodes=state.legacyBarcodes}db.ppeUnits.length=originalUnits;db.ppeAllocations.length=originalAllocations};
  try{
   const existing=new Set(pending.map(a=>a.barcode));
   const available=ppeUnitsFor(item.id).filter(u=>u.status==='In Stock'&&!existing.has(u.barcode));
@@ -5754,9 +5756,9 @@ function createPpeAllocation(data){
    const allocation={id:'ppe_allocation_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),barcode:unit.barcode,unitId:unit.id,itemId:item.id,itemName:[item.item,item.colour,item.size].filter(Boolean).join(' · '),employee,department:String(data.department||'').trim().slice(0,100),person,notes:String(data.notes||'').trim().slice(0,250),createdAt:new Date().toISOString(),status:'Pending',issuedAt:''};
    db.ppeAllocations.push(allocation);created.push(allocation);
   }
-  if(!save()){db.ppeUnits.length=originalUnits;db.ppeAllocations.length=originalAllocations;return {ok:false,error:'Could not save the allocation.'}}
+  if(!save()){restoreUnits();return {ok:false,error:'Could not save the allocation.'}}
   return {ok:true,allocations:created};
- }catch(e){db.ppeUnits.length=originalUnits;db.ppeAllocations.length=originalAllocations;return {ok:false,error:e.message}}
+ }catch(e){restoreUnits();return {ok:false,error:e.message}}
 }
 function issuePpeAllocation(raw){
  const barcode=String(raw||'').trim().toUpperCase();
