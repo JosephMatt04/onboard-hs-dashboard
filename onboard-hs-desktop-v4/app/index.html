@@ -5499,7 +5499,7 @@ function preparePpeUnits(id){
  if(!Number.isSafeInteger(stock)||stock<0||needed<0){alert('PPE unit register does not match the stock quantity. Check the records before continuing.');return}
  if(!needed){toast('Individual codes already cover the available stock');return}
  if(needed>500){alert('Create individual desk codes in batches of 500 or fewer.');return}
- if(!confirm('Create '+needed+' individual desk barcode'+(needed===1?'':'s')+' for '+item.item+' ('+([item.colour,item.size].filter(Boolean).join(' · ')||'Standard')+')? The stock quantity will not change.'))return;
+ if(!confirm('Create '+needed+' individual desk QR code'+(needed===1?'':'s')+' for '+item.item+' ('+([item.colour,item.size].filter(Boolean).join(' · ')||'Standard')+')? The stock quantity will not change.'))return;
  const originalLength=db.ppeUnits.length;
  try{
   for(let i=0;i<needed;i++)db.ppeUnits.push({id:'ppe_unit_'+Date.now()+'_'+Math.random().toString(36).slice(2,9),itemId:item.id,itemName:item.item,size:item.size||'',colour:item.colour||'',barcode:nextPpeUnitBarcode(item),status:'In Stock',issuedTo:'',issuedAt:''});
@@ -5509,7 +5509,7 @@ function preparePpeUnits(id){
 }
 
 function ppeScannerHTML(){
- if(!ensurePpeBarcodes())return '<section class="panel"><h2>Barcode setup unavailable</h2><p>Could not save barcode assignments. Check the desktop data file and retry.</p></section>';
+ if(!ensurePpeBarcodes())return '<section class="panel"><h2>QR code setup unavailable</h2><p>Could not save QR code assignments. Check the desktop data file and retry.</p></section>';
  const stock=db.ppeStock.reduce((sum,r)=>sum+(Number(r.stock)||0),0);
  const low=db.ppeStock.filter(r=>r.minStock!==''&&r.minStock!==undefined&&Number(r.stock)<=Number(r.minStock)).length;
  const moves=Array.isArray(db.ppeTransactions)?db.ppeTransactions:[];
@@ -5517,20 +5517,20 @@ function ppeScannerHTML(){
   const item=db.ppeStock.find(r=>r.id===t.itemId);
   return '<tr><td>'+esc(new Date(t.timestamp).toLocaleString('en-GB'))+'</td><td>'+esc(t.voided?'Voided issue · '+(t.voidReason||'Removed from employee records'):t.type==='issue'?'Issued':'Received')+'</td><td>'+esc(t.itemName||item?.item||'PPE item')+'</td><td>'+esc(t.barcode||'—')+'</td><td>'+esc(t.quantity)+'</td><td>'+esc(t.employee||'—')+'</td><td>'+esc(t.recordedBy||'—')+'</td><td>'+esc(t.before)+' → '+esc(t.after)+'</td></tr>';
  }).join('');
- return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>Barcode PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print PPE Desk Register</button></div></div>'+
+ return '<div class="ppe-scan-header"><div><span class="ppe-scan-eyebrow">ONBOARD CORRUGATED · STOCK CONTROL</span><h2>QR Code PPE Management</h2><p>Scan a printed Onboard label to issue or receive stock.</p></div><div class="ppe-print-actions"><button type="button" class="btn" id="ppe-print-stock">Print stock report</button><button type="button" class="btn" id="ppe-print-history">Print issue history</button><button type="button" class="btn primary" id="ppe-print-all">Print PPE Desk Register</button></div></div>'+
  '<div class="ppe-scan-metrics"><div><b>'+db.ppeStock.length+'</b><span>Registered PPE products</span></div><div><b>'+stock+'</b><span>Units in stock</span></div><div><b>'+low+'</b><span>At or below minimum</span></div><div><b>'+moves.length+'</b><span>Stock movements recorded</span></div></div>'+
- '<section class="panel ppe-scan-panel"><div class="section-title"><h2>Scan PPE barcode</h2><span class="muted">USB barcode scanners or manual entry</span></div>'+
+ '<section class="panel ppe-scan-panel"><div class="section-title"><h2>Scan PPE QR code</h2><span class="muted">USB QR code scanners or manual entry</span></div>'+
  '<form id="ppe-scan-form" class="ppe-scan-form"><label><span>Transaction type</span><select id="ppe-scan-type" class="field"><option value="issue">Issue PPE / remove from stock</option><option value="receive">Receive PPE / add to stock</option></select></label>'+
- '<label><span>Scan / enter OC barcode</span><input id="ppe-scan-code" type="text" class="field" placeholder="OC001" autocomplete="off" spellcheck="false" required maxlength="20"></label>'+
+ '<label><span>Scan / enter product QR code</span><input id="ppe-scan-code" type="text" class="field" placeholder="OC001" autocomplete="off" spellcheck="false" required maxlength="20"></label>'+
  '<label><span>Quantity</span><input id="ppe-scan-qty" type="number" min="1" step="1" value="1" class="field" required></label>'+
  '<label><span>Employee / recipient (required for issue)</span><input id="ppe-scan-employee" class="field" placeholder="Employee full name" maxlength="120"></label>'+
  '<label><span>Recorded by</span><input id="ppe-scan-person" class="field" placeholder="Your name" maxlength="120"></label>'+
  '<label class="ppe-scan-wide"><span>Notes / reason (optional)</span><input id="ppe-scan-notes" class="field" placeholder="Department, replenishment reference or comments" maxlength="250"></label>'+
- '<div id="ppe-scan-result" class="ppe-scan-result ppe-scan-wide" role="status">Scan or enter an Onboard barcode to identify the product.</div>'+
+ '<div id="ppe-scan-result" class="ppe-scan-result ppe-scan-wide" role="status">Scan or enter an Onboard QR code to identify the product.</div>'+
  '<div class="ppe-scan-controls ppe-scan-wide"><button type="submit" class="btn primary" id="ppe-submit">Confirm stock movement</button><button type="button" id="ppe-focus-scan" class="btn">Focus scanner</button></div></form>'+
- '<p class="file-tip">Barcode scanners usually type into the highlighted field. A scan identifies the product; stock only changes when you confirm the transaction. One barcode identifies a product and size, not an individual physical item.</p></section>'+
+ '<p class="file-tip">QR code scanners usually type into the highlighted field. A scan identifies the product; stock only changes when you confirm the transaction. One QR code identifies a product and size, not an individual physical item.</p></section>'+
  '<section class="panel ppe-movement-panel"><div class="section-title"><h2>Stock movement history</h2><span class="muted">Showing '+Math.min(moves.length,250)+' of '+moves.length+' recorded transactions</span></div>'+
- (moves.length?'<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Movement</th><th>PPE item</th><th>Barcode</th><th>Quantity</th><th>Employee</th><th>Recorded by</th><th>Stock before → after</th></tr></thead><tbody>'+history+'</tbody></table></div>':'<p class="muted">No issues or stock receipts recorded yet.</p>')+'</section>';
+ (moves.length?'<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Movement</th><th>PPE item</th><th>QR code</th><th>Quantity</th><th>Employee</th><th>Recorded by</th><th>Stock before → after</th></tr></thead><tbody>'+history+'</tbody></table></div>':'<p class="muted">No issues or stock receipts recorded yet.</p>')+'</section>';
 }
 
 /* Factory PPE starter catalogue: suggested variants only; no stock quantity is assumed. */
@@ -5648,13 +5648,13 @@ function ppeAllocationHTML(){
  '<form id="ppe-allocate-form" class="form-grid"><label class="form-field"><span>Employee full name</span><input id="ppe-allocate-employee" class="field" maxlength="120" required autocomplete="off"></label>'+
  '<label class="form-field"><span>Department / shift</span><input id="ppe-allocate-department" class="field" maxlength="100"></label>'+
  '<label class="form-field"><span>PPE product, colour and size</span><select id="ppe-allocate-product" class="field" required><option value="">Select a PPE product</option>'+choices+'</select></label>'+
- '<label class="form-field"><span>Quantity (one barcode per piece)</span><input id="ppe-allocate-quantity" class="field" type="number" value="1" min="1" max="100" step="1" required></label>'+
+ '<label class="form-field"><span>Quantity (one QR code per piece)</span><input id="ppe-allocate-quantity" class="field" type="number" value="1" min="1" max="100" step="1" required></label>'+
  '<label class="form-field"><span>Allocated by</span><input id="ppe-allocate-person" class="field" maxlength="120" required></label>'+
  '<label class="form-field"><span>Notes / reason (optional)</span><input id="ppe-allocate-notes" class="field" maxlength="250"></label>'+
  '<div class="form-field full"><button class="btn primary" type="submit">Generate &amp; print allocation labels</button></div></form>'+
- '<p class="file-tip">The allocation reserves a unique OI barcode but does not deduct stock. Each valid scan completes the issue and deducts one item from stock. Duplicate scans cannot issue twice.</p></section>'+
+ '<p class="file-tip">The allocation reserves a unique individual QR code but does not deduct stock. Each valid scan completes the issue and deducts one item from stock. Duplicate scans cannot issue twice.</p></section>'+
  '<section class="panel"><div class="section-title"><h2>Scan label to issue PPE</h2><span class="muted">One valid scan deducts one item</span></div>'+
- '<form id="ppe-allocate-scan-form" class="ppe-scan-form"><label><span>Scan allocated OI barcode</span><input id="ppe-allocate-scan-code" class="field" maxlength="20" autocomplete="off" spellcheck="false" required autofocus placeholder="OI002"></label><div class="ppe-scan-wide" id="ppe-allocate-scan-result" role="status">Scan an allocated label to deduct one PPE item from stock and record it against the employee.</div>'+
+ '<form id="ppe-allocate-scan-form" class="ppe-scan-form"><label><span>Scan allocated individual QR code</span><input id="ppe-allocate-scan-code" class="field" maxlength="20" autocomplete="off" spellcheck="false" required autofocus placeholder="OI002"></label><div class="ppe-scan-wide" id="ppe-allocate-scan-result" role="status">Scan an allocated label to deduct one PPE item from stock and record it against the employee.</div>'+
  '<div class="ppe-scan-wide"><button type="submit" class="btn">Issue manually (without scanner Enter)</button></div></form></section>'+
  '<section class="panel"><div class="section-title"><h2>Awaiting scan ('+pending.length+')</h2></div>'+
  (pending.length?'<div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>PPE</th><th>Individual code</th><th>Allocated</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="muted">No labels awaiting issue.</p>')+'</section>';
@@ -5669,8 +5669,8 @@ function ppeIssueRecordRowsHTML(records){
 function ppeEmployeeIssueRecordsHTML(){
  const rows=ppeIssueRecordsFiltered();
  return '<section class="panel"><div class="section-title"><h2>Employee PPE Issue Records</h2><span id="ppe-issue-record-count" class="muted">'+rows.length+' recorded issues</span></div>'+
- '<label class="form-field" style="max-width:460px;margin-bottom:16px"><span>Search employee or PPE issue</span><input id="ppe-issue-search" class="field" type="search" autocomplete="off" placeholder="Search employee name, department, PPE or barcode…" aria-label="Search employee PPE issue records"></label>'+
- '<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Employee</th><th>Department</th><th>PPE, colour &amp; size</th><th>Barcode</th><th>Qty</th><th>Issued by</th><th>Action</th></tr></thead><tbody id="ppe-issue-record-rows">'+(rows.length?ppeIssueRecordRowsHTML(rows):'<tr><td colspan="8">No PPE has been issued yet.</td></tr>')+'</tbody></table></div>'+
+ '<label class="form-field" style="max-width:460px;margin-bottom:16px"><span>Search employee or PPE issue</span><input id="ppe-issue-search" class="field" type="search" autocomplete="off" placeholder="Search employee name, department, PPE or QR code…" aria-label="Search employee PPE issue records"></label>'+
+ '<div class="table-wrap"><table><thead><tr><th>Date / time</th><th>Employee</th><th>Department</th><th>PPE, colour &amp; size</th><th>QR code</th><th>Qty</th><th>Issued by</th><th>Action</th></tr></thead><tbody id="ppe-issue-record-rows">'+(rows.length?ppeIssueRecordRowsHTML(rows):'<tr><td colspan="8">No PPE has been issued yet.</td></tr>')+'</tbody></table></div>'+
  '<p class="file-tip">Remove hides an incorrect or test issue from this employee list, but keeps an audit entry in stock movement history. Stock is not automatically restored. Correct any test quantities separately in PPE Inventory using a recorded stock adjustment.</p></section>';
 }
 function removePpeIssueRecord(id,reason){
@@ -5693,7 +5693,7 @@ function openPpeIssueRemovalDialog(id){
  const entry=(db.ppeTransactions||[]).find(t=>t.id===id&&t.type==='issue'&&!t.voided);
  if(!entry){alert('This issue record was already removed or could not be found.');refreshPpeIssueRecords();return}
  const root=document.getElementById('modal-root');
- root.innerHTML=`<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="ppe-issue-remove-title"><h2 id="ppe-issue-remove-title">Remove employee PPE issue</h2><p class="sub">Review the issue before removing it from the employee list.</p><div class="callout"><strong>${esc(entry.employee||'Employee')}</strong><p>${esc(entry.itemName||'PPE item')} · ${esc(entry.barcode||'No barcode')} · Quantity ${esc(entry.quantity||1)}</p></div><p class="notice">This action hides the record from Employee PPE Issue Records. The stock quantity will <strong>not</strong> change, and the original movement remains in the audit history marked as voided. Correct test stock quantities separately in PPE Inventory.</p><form id="ppe-issue-remove-form"><label class="form-field full"><span>Reason for removal</span><input id="ppe-issue-remove-reason" class="field" maxlength="250" autocomplete="off" placeholder="e.g. Test entry or duplicate record" required></label><div class="modal-actions"><button type="button" class="btn" id="ppe-issue-remove-cancel">Cancel</button><button type="submit" class="btn danger" id="ppe-issue-remove-confirm">Remove issue record</button></div></form></div></div>`;
+ root.innerHTML=`<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="ppe-issue-remove-title"><h2 id="ppe-issue-remove-title">Remove employee PPE issue</h2><p class="sub">Review the issue before removing it from the employee list.</p><div class="callout"><strong>${esc(entry.employee||'Employee')}</strong><p>${esc(entry.itemName||'PPE item')} · ${esc(entry.barcode||'No QR code')} · Quantity ${esc(entry.quantity||1)}</p></div><p class="notice">This action hides the record from Employee PPE Issue Records. The stock quantity will <strong>not</strong> change, and the original movement remains in the audit history marked as voided. Correct test stock quantities separately in PPE Inventory.</p><form id="ppe-issue-remove-form"><label class="form-field full"><span>Reason for removal</span><input id="ppe-issue-remove-reason" class="field" maxlength="250" autocomplete="off" placeholder="e.g. Test entry or duplicate record" required></label><div class="modal-actions"><button type="button" class="btn" id="ppe-issue-remove-cancel">Cancel</button><button type="submit" class="btn danger" id="ppe-issue-remove-confirm">Remove issue record</button></div></form></div></div>`;
  root.querySelector('#ppe-issue-remove-cancel').onclick=closeModal;
  root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))closeModal()};
  root.querySelector('#ppe-issue-remove-form').onsubmit=e=>{
@@ -5724,7 +5724,7 @@ function bindPpeIssueSearch(){
 }
 
 function createPpeAllocation(data){
- if(!ensurePpeBarcodes())return {ok:false,error:'Unable to save barcode setup.'};
+ if(!ensurePpeBarcodes())return {ok:false,error:'Unable to save QR code setup.'};
  const item=db.ppeStock.find(r=>r.id===data.itemId);
  if(!item||!ppeVisibleStockItems().some(r=>r.id===data.itemId))return {ok:false,error:'Select a valid active PPE product.'};
  const employee=String(data.employee||'').trim(),person=String(data.person||'').trim(),qty=Number(data.quantity);
@@ -5763,7 +5763,7 @@ function createPpeAllocation(data){
 function issuePpeAllocation(raw){
  const barcode=String(raw||'').trim().toUpperCase();
  const allocation=ppePendingAllocations().find(a=>a.barcode===barcode||(ppeLookupUnit(barcode)?.id===a.unitId));
- if(!allocation)return {ok:false,error:'No pending allocation for this barcode. It may already have been issued.'};
+ if(!allocation)return {ok:false,error:'No pending allocation for this QR code. It may already have been issued.'};
  const item=db.ppeStock.find(r=>r.id===allocation.itemId);
  const unit=(db.ppeUnits||[]).find(u=>u.id===allocation.unitId&&(u.barcode===barcode||(u.legacyBarcodes||[]).includes(barcode)));
  if(!item||!unit||unit.status!=='In Stock')return {ok:false,error:'This PPE item is no longer available.'};
@@ -5905,15 +5905,15 @@ function individualPpeLabelsHTML(){
   return '<tr><td>'+esc(r.item)+'</td><td>'+esc([r.colour,r.size].filter(Boolean).join(' · ')||'Standard')+'</td><td>'+esc(stock)+'</td><td>'+ready.length+'</td><td>'+Math.max(0,missing)+'</td><td class="actions"><button type="button" class="btn small" data-action="ppe-units" data-section="ppeStock" data-id="'+esc(r.id)+'">Generate missing codes</button><button type="button" class="btn small" data-action="ppe-print-individual" data-section="ppeStock" data-id="'+esc(r.id)+'" '+(!ready.length?'disabled':'')+'>Print individual labels</button></td></tr>';
  }).join('');
  const available=products.reduce((sum,r)=>sum+ppeUnitsFor(r.id).filter(u=>u.status==='In Stock').length,0);
- return '<section class="panel"><div class="section-title"><div><h2>Individual PPE Labels</h2><p class="muted">One OI barcode per physical PPE item. Prepare codes for current stock, print 62 × 100 mm roll labels, then issue by scanning that individual code.</p></div><button type="button" class="btn primary" data-action="ppe-print-individual" data-section="ppeStock" '+(!available?'disabled':'')+'>Print all available labels ('+available+')</button></div><p class="file-tip">Generating labels never changes stock. Printing does not issue PPE. A code is marked issued only after confirming the scanner transaction. Already-issued codes are excluded from reprints.</p>'+(products.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Colour / size</th><th>Stock</th><th>Available codes</th><th>Codes to generate</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="muted">Add PPE products in the PPE Stock tab first.</p>')+'</section>';
+ return '<section class="panel"><div class="section-title"><div><h2>Individual PPE Labels</h2><p class="muted">One individual QR code per physical PPE item. Prepare codes for current stock, print 62 × 100 mm roll labels, then issue by scanning that individual code.</p></div><button type="button" class="btn primary" data-action="ppe-print-individual" data-section="ppeStock" '+(!available?'disabled':'')+'>Print all available labels ('+available+')</button></div><p class="file-tip">Generating labels never changes stock. Printing does not issue PPE. A code is marked issued only after confirming the scanner transaction. Already-issued codes are excluded from reprints.</p>'+(products.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Colour / size</th><th>Stock</th><th>Available codes</th><th>Codes to generate</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="muted">Add PPE products in the PPE Stock tab first.</p>')+'</section>';
 }
 function ppeStockRegisterHTML(){
  const visible=ppeVisibleStockItems();
  const shown=visible.filter(r=>ppeInventoryTab==='All PPE'||ppeTabForItem(r)===ppeInventoryTab);
  return '<div class="ppe-tabs" role="group" aria-label="PPE sections"><button type="button" class="ppe-tab active" data-action="ppe-tab" data-section="ppeStock">'+sidebarPictogram('ppeStock')+'<span>PPE Inventory</span></button><button type="button" class="ppe-tab" data-action="ppe-tab" data-section="ppe">'+sidebarPictogram('ppe')+'<span>Safety Boot Claims</span></button></div>'+
- ppeInventoryCategoryTabs()+'<section class="panel ppe-stock-register"><div class="section-title"><div><h2>'+esc(ppeInventoryTab)+' inventory</h2><p class="muted">'+shown.length+' of '+visible.length+' products · Each product has a delivery barcode. Prepare individual codes for each available piece, then issue using its desk barcode.</p></div><div class="ppe-print-actions"><button type="button" class="btn" data-action="ppe-seed" data-section="ppeStock">+ Load PPE catalogue</button><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div></div>'+
- (shown.length?'<div class="table-wrap"><table><thead><tr><th>PPE item</th><th>Category</th><th>Size / colour</th><th>Barcode</th><th>In stock</th><th>Minimum</th><th>Actions</th></tr></thead><tbody>'+
- shown.map(r=>'<tr><td>'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td>'+esc([r.size,r.colour].filter(Boolean).join(' · ')||'—')+'</td><td><code>'+esc(r.barcode||'Not assigned')+'</code></td><td>'+esc(r.stock)+'</td><td>'+esc(r.minStock||'0')+'</td><td class="actions"><button class="btn small" type="button" data-action="ppe-preview-code" data-section="ppeStock" data-id="'+esc(r.id)+'">Preview barcode</button><button class="btn small" type="button" data-action="ppe-label" data-section="ppeStock" data-id="'+esc(r.id)+'">Print product label</button><button class="btn small" type="button" data-action="ppe-units" data-section="ppeStock" data-id="'+esc(r.id)+'">Prepare individual codes</button><button class="btn small" type="button" data-action="edit" data-section="ppeStock" data-id="'+esc(r.id)+'">Edit / Set Quantity</button><button class="btn small" type="button" data-action="docs" data-section="ppeStock" data-id="'+esc(r.id)+'">Files</button><button class="btn small" type="button" data-action="delete" data-section="ppeStock" data-id="'+esc(r.id)+'">Delete</button></td></tr>').join('')+
+ ppeInventoryCategoryTabs()+'<section class="panel ppe-stock-register"><div class="section-title"><div><h2>'+esc(ppeInventoryTab)+' inventory</h2><p class="muted">'+shown.length+' of '+visible.length+' products · Each product has a delivery QR code. Prepare individual codes for each available piece, then issue using its desk QR code.</p></div><div class="ppe-print-actions"><button type="button" class="btn" data-action="ppe-seed" data-section="ppeStock">+ Load PPE catalogue</button><button type="button" class="btn primary" data-action="add" data-section="ppeStock">+ Add PPE item</button></div></div>'+
+ (shown.length?'<div class="table-wrap"><table><thead><tr><th>PPE item</th><th>Category</th><th>Size / colour</th><th>QR code</th><th>In stock</th><th>Minimum</th><th>Actions</th></tr></thead><tbody>'+
+ shown.map(r=>'<tr><td>'+esc(r.item)+'</td><td>'+esc(r.category)+'</td><td>'+esc([r.size,r.colour].filter(Boolean).join(' · ')||'—')+'</td><td><code>'+esc(r.barcode||'Not assigned')+'</code></td><td>'+esc(r.stock)+'</td><td>'+esc(r.minStock||'0')+'</td><td class="actions"><button class="btn small" type="button" data-action="ppe-preview-code" data-section="ppeStock" data-id="'+esc(r.id)+'">Preview QR code</button><button class="btn small" type="button" data-action="ppe-label" data-section="ppeStock" data-id="'+esc(r.id)+'">Print product label</button><button class="btn small" type="button" data-action="ppe-units" data-section="ppeStock" data-id="'+esc(r.id)+'">Prepare individual codes</button><button class="btn small" type="button" data-action="edit" data-section="ppeStock" data-id="'+esc(r.id)+'">Edit / Set Quantity</button><button class="btn small" type="button" data-action="docs" data-section="ppeStock" data-id="'+esc(r.id)+'">Files</button><button class="btn small" type="button" data-action="delete" data-section="ppeStock" data-id="'+esc(r.id)+'">Delete</button></td></tr>').join('')+
  '</tbody></table></div>' :'<p class="muted">No PPE products in '+esc(ppeInventoryTab)+' yet. Add an item or load the PPE catalogue above.</p>')+'</section>';
 }
 function bindPpeScanner(){
@@ -5928,7 +5928,7 @@ function bindPpeScanner(){
   const unit=ppeLookupUnit(barcode);
   const item=unit?db.ppeStock.find(r=>r.id===unit.itemId):ppeLookupProduct(barcode);
   const available=!!item&&(!unit||unit.status==='In Stock');
-  result.textContent=!barcode?'Scan or enter an Onboard barcode to identify the product.':!item?'Barcode not found. Check the label or add the PPE product first.':unit?(item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+(unit.status==='In Stock'?'Individual item available':'Already issued — cannot issue again')):item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+item.stock+' in stock';
+  result.textContent=!barcode?'Scan or enter an Onboard QR code to identify the product.':!item?'QR code not found. Check the label or add the PPE product first.':unit?(item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+(unit.status==='In Stock'?'Individual item available':'Already issued — cannot issue again')):item.item+' · '+[item.colour,item.size].filter(Boolean).join(' · ')+' · '+item.stock+' in stock';
   result.classList.toggle('found',available);
   result.classList.toggle('missing',!!barcode&&!available);
  };
@@ -5946,7 +5946,7 @@ function bindPpeScanner(){
  form.addEventListener('submit',e=>{
   e.preventDefault();
   const barcode=code.value.trim().toUpperCase(),unit=ppeLookupUnit(barcode),item=unit?db.ppeStock.find(r=>r.id===unit.itemId):ppeLookupProduct(barcode);
-  if(!item){alert('Barcode not recognised. Scan a registered Onboard PPE label.');code.focus();return}
+  if(!item){alert('QR code not recognised. Scan a registered Onboard PPE label.');code.focus();return}
   const type=document.getElementById('ppe-scan-type').value;
   const raw=document.getElementById('ppe-scan-qty').value.trim(),quantity=Number(raw);
   const employee=document.getElementById('ppe-scan-employee').value.trim(),person=document.getElementById('ppe-scan-person').value.trim(),notes=document.getElementById('ppe-scan-notes').value.trim();
@@ -5955,11 +5955,11 @@ function bindPpeScanner(){
   if(!['issue','receive'].includes(type)){alert('Invalid movement type.');return}
   if(db.ppeTransactions.length>=100000){alert('Movement history limit reached. Export a backup and contact your dashboard administrator.');return}
   if(!person){alert('Enter who is recording the transaction.');return}
-  if(unit&&type!=='issue'){alert('Use the product barcode for deliveries. Individual desk codes are for issuing only.');return}
+  if(unit&&type!=='issue'){alert('Use the product QR code for deliveries. Individual desk codes are for issuing only.');return}
   if(unit&&unit.status!=='In Stock'){alert('This individual PPE code has already been issued.');return}
-  if(type==='issue'&&ppePendingAllocations().some(a=>a.barcode===barcode)){alert('This barcode is allocated to an employee. Complete the issue in Allocate PPE.');return}
-  if(unit&&quantity!==1){alert('Individual PPE barcodes issue exactly one piece.');return}
-  if(!unit&&type==='issue'&&ppeUnitsFor(item.id).length){alert('Use an available individual OI barcode from the desk register for this PPE product.');return}
+  if(type==='issue'&&ppePendingAllocations().some(a=>a.barcode===barcode)){alert('This QR code is allocated to an employee. Complete the issue in Allocate PPE.');return}
+  if(unit&&quantity!==1){alert('Individual PPE QR codes issue exactly one piece.');return}
+  if(!unit&&type==='issue'&&ppeUnitsFor(item.id).length){alert('Use an available individual QR code from the desk register for this PPE product.');return}
   const before=Number(item.stock);
   if(!Number.isSafeInteger(before)||before<0){alert('The saved stock quantity is invalid. Correct the PPE record first.');return}
   if(type==='issue'&&quantity>before){alert('Not enough stock: only '+before+' available.');return}
@@ -6012,7 +6012,7 @@ function printPpeReport(kind){
  const moves=(db.ppeTransactions||[]).slice().reverse();
  const cell=v=>'<td>'+esc(v===undefined||v===null||v===''?'—':v)+'</td>';
  const date=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('en-GB')};
- const head=stockMode?['PPE item','Category','Size','Barcode','In stock','Minimum','Storage location']:['Date / time','Movement','PPE item','Barcode','Quantity','Employee','Recorded by','Stock before → after'];
+ const head=stockMode?['PPE item','Category','Size','QR code','In stock','Minimum','Storage location']:['Date / time','Movement','PPE item','QR code','Quantity','Employee','Recorded by','Stock before → after'];
  const rows=stockMode?items.map(r=>[r.item,r.category,r.size,r.barcode,r.stock,r.minStock,r.location]):moves.map(t=>[date(t.timestamp),t.voided?'Voided issue · '+(t.voidReason||'Removed from employee records'):t.type==='issue'?'Issued':'Received',t.itemName,t.barcode,t.quantity,t.employee,t.recordedBy,String(t.before)+' → '+String(t.after)]);
  const htmlRows=rows.map(values=>'<tr>'+values.map(cell).join('')+'</tr>').join('');
  const count=stockMode?items.length:moves.length;
@@ -6028,12 +6028,12 @@ function previewPpeProductBarcode(id){
  const item=db.ppeStock.find(r=>r.id===id);
  if(!item)return;
  const root=document.getElementById('modal-root');
- if(!root){alert('Barcode preview is unavailable.');return}
+ if(!root){alert('QR code preview is unavailable.');return}
  const units=ppeUnitsFor(id).filter(u=>u.status==='In Stock');
  let productBarcode;
- try{productBarcode=ppeBarcodeSvg(item.barcode)}catch(e){alert('Unable to preview barcode: '+e.message);return}
+ try{productBarcode=ppeBarcodeSvg(item.barcode)}catch(e){alert('Unable to preview QR code: '+e.message);return}
  const individual=units.length?'<div style="margin-top:16px"><strong>Available individual PPE codes ('+units.length+')</strong><p style="font-size:12px;color:#526258">Scan an OI code when issuing a specific piece. The OC code above is for the product type and stock deliveries.</p><div style="display:flex;flex-wrap:wrap;gap:8px;max-height:180px;overflow:auto">'+units.map(u=>'<span style="border:1px solid #b6c5ba;border-radius:5px;padding:5px 8px;font:12px monospace">'+esc(u.barcode)+'</span>').join('')+'</div></div>':'<p style="font-size:12px;color:#526258;margin-top:12px">No available individual OI codes for this product. Prepare individual codes from the inventory if required.</p>';
- root.innerHTML='<div class="ppe-print-backdrop"><section class="ppe-print-dialog" role="dialog" aria-modal="true" aria-labelledby="ppe-code-preview-title" style="max-width:600px;height:auto;max-height:95vh;overflow:auto"><div class="ppe-print-preview-toolbar"><div><h2 id="ppe-code-preview-title">Product barcode preview</h2><p>Onboard Corrugated · Read-only barcode preview</p></div><div class="ppe-print-preview-buttons"><button type="button" class="btn" id="ppe-code-preview-close">Close</button></div></div><div style="background:white;color:#1c3025;padding:24px"><h3 style="margin:0 0 4px">'+esc(item.item)+'</h3><p style="margin:0 0 16px;color:#526258">'+esc([item.colour,item.size,item.category].filter(Boolean).join(' · '))+'</p><div style="border:1px solid #d5ded6;padding:14px;border-radius:8px;max-width:440px">'+productBarcode+'</div><p style="font-size:12px;margin:10px 0 0"><strong>Unique product barcode:</strong> '+esc(item.barcode)+'</p>'+individual+'<div style="margin-top:18px"><button type="button" class="btn primary" id="ppe-code-preview-print">Print product labels</button></div></div></section></div>';
+ root.innerHTML='<div class="ppe-print-backdrop"><section class="ppe-print-dialog" role="dialog" aria-modal="true" aria-labelledby="ppe-code-preview-title" style="max-width:600px;height:auto;max-height:95vh;overflow:auto"><div class="ppe-print-preview-toolbar"><div><h2 id="ppe-code-preview-title">Product QR code preview</h2><p>Onboard Corrugated · Read-only QR code preview</p></div><div class="ppe-print-preview-buttons"><button type="button" class="btn" id="ppe-code-preview-close">Close</button></div></div><div style="background:white;color:#1c3025;padding:24px"><h3 style="margin:0 0 4px">'+esc(item.item)+'</h3><p style="margin:0 0 16px;color:#526258">'+esc([item.colour,item.size,item.category].filter(Boolean).join(' · '))+'</p><div style="border:1px solid #d5ded6;padding:14px;border-radius:8px;max-width:440px">'+productBarcode+'</div><p style="font-size:12px;margin:10px 0 0"><strong>Unique product QR code:</strong> '+esc(item.barcode)+'</p>'+individual+'<div style="margin-top:18px"><button type="button" class="btn primary" id="ppe-code-preview-print">Print product labels</button></div></div></section></div>';
  root.querySelector('#ppe-code-preview-close').onclick=closeModal;
  root.querySelector('#ppe-code-preview-print').onclick=()=>printPpeLabels(id);
  root.querySelector('.ppe-print-backdrop').onclick=e=>{if(e.target.classList.contains('ppe-print-backdrop'))closeModal()};
@@ -6051,14 +6051,14 @@ function printPpeDeskRegister(){
   for(let start=0;start<products.length;start+=pageSize){
    const items=products.slice(start,start+pageSize);
    const number=Math.floor(start/pageSize)+1;
-   pages+='<section class="sheet"><header><div class="brand">ONBOARD <span>CORRUGATED</span></div><div class="sheet-title">PPE BARCODE REFERENCE SHEET</div><p>Scan an OI code to issue one piece. Use the OC product code for deliveries. Confirm each stock transaction.</p></header>'+
+   pages+='<section class="sheet"><header><div class="brand">ONBOARD <span>CORRUGATED</span></div><div class="sheet-title">PPE QR CODE REFERENCE SHEET</div><p>Scan an OI code to issue one piece. Use the OC product code for deliveries. Confirm each stock transaction.</p></header>'+
      '<main class="barcode-grid">'+items.map(r=>'<article class="barcode-card"><div class="ppe-name">'+esc(r.item||'PPE product')+'</div><div class="ppe-meta">'+esc([r.colour,r.size,r.category].filter(Boolean).join(' · ')||'Standard PPE')+'</div><div class="code">'+ppeBarcodeSvg(r.barcode)+'</div></article>').join('')+'</main>'+
      '<footer><span>ONBOARD H&amp;S · DESK SCANNING REFERENCE</span><span>Page '+number+' of '+totalPages+'</span></footer></section>';
   }
- }catch(e){alert('Could not generate PPE barcode sheet: '+e.message);return}
+ }catch(e){alert('Could not generate PPE QR code sheet: '+e.message);return}
  const style='<style>@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:white;color:#202c24;font-family:Arial,Helvetica,sans-serif}.print-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#eaf3e9;padding:12px 16px}.print-toolbar button{border:0;border-radius:6px;background:#267849;color:#fff;padding:10px 16px;font-weight:bold;cursor:pointer}.sheet{width:190mm;height:277mm;display:flex;flex-direction:column;break-after:page;page-break-after:always;overflow:hidden;margin:auto}.sheet:last-child{break-after:auto;page-break-after:auto}header{border-bottom:3px solid #438647;padding:8px 2px 12px;flex:0 0 auto}.brand{color:#246a3e;font-weight:900;letter-spacing:1px;font-size:15px}.brand span{color:#4e6153}.sheet-title{font-size:23px;font-weight:900;letter-spacing:.015em;margin:8px 0 6px}header p{margin:0;font-size:10px;color:#536658}.barcode-grid{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:4mm;margin-top:6mm}.barcode-card{min-width:0;border:1px solid #becbbf;border-radius:7px;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;align-items:stretch;break-inside:avoid;page-break-inside:avoid}.ppe-name{font-weight:800;font-size:13px;line-height:1.24;max-height:2.5em;overflow:hidden;overflow-wrap:anywhere}.ppe-meta{font-size:10px;color:#647064;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}.code{margin-top:6px;display:flex;justify-content:center;align-items:center}.code svg{width:100%!important;max-width:78mm!important;height:25mm!important;padding:2px!important;flex:0 1 auto}footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #aebdaf;margin-top:5mm;padding-top:3mm;font-size:9px;font-weight:700;color:#5f7566;flex:0 0 auto}@media screen{body{background:#e8eeea}.sheet{background:#fff;padding:10mm;width:210mm;height:297mm;box-shadow:0 3px 12px #0002;margin:20px auto}.print-toolbar{position:sticky;top:0;z-index:3}}@media print{.print-toolbar{display:none!important}.sheet{width:190mm!important;height:277mm!important;margin:0!important;padding:0!important;box-shadow:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>';
- const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Onboard PPE Barcode Reference Sheet</title>'+style+'</head><body><div class="print-toolbar"><span><strong>Onboard PPE Barcode Sheet</strong> · '+products.length+' product'+(products.length===1?'':'s')+' · '+totalPages+' A4 page'+(totalPages===1?'':'s')+'</span><button type="button" onclick="window.print()">Print / Save as PDF</button></div>'+pages+'</body></html>';
- openPpePrintPreview(html,'PPE Barcode Desk Register');
+ const html='<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Onboard PPE QR Code Reference Sheet</title>'+style+'</head><body><div class="print-toolbar"><span><strong>Onboard PPE QR Code Sheet</strong> · '+products.length+' product'+(products.length===1?'':'s')+' · '+totalPages+' A4 page'+(totalPages===1?'':'s')+'</span><button type="button" onclick="window.print()">Print / Save as PDF</button></div>'+pages+'</body></html>';
+ openPpePrintPreview(html,'PPE QR Code Desk Register');
 }
 
 /* Print physical PPE roll labels rather than an A4 reference sheet. */
