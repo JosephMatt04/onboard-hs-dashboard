@@ -731,7 +731,7 @@ test('scanner accepts product OC code for receipt, but never allows receiving on
  elem('ppe-scan-person').value='Safety Officer';elem('ppe-scan-notes').value='';
  elem('ppe-scan-form').listeners.submit({preventDefault(){}});
  assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
- assert.ok(errors.some(s=>s.includes('product barcode for deliveries')));
+ assert.ok(errors.some(s=>s.includes('product QR code for deliveries')));
  elem('ppe-scan-code').value='oc321';
  elem('ppe-scan-form').listeners.submit({preventDefault(){}});
  assert.equal(item.stock,'4');
@@ -751,7 +751,7 @@ test('scanner requires available OI code when individual desk labels exist',()=>
  elem('ppe-scan-form').listeners.submit({preventDefault(){}});
  assert.equal(item.stock,'1');
  assert.equal(dashboard.db.ppeTransactions.length,0);
- assert.ok(errors.some(s=>s.includes('individual OI barcode')));
+ assert.ok(errors.some(s=>s.includes('individual QR code')));
 });
 
 test('verbal warnings is a separate register beneath incidents with confidential fields',()=>{
