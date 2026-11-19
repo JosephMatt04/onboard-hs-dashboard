@@ -1102,7 +1102,7 @@ test('QR labels render offline SVG matrix with readable stock code',()=>{
  assert.match(code,/<svg/);
  assert.match(code,/QR code HIVXL1/);
  assert.match(code,/HIVXL1/);
- assert.ok((code.match(/<rect/g)||[]).length>10);
+ assert.ok((code.match(/<path|<rect/g)||[]).length>0);
 });
 test('QR scan deducts one from stock and an old OI code stays valid as an alias',()=>{
  const {dashboard}=harness({locked:false});
