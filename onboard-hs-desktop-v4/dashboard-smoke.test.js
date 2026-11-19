@@ -34,7 +34,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,openPpeIssueRemovalDialog,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,openPpeIssueRemovalDialog,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,ppeProductPrefix,ppeLookupProduct,ppeLookupUnit,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{});
  return {dashboard,elem,errors,openedAttachments,issueButtons,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -567,16 +567,19 @@ test('PPE barcode generator supports scanner-readable Onboard identifiers',()=>{
  const {dashboard}=harness({locked:false});
  assert.ok(dashboard.ppeBarcodeSvg('OI001').includes('OI001'));
  assert.ok(dashboard.ppeBarcodeSvg('oc001').includes('OC001'));
- assert.throws(()=>dashboard.ppeBarcodeSvg('OI 001'),/Invalid barcode format/);
- assert.throws(()=>dashboard.ppeBarcodeSvg('<script>'),/Invalid barcode format/);
+ assert.throws(()=>dashboard.ppeBarcodeSvg('OI 001'),/Invalid PPE QR identifier/);
+ assert.throws(()=>dashboard.ppeBarcodeSvg('<script>'),/Invalid PPE QR identifier/);
 });
-test('PPE scanning maintains distinct product and individual code sequences',()=>{
+test('PPE scanning creates short descriptive QR code identifiers',()=>{
  const {dashboard}=harness({locked:false});
- dashboard.db.ppeStock.push({id:'test-item',item:'Hi-Vis Vest',barcode:'OC001',stock:'1',size:'XL',colour:'Orange'});
- dashboard.db.ppeUnits.push({id:'test-unit',itemId:'test-item',barcode:'OI001',status:'In Stock'});
- assert.equal(dashboard.nextPpeBarcode(),'OC002');
- assert.equal(dashboard.nextPpeUnitBarcode(),'OI002');
- assert.equal(dashboard.ppeTabForItem(dashboard.db.ppeStock.at(-1)),'Hi-Vis');
+ const item={id:'test-item',item:'Hi-Vis Vest',barcode:'OC001',stock:'1',size:'XL',colour:'Orange'};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'test-unit',itemId:item.id,barcode:'OI001',status:'In Stock'});
+ assert.equal(dashboard.nextPpeBarcode(item),'HIVXL');
+ assert.equal(dashboard.ensurePpeBarcodes(),true);
+ assert.equal(item.barcode,'HIVXL');
+ assert.ok(item.legacyBarcodes.includes('OC001'));
+ assert.equal(dashboard.nextPpeUnitBarcode(item),'HIVXL1');
 });
 
 test('retired Hi-Vis clothing is hidden from existing inventory without deleting data',()=>{
@@ -680,21 +683,21 @@ test('failed save reverses PPE stock and individual unit issue',()=>{
  assert.equal(dashboard.db.ppeTransactions.length,0);
  assert.ok(errors.some(m=>m.includes('Unable to save')));
 });
-test('product code assignment repairs duplicates but protects historical codes and keeps unique OC codes',()=>{
+test('product QR codes retain old OC aliases and distinguish colour variants',()=>{
  const {dashboard}=harness({locked:false});
  dashboard.db.ppeStock.push(
-  {id:'itemA',item:'Vest',barcode:'OC009',stock:'2'},
-  {id:'itemB',item:'Jacket',barcode:'OC009',stock:'3'},
-  {id:'itemC',item:'Gloves',barcode:'OC010',stock:'4'}
+  {id:'itemA',item:'Hi-Vis Vest',size:'XL',colour:'Yellow',barcode:'OC009',stock:'2'},
+  {id:'itemB',item:'Hi-Vis Vest',size:'XL',colour:'Orange',barcode:'OC010',stock:'3'}
  );
- dashboard.db.ppeTransactions.push({itemId:'itemB',barcode:'OC009'});
+ dashboard.db.ppeTransactions.push({itemId:'itemB',barcode:'OC010'});
  assert.equal(dashboard.ensurePpeBarcodes(),true);
- const codes=dashboard.db.ppeStock.map(x=>x.barcode);
- assert.equal(new Set(codes).size,codes.length);
- assert.equal(dashboard.db.ppeStock.find(x=>x.id==='itemB').barcode,'OC009');
- assert.ok(!['OC009','OC010'].includes(dashboard.db.ppeStock.find(x=>x.id==='itemA').barcode));
+ const [a,b]=dashboard.db.ppeStock;
+ assert.equal(a.barcode,'HIVXL');
+ assert.equal(b.barcode,'HIVXL-2');
+ assert.ok(a.legacyBarcodes.includes('OC009'));
+ assert.ok(b.legacyBarcodes.includes('OC010'));
+ assert.equal(dashboard.ppeLookupProduct('OC010').id,'itemB');
 });
-
 
 test('scanner rejects issue without employee or with invalid quantity and leaves stock unchanged',()=>{
  const {dashboard,elem,errors}=harness({locked:false});
@@ -1017,7 +1020,7 @@ test('PPE label document prints one 62 x 100 mm page per item, not an A4 sheet',
  assert.match(page,/SCAN TO ISSUE PPE/);
  assert.match(page,/\.ppe-roll-product strong\{display:block;font-size:15pt/);
  assert.match(page,/\.ppe-roll-details strong\{display:block;font-size:17pt/);
- assert.match(page,/height:28mm!important/);
+ assert.match(page,/height:33mm!important/);
 });
 test('PPE allocation labels include the recipient and the exact individual scan code',()=>{
  const {dashboard}=harness({locked:false});
@@ -1032,8 +1035,8 @@ test('PPE allocation labels include the recipient and the exact individual scan 
 });
 test('PPE delivery label uses its OC product code rather than an issue instruction',()=>{
  const {dashboard}=harness({locked:false});
- const page=dashboard.ppeRollLabelDocument([{itemName:'Safety Gloves',size:'9',barcode:'OC009'}],'PPE receipt');
- assert.match(page,/PRODUCT CODE<\/span><strong>OC009<\/strong>/);
+ const page=dashboard.ppeRollLabelDocument([{itemName:'Safety Gloves',size:'9',barcode:'GL9',productCode:'GL9'}],'PPE receipt');
+ assert.match(page,/PRODUCT CODE<\/span><strong>GL9<\/strong>/);
  assert.match(page,/SCAN FOR STOCK DELIVERY/);
  assert.doesNotMatch(page,/SCAN TO ISSUE PPE/);
 });
@@ -1091,4 +1094,28 @@ test('Preview button shows Office-generated PDF inside the dashboard for a saved
  assert.equal(elements['#preview-body'].children[0].tagName,'iframe');
  assert.equal(elements['#preview-body'].children[0].src,'blob:office-pdf');
  assert.equal(elements['.modal-actions'].children.length,0);
+});
+
+test('QR labels render offline SVG matrix with readable stock code',()=>{
+ const {dashboard}=harness({locked:false});
+ const code=dashboard.ppeBarcodeSvg('HIVXL1');
+ assert.match(code,/<svg/);
+ assert.match(code,/QR code HIVXL1/);
+ assert.match(code,/HIVXL1/);
+ assert.ok((code.match(/<rect/g)||[]).length>10);
+});
+test('QR scan deducts one from stock and an old OI code stays valid as an alias',()=>{
+ const {dashboard}=harness({locked:false});
+ const item={id:'qr-v',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC007'};
+ dashboard.db.ppeStock.push(item);
+ dashboard.db.ppeUnits.push({id:'old-one',itemId:item.id,barcode:'OI007',status:'In Stock',itemName:item.item,issuedTo:'',issuedAt:''});
+ const created=dashboard.createPpeAllocation({employee:'Test Employee',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
+ assert.ok(created.ok);
+ const code=created.allocations[0].barcode;
+ assert.equal(code,'HIVXL1');
+ assert.ok(dashboard.db.ppeUnits[0].legacyBarcodes.includes('OI007'));
+ assert.equal(dashboard.issuePpeAllocation('OI007').ok,true);
+ assert.equal(item.stock,'1');
+ assert.equal(dashboard.issuePpeAllocation(code).ok,false);
+ assert.equal(dashboard.db.ppeTransactions.length,1);
 });
