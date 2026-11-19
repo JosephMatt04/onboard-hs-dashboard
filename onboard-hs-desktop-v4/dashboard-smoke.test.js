@@ -1015,12 +1015,12 @@ test('PPE label document prints one 62 x 100 mm page per item, not an A4 sheet',
  assert.equal((page.match(/<article class="ppe-roll-label">/g)||[]).length,2);
  assert.match(page,/HI-VIS VEST/);
  assert.match(page,/OI002/);
- assert.match(page,/STOCK CODE<\/span><strong>OI002<\/strong>/);
+ assert.match(page,/ppe-roll-qr/);
  assert.match(page,/page-break-after:always/);
  assert.match(page,/SCAN TO ISSUE PPE/);
- assert.match(page,/\.ppe-roll-product strong\{display:block;font-size:15pt/);
- assert.match(page,/\.ppe-roll-details strong\{display:block;font-size:17pt/);
- assert.match(page,/height:33mm!important/);
+ assert.match(page,/\.ppe-roll-product strong\{display:block;font-size:12pt/);
+ assert.match(page,/\.ppe-roll-size\{font-size:11pt/);
+ assert.match(page,/height:28mm!important/);
 });
 test('PPE allocation labels include the recipient and the exact individual scan code',()=>{
  const {dashboard}=harness({locked:false});
@@ -1028,7 +1028,7 @@ test('PPE allocation labels include the recipient and the exact individual scan 
   {itemName:'HI-VIS VEST',size:'XL',colour:'YELLOW',barcode:'OI004',productCode:'OC001',employee:'Test Employee',department:'Production'}
  ],'PPE allocation');
  assert.match(page,/Test Employee/);
- assert.match(page,/Production/);
+ assert.match(page,/ISSUED TO/);
  assert.match(page,/OI004/);
  assert.match(page,/SCAN TO ISSUE PPE/);
  assert.match(page,/@page\{size:62mm 100mm;margin:0\}/);
@@ -1036,7 +1036,7 @@ test('PPE allocation labels include the recipient and the exact individual scan 
 test('PPE delivery label uses its OC product code rather than an issue instruction',()=>{
  const {dashboard}=harness({locked:false});
  const page=dashboard.ppeRollLabelDocument([{itemName:'Safety Gloves',size:'9',barcode:'GL9',productCode:'GL9'}],'PPE receipt');
- assert.match(page,/PRODUCT CODE<\/span><strong>GL9<\/strong>/);
+ assert.match(page,/QR code GL9/);
  assert.match(page,/SCAN FOR STOCK DELIVERY/);
  assert.doesNotMatch(page,/SCAN TO ISSUE PPE/);
 });
@@ -1118,4 +1118,18 @@ test('QR scan deducts one from stock and an old OI code stays valid as an alias'
  assert.equal(item.stock,'1');
  assert.equal(dashboard.issuePpeAllocation(code).ok,false);
  assert.equal(dashboard.db.ppeTransactions.length,1);
+});
+
+test('compact PPE roll label keeps a complete 28 mm QR in the 62 by 100 mm printable area',()=>{
+ const {dashboard}=harness({locked:false});
+ const page=dashboard.ppeRollLabelDocument([{itemName:'Hi-Vis Vest',size:'XL',barcode:'HIVXL1',productCode:'HIVXL',unit:true,employee:'Test Employee'}],'QR label');
+ assert.match(page, /@page\{size:62mm 100mm;margin:0\}/);
+ assert.match(page, /padding:4mm 5mm/);
+ assert.match(page, /\.ppe-roll-qr svg\{[^}]*width:28mm!important;height:28mm!important/);
+ assert.match(page, /QR code HIVXL1/);
+ const brand=page.indexOf('ONBOARD CORRUGATED'),qr=page.indexOf('class="ppe-roll-qr"'),product=page.indexOf('class="ppe-roll-product"');
+ assert.ok(brand<qr&&qr<product);
+ assert.match(page,/SIZE: XL/);
+ assert.match(page,/SCAN TO ISSUE PPE/);
+ assert.doesNotMatch(page,/height:33mm!important/);
 });
