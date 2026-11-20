@@ -1133,3 +1133,12 @@ test('compact PPE roll label keeps a complete 28 mm QR in the 62 by 100 mm print
  assert.match(page,/SCAN TO ISSUE PPE/);
  assert.doesNotMatch(page,/height:33mm!important/);
 });
+
+test('Add PPE form displays essential fields and hides unused legacy inputs without erasing stored fields',()=>{
+ assert.match(html,/k==='ppeStock'\?\(\(\)=>\{/);
+ assert.match(html,/const primary=\['item','category','size','stock','minStock'\]/);
+ assert.match(html,/const extras=\['location','supplier','person','notes'\]/);
+ assert.match(html,/if\(k==='ppeStock'&&!fd\.has\(f\)\)continue/);
+ assert.match(html,/if\(k==='ppeStock'&&!record\)\{r\.colour='';r\.status=/);
+ assert.match(html,/r\.barcode=nextPpeBarcode\(r\)/);
+});
