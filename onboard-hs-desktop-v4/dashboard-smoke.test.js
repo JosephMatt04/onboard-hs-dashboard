@@ -788,8 +788,12 @@ test('Allocate PPE tab displays employee allocation fields and does not issue on
  const item={id:'label-test',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC555'};
  dashboard.db.ppeStock.push(item);
  dashboard.go('ppeStock');
- assert.ok(elem('content').innerHTML.includes('Allocate PPE'));
+ assert.ok(elem('content').innerHTML.includes('Stock Management'));
+ assert.ok(elem('content').innerHTML.includes('Receive PPE'));
+ assert.ok(elem('content').innerHTML.includes('PPE Stock'));
  assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="allocate"'));
+ assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="receive"'));
+ assert.ok(dashboard.ppeWorkspaceTabs().includes('data-ppe-workspace="history"'));
  const page=dashboard.ppeAllocationHTML();
  assert.ok(page.includes('Employee full name'));
  assert.ok(page.includes('Generate &amp; print allocation labels'));
