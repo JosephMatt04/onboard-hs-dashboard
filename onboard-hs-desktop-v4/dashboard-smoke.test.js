@@ -79,6 +79,21 @@ test('PIN back button opens a safe PPE menu without exposing locked stock',()=>{
  dashboard.go('ppeStock');
  assert.ok(elem('content').innerHTML.includes('PIN protected section'));
 });
+test('generic Hi-Vis Jacket is replaced with Parka and Bomber variants without losing legacy stock',()=>{
+ const {dashboard}=harness({locked:false});
+ const old={id:'legacy-jacket',item:'Hi-Vis Jacket',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'7',barcode:'HIJXL',status:'Available',notes:''};
+ dashboard.db.ppeStock.push(old);
+ dashboard.go('ppeStock');
+ assert.equal(old.item,'Hi-Vis Jacket - Legacy (type unconfirmed)');
+ assert.equal(old.stock,'7');
+ assert.equal(old.barcode,'HIJXL');
+ assert.ok(dashboard.db.ppeStock.some(x=>x.item==='Hi-Vis Jacket - Parka'&&x.size==='XL'&&x.stock==='0'));
+ assert.ok(dashboard.db.ppeStock.some(x=>x.item==='Hi-Vis Jacket - Bomber'&&x.size==='XL'&&x.stock==='0'));
+ const count=dashboard.db.ppeStock.length;
+ dashboard.go('ppeStock');
+ assert.equal(dashboard.db.ppeStock.length,count);
+ assert.notEqual(dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Parka'&&x.size==='XL').barcode, dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Bomber'&&x.size==='XL').barcode);
+});
 test('PPE inventory hides the catalogue loader but retains receive and add controls',()=>{
  const {dashboard}=harness({locked:false});
  const page=dashboard.ppeStockRegisterHTML();
