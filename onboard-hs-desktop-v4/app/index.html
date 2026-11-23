@@ -5103,7 +5103,7 @@ function assetSummary(){const rows=db.assets;const overdue=rows.filter(r=>r.insp
 function statusHTML(s){const t=labelStatus(s);return `<span class="status ${t.good?'good':t.bad?'bad':t.warn?'warn':''}">${esc(s)}</span>`}
 function save(){try{const result=window.onboardDesktop.write(db);if(!result.ok)throw Error(result.error);return true}catch(e){alert('Unable to save to the desktop data file: '+e.message+' Export a backup and check free disk space.');return false}}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.hidden=true,3000)}
-function go(k){ppeSafeMenu=false;closeModal();if(k!=='risk')riskCategoryFilter='All';if(k!=='ssow')ssowCategoryFilter='All';if(k!=='ppeStock'){ppeInventoryTab='All PPE';ppeWorkspaceTab='stock';}section=k;search='';filter='All';render()}
+function go(k){ppeSafeMenu=false;closeModal();if(k==='ppeStock'&&!pinRestricted(k))ensureHiVisJacketTypes();if(k!=='risk')riskCategoryFilter='All';if(k!=='ssow')ssowCategoryFilter='All';if(k!=='ppeStock'){ppeInventoryTab='All PPE';ppeWorkspaceTab='stock';}section=k;search='';filter='All';render()}
 function sidebarPictogram(k){if(k==='backup')return '<span class="nav-pictogram" style="--nav-icon:#26835c" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7V4h14v15H5zM8 4v6h8V4M8 19v-6h8v6"/></svg></span>';const extra=extraModuleDetails.find(m=>m.id===k);if(extra)return extraModuleIcon(extra.icon,extra.color).replace('class="module-icon"','class="module-icon nav-pictogram"');const icons={"home":["#168254","<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.5\"/>"],"risk":["#e58a29","<path d=\"m12 3 10 18H2L12 3Z\"/><path d=\"M12 9v5m0 3h.01\"/>"],"ssow":["#2980b9","<rect x=\"5\" y=\"4\" width=\"14\" height=\"17\" rx=\"2\"/><path d=\"M9 4.5V3h6v1.5M9 10h6M9 14h6M9 18h4\"/>"],"ppeStock":["#8c63c7","<path d=\"M4 15V9a8 8 0 0 1 16 0v6M2 15h20M7 15v4h10v-4\"/>"],"ppe":["#cd7a29","<path d=\"M4 7h16v13H4zM4 11h16M8 4h8v3M8 16h3\"/>"],"training":["#4773b8","<path d=\"m2 9 10-5 10 5-10 5-10-5ZM6 11v6c3 3 9 3 12 0v-6M22 9v7\"/>"],"incidents":["#d75c57","<path d=\"M5 21V4m0 1h14l-3 5 3 5H5\"/>"],"assets":["#568d6b","<rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 7V4h6v3M3 13h18M11 12h2v3h-2z\"/>"]};const item=icons[k];return '<span class="nav-pictogram" style="--nav-icon:'+item[0]+'" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+item[1]+'</svg></span>'}
 function privateUpdateHTML(){if(!window.onboardDesktop?.chooseUpdateFolder)return '';
  const uiRefresh=window.onboardDesktop?.refreshDashboard?'<section class="panel backup-settings"><div class="section-title"><h2>Instant dashboard refresh</h2><span class="muted">No installer for interface changes</span></div><p>Use Refresh dashboard at the top of the screen to load the latest reviewed interface from the private GitHub main branch. Your H&S records remain in the local desktop data file. Changes to Electron, storage or security components still need a desktop installer.</p><div class="backup-actions"><button type="button" class="btn" id="restore-dashboard-ui">Restore bundled dashboard</button></div><p class="file-tip">GitHub CLI sign-in is required. Only refresh from code you trust. If an interface is unusable, press Ctrl+Shift+Alt+B to restore the bundled version.</p></section>':'';
@@ -5467,7 +5467,7 @@ function ppeBarcodeSvg(raw){
 function ppeProductPrefix(item){
  const name=String(item.item||'').toUpperCase(),size=String(item.size||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
  let base='PPE';
- if(/HI[ -]?VIS|HIGH VIS/.test(name))base=/JACKET|COAT/.test(name)?'HIJ':'HIV';
+ if(/HI[ -]?VIS|HIGH VIS/.test(name))base=/JACKET.*PARKA/.test(name)?'HIJP':/JACKET.*BOMBER/.test(name)?'HIJB':/JACKET|COAT/.test(name)?'HIJ':'HIV';
  else if(/GLOVE/.test(name))base=/CUT/.test(name)?'GLC':/CHEM/.test(name)?'GLCH':/HEAT/.test(name)?'GLH':'GL';
  else if(/BOOT|WELLIE|SHOE/.test(name))base='BT';
  else if(/GOGGLE/.test(name))base='GG';
@@ -5575,7 +5575,8 @@ function suggestedPpeCatalogue(){
   for(const colour of colours)for(const size of sizes)result.push({item,category,size,colour,notes});
  };
  add('Hi-Vis Vest','High Visibility Clothing',['S','M','L','XL','2XL','3XL','4XL'],['Yellow','Orange']);
- add('Hi-Vis Jacket','High Visibility Clothing',['S','M','L','XL','2XL','3XL','4XL'],['Yellow','Orange']);
+ add('Hi-Vis Jacket - Parka','High Visibility Clothing',['S','M','L','XL','2XL','3XL','4XL'],['Yellow','Orange']);
+ add('Hi-Vis Jacket - Bomber','High Visibility Clothing',['S','M','L','XL','2XL','3XL','4XL'],['Yellow','Orange']);
  add('Safety Gloves - General Handling','Hand Protection',['6','7','8','9','10','11'],['']);
  add('Safety Gloves - Cut Resistant','Hand Protection',['6','7','8','9','10','11'],['']);
  add('Safety Gloves - Chemical Resistant','Hand Protection',['S','M','L','XL','2XL'],['']);
@@ -5647,6 +5648,25 @@ function ppeTabForItem(r){
  return 'Other';
 }
 /* Removed Hi-Vis variants remain in saved records for stock/history integrity, but are not offered in the active PPE inventory or desk register. */
+/* Upgrade the old generic jacket choices once without fabricating or transferring quantities. */
+function ensureHiVisJacketTypes(){
+ const key=r=>[r.item,r.category,r.size||'',r.colour||''].map(v=>String(v).trim().toLowerCase()).join('|');
+ const existing=new Set(db.ppeStock.map(key));
+ const required=suggestedPpeCatalogue().filter(p=>/^Hi-Vis Jacket - (Parka|Bomber)$/.test(p.item)&&!existing.has(key(p)));
+ const legacy=db.ppeStock.filter(r=>String(r.item||'').trim().toLowerCase()==='hi-vis jacket');
+ if(!required.length&&!legacy.length)return true;
+ const original=db.ppeStock.slice(),oldNames=legacy.map(r=>({r,item:r.item,notes:r.notes}));
+ try{
+  for(const r of legacy){r.item='Hi-Vis Jacket - Legacy (type unconfirmed)';r.notes=[r.notes,'Original generic jacket entry. Identify whether Parka or Bomber before reallocating existing stock; previous QR codes and issue history retained.'].filter(Boolean).join(' | ')}
+  const now=Date.now();
+  for(let i=0;i<required.length;i++){
+   const p=required[i],r={id:'ppe_jacket_'+now+'_'+i,item:p.item,category:p.category,size:p.size,colour:p.colour,stock:'0',minStock:'',location:'',supplier:'',productCode:'',issuedTo:'',lastIssued:'',person:'',standard:'',reorderPoint:'',inspectionNotes:'',notes:'New jacket style — verify physical stock before recording quantity.',status:'Unverified',attachments:[]};
+   r.barcode=nextPpeBarcode(r);db.ppeStock.push(r);
+  }
+  if(!save())throw Error('Unable to save updated jacket options.');
+  return true;
+ }catch(e){db.ppeStock=original;for(const x of oldNames){x.r.item=x.item;x.r.notes=x.notes}alert('Could not update jacket styles: '+e.message);return false}
+}
 function ppeVisibleStockItems(){
  return db.ppeStock.filter(r=>{
   const name=String(r.item||'').trim().toLowerCase().replace(/[–—]/g,'-');
