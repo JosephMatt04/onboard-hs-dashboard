@@ -94,6 +94,23 @@ test('generic Hi-Vis Jacket is replaced with Parka and Bomber variants without l
  assert.equal(dashboard.db.ppeStock.length,count);
  assert.notEqual(dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Parka'&&x.size==='XL').barcode, dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Bomber'&&x.size==='XL').barcode);
 });
+test('PPE jacket catalogue shows only yellow Parka and Bomber and excludes older jacket variants',()=>{
+ const {dashboard}=harness({locked:false});
+ dashboard.db.ppeStock.push(
+ {id:'old-generic',item:'Hi-Vis Jacket',size:'L',colour:'Yellow',stock:'4'},
+ {id:'old-legacy',item:'Hi-Vis Jacket - Legacy (type unconfirmed)',size:'XL',colour:'Yellow',stock:'2'},
+ {id:'old-orange',item:'Hi-Vis Jacket - Parka',size:'L',colour:'Orange',stock:'3'},
+ {id:'current-yellow',item:'Hi-Vis Jacket - Bomber',size:'L',colour:'Yellow',stock:'5'}
+ );
+ const visible=dashboard.ppeVisibleStockItems();
+ assert.ok(visible.some(x=>x.id==='current-yellow'));
+ for(const id of ['old-generic','old-legacy','old-orange'])assert.ok(!visible.some(x=>x.id===id),id);
+ for(const id of ['old-generic','old-legacy','old-orange'])assert.ok(dashboard.db.ppeStock.some(x=>x.id===id));
+ const options=dashboard.ppeReceiveHTML();
+ assert.ok(options.includes('Hi-Vis Jacket - Bomber'));
+ assert.ok(!options.includes('Hi-Vis Jacket - Legacy'));
+ assert.ok(!options.includes('Hi-Vis Jacket - Parka · L · Orange'));
+});
 test('PPE inventory hides the catalogue loader but retains receive and add controls',()=>{
  const {dashboard}=harness({locked:false});
  const page=dashboard.ppeStockRegisterHTML();
