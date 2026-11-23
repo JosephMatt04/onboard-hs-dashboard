@@ -34,7 +34,7 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
   onboardAutoBackup:{renderSettings:()=>'<p>Backups</p>',bindControls:()=>{}}
  };
  const errors=[];
- const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,openPpeIssueRemovalDialog,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,ppeProductPrefix,ppeLookupProduct,ppeLookupUnit,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{});
+ const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,openPpeIssueRemovalDialog,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,ppeProductPrefix,ppeLookupProduct,ppeLookupUnit,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,receivePpeStock,ppeReceiveHTML,bindPpeReceive,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{});
  return {dashboard,elem,errors,openedAttachments,issueButtons,getWrites:()=>writes};
 }
 test('all registers render their current workflows without crashing',()=>{
@@ -720,24 +720,22 @@ test('scanner rejects issue without employee or with invalid quantity and leaves
  assert.ok(errors.some(s=>s.includes('Not enough stock')));
  assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
 });
-test('scanner accepts product OC code for receipt, but never allows receiving on individual OI barcode',()=>{
- const {dashboard,elem,errors}=harness({locked:false});
+test('manual supplier receipt adds stock and keeps existing QR units unchanged',()=>{
+ const {dashboard}=harness({locked:false});
  const item={id:'receipt-item',item:'Hi-Vis Vest',barcode:'OC321',stock:'2',size:'M',colour:'Orange',status:'Available',minStock:''};
  dashboard.db.ppeStock.push(item);
  dashboard.db.ppeUnits.push({id:'receipt-unit',itemId:item.id,itemName:item.item,barcode:'OI321',status:'In Stock',colour:'Orange',size:'M',issuedTo:'',issuedAt:''});
- dashboard.bindPpeScanner();
- elem('ppe-scan-code').value='OI321';elem('ppe-scan-type').value='receive';
- elem('ppe-scan-qty').value='2';elem('ppe-scan-employee').value='';
- elem('ppe-scan-person').value='Safety Officer';elem('ppe-scan-notes').value='';
- elem('ppe-scan-form').listeners.submit({preventDefault(){}});
- assert.equal(item.stock,'2');assert.equal(dashboard.db.ppeTransactions.length,0);
- assert.ok(errors.some(s=>s.includes('product QR code for deliveries')));
- elem('ppe-scan-code').value='oc321';
- elem('ppe-scan-form').listeners.submit({preventDefault(){}});
+ const received=dashboard.receivePpeStock({itemId:item.id,quantity:'2',supplier:'Test Supplier',deliveryRef:'DEL-321',person:'Safety Officer'});
+ assert.ok(received.ok);
  assert.equal(item.stock,'4');
  assert.equal(dashboard.db.ppeTransactions.length,1);
- assert.equal(dashboard.db.ppeTransactions[0].barcode,'OC321');
  assert.equal(dashboard.db.ppeTransactions[0].type,'receive');
+ assert.equal(dashboard.db.ppeUnits[0].status,'In Stock');
+ assert.equal(dashboard.db.ppeTransactions[0].supplier,'Test Supplier');
+ assert.equal(dashboard.receivePpeStock({itemId:item.id,quantity:'2',supplier:'Test Supplier',deliveryRef:'DEL-321',person:'Safety Officer'}).ok,false);
+ assert.equal(item.stock,'4');
+ assert.ok(dashboard.ppeStockRegisterHTML().includes('Receive Stock'));
+ assert.ok(dashboard.ppeReceiveHTML().includes('Receive PPE delivery'));
 });
 test('scanner requires available OI code when individual desk labels exist',()=>{
  const {dashboard,elem,errors}=harness({locked:false});
