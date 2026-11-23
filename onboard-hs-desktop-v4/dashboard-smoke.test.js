@@ -65,6 +65,28 @@ test('PIN-locked sections do not render records, actions or row filters',()=>{
  dashboard.go('assets');
  assert.ok(elem('content').innerHTML.includes('Live register checks'));
 });
+test('PIN back button opens a safe PPE menu without exposing locked stock',()=>{
+ const {dashboard,elem}=harness({locked:true,sections:['ppeStock','ppe']});
+ dashboard.db.ppeStock.push({id:'private-ppe-test',item:'PRIVATE_STOCK_REFERENCE',stock:'10'});
+ dashboard.go('ppeStock');
+ assert.ok(elem('content').innerHTML.includes('PIN protected section'));
+ assert.equal(typeof elem('pin-back-dashboard').onclick,'function');
+ elem('pin-back-dashboard').onclick();
+ const menu=elem('content').innerHTML;
+ assert.ok(menu.includes('PPE Stock Management'));
+ assert.ok(menu.includes('Safety Boot Claims'));
+ assert.ok(!menu.includes('PRIVATE_STOCK_REFERENCE'));
+ dashboard.go('ppeStock');
+ assert.ok(elem('content').innerHTML.includes('PIN protected section'));
+});
+test('PPE inventory hides the catalogue loader but retains receive and add controls',()=>{
+ const {dashboard}=harness({locked:false});
+ const page=dashboard.ppeStockRegisterHTML();
+ assert.ok(!page.includes('Load PPE catalogue'));
+ assert.ok(page.includes('Receive Stock'));
+ assert.ok(page.includes('Add PPE item'));
+});
+
 test('topbar lock hides sensitive content without deleting records',async()=>{
  const {dashboard,elem}=harness({locked:false});
  const existing=dashboard.db.training.length;
