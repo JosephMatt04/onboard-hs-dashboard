@@ -5918,7 +5918,7 @@ function receivePpeStock(data){
  const item=db.ppeStock.find(r=>r.id===data.itemId);
  if(!item||!ppeVisibleStockItems().some(r=>r.id===item.id))return {ok:false,error:'Select an existing PPE product and size.'};
  const raw=String(data.quantity||'').trim(),quantity=Number(raw);
- if(!/^[1-9]\\d*$/.test(raw)||!Number.isSafeInteger(quantity)||quantity>1000000)return {ok:false,error:'Enter a whole-number quantity between 1 and 1,000,000.'};
+ if(!/^[1-9]\d*$/.test(raw)||!Number.isSafeInteger(quantity)||quantity>1000000)return {ok:false,error:'Enter a whole-number quantity between 1 and 1,000,000.'};
  const supplier=String(data.supplier||'').trim(),person=String(data.person||'').trim(),deliveryRef=String(data.deliveryRef||'').trim(),notes=String(data.notes||'').trim();
  if(!supplier||!person||supplier.length>120||person.length>120||deliveryRef.length>120||notes.length>250)return {ok:false,error:'Supplier and received-by are required; check field lengths.'};
  const before=Number(item.stock),after=before+quantity;
