@@ -82,6 +82,32 @@ test('Failed conversion keeps the original and cleans up temporary Office files'
   } finally { x.cleanup(); }
 });
 
+test('SSOW Word previews fit wide tables to page using only temporary conversion and preserve original', async () => {
+  const x = fixture('BHS Corrugator SSOW.doc', Buffer.from('unchanged original Word attachment'));
+  let convertedOptions;
+  try {
+    x.saved.ssow = [{id:'ssow-1',attachments:[x.attachment]}];
+    const preview=createOfficePreview({readRecords:x.readRecords,tempDirectory:()=>x.temp,
+      convertPdf:async(source,destination,options)=>{
+        convertedOptions=options;
+        assert.equal(path.basename(source),'document.doc');
+        assert.deepEqual(fs.readFileSync(source),x.bytes);
+        fs.writeFileSync(destination,'%PDF-1.7\\nMock SSOW');
+      }});
+    const result=await preview('ssow','ssow-1',0);
+    assert.equal(result.ok,true);
+    assert.deepEqual(convertedOptions,{section:'ssow'});
+    assert.deepEqual(Buffer.from(x.attachment.data.split(',')[1],'base64'),x.bytes);
+    assert.deepEqual(fs.readdirSync(x.temp),[]);
+  } finally {x.cleanup()}
+});
+test('Word layout adjustment applies only to SSOW previews and never saves the document',()=>{
+  assert.match(OFFICE_PDF_SCRIPT,/ONBOARD_PREVIEW_SECTION -eq 'ssow'/);
+  assert.match(OFFICE_PDF_SCRIPT,/\$table\.AutoFitBehavior\(2\)/);
+  assert.match(OFFICE_PDF_SCRIPT,/\$document\.Repaginate\(\)/);
+  assert.match(OFFICE_PDF_SCRIPT,/\$document\.Close\(0\)/);
+  assert.doesNotMatch(OFFICE_PDF_SCRIPT,/\$document\.Save(?:As|As2)?\(/);
+});
 test('Microsoft Office opens files read-only with VBA macros and external link updates disabled', () => {
   assert.equal((OFFICE_PDF_SCRIPT.match(/AutomationSecurity = 3/g) || []).length, 2);
   assert.match(OFFICE_PDF_SCRIPT, /Workbooks\.Open\(\$source, 0, \$true\)/);
