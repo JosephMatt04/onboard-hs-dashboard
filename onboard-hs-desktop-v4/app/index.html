@@ -2669,7 +2669,7 @@ html[data-theme="dark"] body .ppe-secondary-tabs button.active{background:#344e3
 .ssow-form-extras textarea.field{min-height:72px;height:82px;resize:vertical}
 @media(max-width:650px){.ssow-compact-grid{grid-template-columns:1fr}}
 
-/* Full-window SSOW preview: no native fullscreen permission or new window required. */
+/* Native screen-filling SSOW preview via Fullscreen API. */
 .preview-modal.ssow-document-preview.ssow-preview-expanded{position:fixed!important;inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;max-width:none!important;height:100vh!important;max-height:none!important;margin:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;box-sizing:border-box!important}
 .ssow-preview-expanded #preview-title{flex:none}
 .ssow-preview-expanded #preview-info{flex:none}
@@ -2678,6 +2678,11 @@ html[data-theme="dark"] body .ppe-secondary-tabs button.active{background:#344e3
 .ssow-preview-expanded #preview-body .preview-image{max-height:none!important;object-fit:contain}
 .ssow-preview-expanded #preview-body .preview-text{max-height:none!important;flex:1;overflow:auto}
 .ssow-preview-expanded .modal-actions{flex:none;margin-top:auto}
+
+.preview-modal.ssow-document-preview:fullscreen{background:#26312f!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important;padding:12px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.preview-modal.ssow-document-preview:fullscreen #preview-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:auto!important}
+.preview-modal.ssow-document-preview:fullscreen #preview-body .preview-frame{width:100%!important;height:100%!important;flex:1 1 auto!important;min-height:0!important;max-height:none!important}
+.preview-modal.ssow-document-preview:fullscreen .modal-actions{flex:none!important}
 
 </style>
 </head>
@@ -6540,17 +6545,29 @@ async function previewAttachment(a,k,id){
  if(!pdf&&!img&&!txt&&!word&&!spreadsheet){alert('This file type cannot be previewed directly in an offline browser. Download it to open in its original application.');return}
  let objectUrl=null;
  const root=document.getElementById('modal-root');
- const close=()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);documentPanel(k,id)};
+ const close=async()=>{if(document.fullscreenElement===root.querySelector('.ssow-document-preview')){try{await document.exitFullscreen()}catch(e){}}if(objectUrl)URL.revokeObjectURL(objectUrl);documentPanel(k,id)};
  root.innerHTML=`<div class="modal-backdrop"><div class="modal preview-modal${k==='ssow'?' ssow-document-preview':''}" role="dialog" aria-modal="true" aria-labelledby="preview-title"><h2 id="preview-title">${esc(a.name)}</h2><p class="preview-info" id="preview-info">Opening preview…</p><div id="preview-body" aria-live="polite"></div><div class="modal-actions"><button type="button" class="btn" id="preview-back">Back to attachments</button>${k==='ssow'?'<button type="button" class="btn" id="preview-fullscreen" aria-pressed="false">⛶ Full screen</button>':''}<button type="button" class="btn primary" id="preview-download">Download original</button></div></div></div>`;
  root.querySelector('#preview-back').onclick=close;
  const fullScreenButton=root.querySelector('#preview-fullscreen');
- if(fullScreenButton)fullScreenButton.onclick=()=>{
+ if(fullScreenButton){
   const dialog=root.querySelector('.ssow-document-preview');
-  if(!dialog)return;
-  const expanded=dialog.classList.toggle('ssow-preview-expanded');
-  fullScreenButton.textContent=expanded?'⤢ Exit full screen':'⛶ Full screen';
-  fullScreenButton.setAttribute('aria-pressed',String(expanded));
- };
+  const syncFullScreen=()=>{
+   if(root.querySelector('.ssow-document-preview')!==dialog){document.removeEventListener('fullscreenchange',syncFullScreen);return}
+   const expanded=document.fullscreenElement===dialog;
+   dialog.classList.toggle('ssow-preview-expanded',expanded);
+   fullScreenButton.textContent=expanded?'⤢ Exit full screen':'⛶ Full screen';
+   fullScreenButton.setAttribute('aria-pressed',String(expanded));
+  };
+  document.addEventListener('fullscreenchange',syncFullScreen);
+  fullScreenButton.onclick=async()=>{
+   try{
+    if(document.fullscreenElement===dialog)await document.exitFullscreen();
+    else if(typeof dialog.requestFullscreen==='function')await dialog.requestFullscreen();
+    else throw Error('Full-screen mode is not supported by this app version.');
+    syncFullScreen();
+   }catch(error){alert('Unable to enter full screen: '+error.message)}
+  };
+ }
  root.querySelector('#preview-download').onclick=()=>downloadAttachment(a);
  root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))close()};
  try{
