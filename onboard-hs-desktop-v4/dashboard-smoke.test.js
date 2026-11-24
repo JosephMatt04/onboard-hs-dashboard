@@ -59,6 +59,8 @@ test('SSOW attachment preview has full-screen toggle and a way to return',()=>{
  assert.ok(preview.includes("root.querySelector('#preview-back').onclick=close"));
  assert.ok(preview.includes("root.querySelector('#preview-download').onclick=()=>downloadAttachment(a)"));
  assert.ok(html.includes('.preview-modal.ssow-document-preview:fullscreen #preview-body .preview-frame'));
+ assert.ok(html.includes('.preview-modal.ssow-document-preview:fullscreen .modal-actions{display:none!important}'));
+ assert.ok(preview.includes('await document.exitFullscreen()'));
 });
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
