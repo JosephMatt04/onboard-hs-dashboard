@@ -2685,6 +2685,15 @@ html[data-theme="dark"] body .ppe-secondary-tabs button.active{background:#344e3
 /* In true full screen, hide the preview action bar so it cannot cover the SSOW pages. Press Esc to return to the standard view. */
 .preview-modal.ssow-document-preview:fullscreen .modal-actions{display:none!important}
 
+/* SSOW documents: explicit Chromium PDF page-fit controls; preserve original file. */
+.ssow-preview-fit-controls{display:flex;align-items:center;gap:8px;margin:0 0 8px;flex:none}
+.ssow-preview-fit-controls .btn{font-size:11px;padding:7px 10px}
+.ssow-preview-fit-controls .btn[aria-pressed="true"]{border-color:#b3db53;background:#476c30;color:#fff;font-weight:750}
+.ssow-document-preview #preview-body{min-width:0;width:100%}
+.ssow-document-preview .preview-frame{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.ssow-document-preview.ssow-preview-expanded #preview-body{min-width:0;width:100%}
+.preview-modal.ssow-document-preview:fullscreen .ssow-preview-fit-controls{margin-bottom:6px}
+
 </style>
 </head>
 <body>
@@ -6547,7 +6556,7 @@ async function previewAttachment(a,k,id){
  let objectUrl=null;
  const root=document.getElementById('modal-root');
  const close=async()=>{if(document.fullscreenElement===root.querySelector('.ssow-document-preview')){try{await document.exitFullscreen()}catch(e){}}if(objectUrl)URL.revokeObjectURL(objectUrl);documentPanel(k,id)};
- root.innerHTML=`<div class="modal-backdrop"><div class="modal preview-modal${k==='ssow'?' ssow-document-preview':''}" role="dialog" aria-modal="true" aria-labelledby="preview-title"><h2 id="preview-title">${esc(a.name)}</h2><p class="preview-info" id="preview-info">Opening preview…</p><div id="preview-body" aria-live="polite"></div><div class="modal-actions"><button type="button" class="btn" id="preview-back">Back to attachments</button>${k==='ssow'?'<button type="button" class="btn" id="preview-fullscreen" aria-pressed="false">⛶ Full screen</button>':''}<button type="button" class="btn primary" id="preview-download">Download original</button></div></div></div>`;
+ root.innerHTML=`<div class="modal-backdrop"><div class="modal preview-modal${k==='ssow'?' ssow-document-preview':''}" role="dialog" aria-modal="true" aria-labelledby="preview-title"><h2 id="preview-title">${esc(a.name)}</h2><p class="preview-info" id="preview-info">Opening preview…</p>${k==='ssow'?'<div class="ssow-preview-fit-controls" role="group" aria-label="Document page fitting"><button type="button" class="btn small" id="preview-fit-page" aria-pressed="true">Fit entire page</button><button type="button" class="btn small" id="preview-fit-width" aria-pressed="false">Fit page width</button></div>':''}<div id="preview-body" aria-live="polite"></div><div class="modal-actions"><button type="button" class="btn" id="preview-back">Back to attachments</button>${k==='ssow'?'<button type="button" class="btn" id="preview-fullscreen" aria-pressed="false">⛶ Full screen</button>':''}<button type="button" class="btn primary" id="preview-download">Download original</button></div></div></div>`;
  root.querySelector('#preview-back').onclick=close;
  const fullScreenButton=root.querySelector('#preview-fullscreen');
  if(fullScreenButton){
@@ -6574,7 +6583,21 @@ async function previewAttachment(a,k,id){
  try{
   const body=root.querySelector('#preview-body'),info=root.querySelector('#preview-info');
   const addAction=(label,handler)=>{const button=document.createElement('button');button.type='button';button.className='btn';button.textContent=label;button.onclick=handler;root.querySelector('.modal-actions').insertBefore(button,root.querySelector('#preview-download'));return button};
-  const displayPdf=(attachment,title)=>{objectUrl=URL.createObjectURL(attachmentBlob(attachment));const frame=document.createElement('iframe');frame.className='preview-frame';frame.title=title;frame.src=objectUrl;body.append(frame)};
+  const displayPdf=(attachment,title)=>{
+   objectUrl=URL.createObjectURL(attachmentBlob(attachment));
+   const frame=document.createElement('iframe');frame.className='preview-frame';frame.title=title;frame.src=objectUrl+(k==='ssow'?'#view=Fit':'');body.append(frame);
+   if(k==='ssow'){
+    const fitPage=root.querySelector('#preview-fit-page'),fitWidth=root.querySelector('#preview-fit-width');
+    const setFit=(mode)=>{
+     if(!root.contains(frame))return;
+     frame.src=objectUrl+(mode==='width'?'#view=FitH':'#view=Fit');
+     if(fitPage)fitPage.setAttribute('aria-pressed',String(mode==='page'));
+     if(fitWidth)fitWidth.setAttribute('aria-pressed',String(mode==='width'));
+    };
+    if(fitPage)fitPage.onclick=()=>setFit('page');
+    if(fitWidth)fitWidth.onclick=()=>setFit('width');
+   }
+  };
   if(spreadsheet||word){
    const record=(db[k]||[]).find(r=>r.id===id),index=(record?.attachments||[]).findIndex(file=>file===a||file.name===a.name&&file.data===a.data);
    let officeError='';
