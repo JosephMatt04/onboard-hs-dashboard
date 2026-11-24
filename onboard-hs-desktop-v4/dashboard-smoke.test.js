@@ -46,6 +46,17 @@ test('attachment save refreshes the document panel before full page redraw',()=>
  assert.ok(fn.includes("root.querySelector('#cancel').onclick=()=>{closeModal();render()}"));
  assert.ok(!fn.includes("render();documentPanel(k,id);toast('Document(s) attached')"));
 });
+test('SSOW preview defaults to full-page fit and supports width fit without modifying attachments',()=>{
+ const begin=inline.indexOf('async function previewAttachment('),end=inline.indexOf('function fileAsDataURL(',begin);
+ const preview=inline.slice(begin,end);
+ assert.ok(preview.includes('id="preview-fit-page"'));
+ assert.ok(preview.includes('id="preview-fit-width"'));
+ assert.ok(preview.includes("frame.src=objectUrl+(k==='ssow'?'#view=Fit':'')"));
+ assert.ok(preview.includes("'#view=FitH':'#view=Fit'"));
+ assert.ok(preview.includes("fitPage.onclick=()=>setFit('page')"));
+ assert.ok(preview.includes("fitWidth.onclick=()=>setFit('width')"));
+ assert.ok(html.includes('.ssow-document-preview .preview-frame{display:block;width:100%'));
+});
 test('SSOW attachment preview has full-screen toggle and a way to return',()=>{
  const begin=inline.indexOf('async function previewAttachment('),end=inline.indexOf('function fileAsDataURL(',begin);
  assert.ok(begin>=0&&end>begin);
