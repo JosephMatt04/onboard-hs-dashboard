@@ -37,6 +37,15 @@ function harness({locked=true,sections=['training','incidents','ppe'],writeFails
  const dashboard=new Function('window','document','alert','confirm','setTimeout','clearTimeout',core+"\nreturn {go,db,config,pinRestricted,save,lockProtectedTabs,render,handleAction,sectionWorkflow,checkPpeStockCorrection,ppeIssueRecordsFiltered,ppeEmployeeIssueRecordsHTML,bindPpeIssueSearch,removePpeIssueRecord,openPpeIssueRemovalDialog,refreshPpeIssueRecords,ppeWorkspaceTabs,ppeAllocationHTML,printPpeDeskRegister,ppeRollLabelDocument,spreadsheetRange,spreadsheetDisplayValue,ppeBarcodeSvg,ppeProductPrefix,ppeLookupProduct,ppeLookupUnit,openAttachmentDirectly,attachmentHTML,bindPpeAllocation,createPpeAllocation,issuePpeAllocation,individualPpeLabelsHTML,printPpeLabels,nextPpeBarcode,nextPpeUnitBarcode,ppeTabForItem,ppeVisibleStockItems,ppeStockRegisterHTML,ensurePpeBarcodes,bindPpeScanner,receivePpeStock,ppeReceiveHTML,bindPpeReceive,setRiskCategory:(name)=>{riskCategoryFilter=name;updateRows()}};")(window,document,msg=>errors.push(String(msg)),()=>confirmResult,()=>0,()=>{});
  return {dashboard,elem,errors,openedAttachments,issueButtons,getWrites:()=>writes};
 }
+test('attachment save refreshes the document panel before full page redraw',()=>{
+ const start=inline.indexOf('function documentPanel(');
+ const end=inline.indexOf('function checkPpeStockCorrection(',start);
+ assert.ok(start>=0&&end>start);
+ const fn=inline.slice(start,end);
+ assert.ok(fn.includes("if(!save()){record.attachments=old;return}documentPanel(k,id);toast('Document(s) attached')"));
+ assert.ok(fn.includes("root.querySelector('#cancel').onclick=()=>{closeModal();render()}"));
+ assert.ok(!fn.includes("render();documentPanel(k,id);toast('Document(s) attached')"));
+});
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
