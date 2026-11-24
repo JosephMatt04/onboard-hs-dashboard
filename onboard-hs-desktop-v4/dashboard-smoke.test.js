@@ -652,13 +652,15 @@ test('retired Hi-Vis clothing is hidden from existing inventory without deleting
   assert.ok(dashboard.db.ppeStock.some(r=>r.item===removed),'Original PPE data must remain');
   assert.ok(!visible.some(r=>r.item===removed),'Removed type must not appear');
  }
- for(const retained of ['Hi-Vis Vest','Hi-Vis Jacket','Safety Gloves - Cut Resistant'])assert.ok(visible.some(r=>r.item===retained),retained);
+ for(const retained of ['Hi-Vis Vest','Safety Gloves - Cut Resistant'])assert.ok(visible.some(r=>r.item===retained),retained);
+ assert.ok(!visible.some(r=>r.item==='Hi-Vis Jacket'),'Generic jacket should not be offered for new issues');
+ assert.ok(dashboard.db.ppeStock.some(r=>r.item==='Hi-Vis Jacket'),'Legacy jacket records must remain saved');
  const page=dashboard.ppeStockRegisterHTML();
  assert.ok(!page.includes('Hi-Vis Sweatshirt'));
  assert.ok(!page.includes('Hi-Vis Waterproof Coat'));
  assert.ok(!page.includes('Hi-Vis Trousers'));
  assert.ok(page.includes('Hi-Vis Vest'));
- assert.ok(page.includes('Hi-Vis Jacket'));
+ assert.ok(!page.includes('<td>Hi-Vis Jacket</td>'));
 });
 
 
