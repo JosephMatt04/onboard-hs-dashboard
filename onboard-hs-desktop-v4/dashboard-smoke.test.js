@@ -52,11 +52,13 @@ test('SSOW attachment preview has full-screen toggle and a way to return',()=>{
  const preview=inline.slice(begin,end);
  assert.ok(preview.includes("k==='ssow'?' ssow-document-preview':''"));
  assert.ok(preview.includes('id="preview-fullscreen"'));
- assert.ok(preview.includes("dialog.classList.toggle('ssow-preview-expanded')"));
+ assert.ok(preview.includes("await dialog.requestFullscreen()"));
+ assert.ok(preview.includes("await document.exitFullscreen()"));
+ assert.ok(preview.includes("document.addEventListener('fullscreenchange',syncFullScreen)"));
  assert.ok(preview.includes("fullScreenButton.setAttribute('aria-pressed',String(expanded))"));
  assert.ok(preview.includes("root.querySelector('#preview-back').onclick=close"));
  assert.ok(preview.includes("root.querySelector('#preview-download').onclick=()=>downloadAttachment(a)"));
- assert.ok(html.includes('.ssow-preview-expanded #preview-body .preview-frame'));
+ assert.ok(html.includes('.preview-modal.ssow-document-preview:fullscreen #preview-body .preview-frame'));
 });
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
