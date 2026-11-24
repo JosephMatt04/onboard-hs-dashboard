@@ -2682,7 +2682,8 @@ html[data-theme="dark"] body .ppe-secondary-tabs button.active{background:#344e3
 .preview-modal.ssow-document-preview:fullscreen{background:#26312f!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important;padding:12px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 .preview-modal.ssow-document-preview:fullscreen #preview-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:auto!important}
 .preview-modal.ssow-document-preview:fullscreen #preview-body .preview-frame{width:100%!important;height:100%!important;flex:1 1 auto!important;min-height:0!important;max-height:none!important}
-.preview-modal.ssow-document-preview:fullscreen .modal-actions{flex:none!important}
+/* In true full screen, hide the preview action bar so it cannot cover the SSOW pages. Press Esc to return to the standard view. */
+.preview-modal.ssow-document-preview:fullscreen .modal-actions{display:none!important}
 
 </style>
 </head>
