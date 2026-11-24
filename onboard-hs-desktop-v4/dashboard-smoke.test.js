@@ -46,6 +46,18 @@ test('attachment save refreshes the document panel before full page redraw',()=>
  assert.ok(fn.includes("root.querySelector('#cancel').onclick=()=>{closeModal();render()}"));
  assert.ok(!fn.includes("render();documentPanel(k,id);toast('Document(s) attached')"));
 });
+test('SSOW attachment preview has full-screen toggle and a way to return',()=>{
+ const begin=inline.indexOf('async function previewAttachment('),end=inline.indexOf('function fileAsDataURL(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const preview=inline.slice(begin,end);
+ assert.ok(preview.includes("k==='ssow'?' ssow-document-preview':''"));
+ assert.ok(preview.includes('id="preview-fullscreen"'));
+ assert.ok(preview.includes("dialog.classList.toggle('ssow-preview-expanded')"));
+ assert.ok(preview.includes("fullScreenButton.setAttribute('aria-pressed',String(expanded))"));
+ assert.ok(preview.includes("root.querySelector('#preview-back').onclick=close"));
+ assert.ok(preview.includes("root.querySelector('#preview-download').onclick=()=>downloadAttachment(a)"));
+ assert.ok(html.includes('.ssow-preview-expanded #preview-body .preview-frame'));
+});
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
