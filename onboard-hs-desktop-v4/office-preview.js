@@ -48,6 +48,15 @@ if ($extension -in @('.xls', '.xlsx', '.xlsm', '.xlsb', '.ods', '.csv')) {
     $word.AutomationSecurity = 3
     $word.Options.UpdateLinksAtOpen = $false
     $document = $word.Documents.Open($source, $false, $true, $false)
+    # Adjust only the disposable in-memory SSOW preview. Never save the Word source.
+    # Word's PDF export otherwise clips fixed-width tables that extend beyond the page edge.
+    if ($env:ONBOARD_PREVIEW_SECTION -eq 'ssow') {
+      foreach ($table in $document.Tables) {
+        # wdAutoFitWindow = 2. Fit wide procedure / hazard tables to printable page width.
+        $table.AutoFitBehavior(2)
+      }
+      $document.Repaginate()
+    }
     $document.ExportAsFixedFormat($destination, 17)
   } finally {
     if ($null -ne $document) {
@@ -65,13 +74,13 @@ if (-not (Test-Path -LiteralPath $destination -PathType Leaf)) {
 }
 `;
 
-function convertWithMicrosoftOffice(source, destination) {
+function convertWithMicrosoftOffice(source, destination, options = {}) {
   return new Promise((resolve, reject) => {
     execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', OFFICE_PDF_SCRIPT], {
       windowsHide: true,
       timeout: 90000,
       maxBuffer: 1024 * 1024,
-      env: {...process.env, ONBOARD_PREVIEW_SOURCE: source, ONBOARD_PREVIEW_PDF: destination}
+      env: {...process.env, ONBOARD_PREVIEW_SOURCE: source, ONBOARD_PREVIEW_PDF: destination, ONBOARD_PREVIEW_SECTION: options?.section || ''}
     }, (error, _stdout, stderr) => {
       if (!error) return resolve();
       const detail = String(stderr || error.message).trim().slice(0, 350);
@@ -102,7 +111,7 @@ function createOfficePreview({readRecords, tempDirectory, convertPdf = convertWi
       const source = path.join(tempFolder, 'document' + ext);
       const destination = path.join(tempFolder, 'preview.pdf');
       await fs.promises.writeFile(source, original, {flag: 'wx', mode: 0o600});
-      await convertPdf(source, destination);
+      await convertPdf(source, destination, {section});
       const output = await fs.promises.readFile(destination);
       if (output.length < 5 || output.length > MAX_PREVIEW_BYTES || output.subarray(0, 5).toString() !== '%PDF-') {
         throw Error('Office returned an invalid or oversized PDF');
