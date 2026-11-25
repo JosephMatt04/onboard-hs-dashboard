@@ -862,7 +862,7 @@ test('verbal warnings is a separate register beneath incidents with confidential
  dashboard.db.verbalWarnings.push({id:'warning-test',date:'2026-11-16',employee:'Example Employee',area:'Warehouse',subject:'Unsafe conduct',description:'Safety discussion',expectedImprovement:'Follow safe procedure',issuedBy:'Example Manager',status:'Follow-up Required'});
  dashboard.go('verbalWarnings');
  assert.ok(elem('tbody').innerHTML.includes('Example Employee'));
- assert.ok(dashboard.sectionWorkflow('verbalWarnings').includes('Verbal warning follow-up'));
+ assert.ok(dashboard.sectionWorkflow('verbalWarnings').includes('Letter of concern follow-up'));
 });
 test('verbal warnings register respects its own PIN selection',()=>{
  const {dashboard,elem}=harness({locked:true,sections:['verbalWarnings']});
