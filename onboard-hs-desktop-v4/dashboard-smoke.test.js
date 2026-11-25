@@ -725,14 +725,14 @@ test('retired Hi-Vis clothing is hidden from existing inventory without deleting
   assert.ok(dashboard.db.ppeStock.some(r=>r.item===removed),'Original PPE data must remain');
   assert.ok(!visible.some(r=>r.item===removed),'Removed type must not appear');
  }
- for(const retained of ['Hi-Vis Vest','Safety Gloves - Cut Resistant'])assert.ok(visible.some(r=>r.item===retained),retained);
+ for(const retired of ['Hi-Vis Vest','Safety Gloves - Cut Resistant'])assert.ok(!visible.some(r=>r.item===retired),retired);
  assert.ok(!visible.some(r=>r.item==='Hi-Vis Jacket'),'Generic jacket should not be offered for new issues');
  assert.ok(dashboard.db.ppeStock.some(r=>r.item==='Hi-Vis Jacket'),'Legacy jacket records must remain saved');
  const page=dashboard.ppeStockRegisterHTML();
  assert.ok(!page.includes('Hi-Vis Sweatshirt'));
  assert.ok(!page.includes('Hi-Vis Waterproof Coat'));
  assert.ok(!page.includes('Hi-Vis Trousers'));
- assert.ok(page.includes('Hi-Vis Vest'));
+ assert.ok(!page.includes('<td>Hi-Vis Vest</td>'));
  assert.ok(!page.includes('<td>Hi-Vis Jacket</td>'));
 });
 
@@ -851,9 +851,9 @@ test('scanner rejects issue without employee or with invalid quantity and leaves
 });
 test('manual supplier receipt adds stock and keeps existing QR units unchanged',()=>{
  const {dashboard}=harness({locked:false});
- const item={id:'receipt-item',item:'Hi-Vis Vest',barcode:'OC321',stock:'2',size:'M',colour:'Orange',status:'Available',minStock:''};
+ const item={id:'receipt-item',item:'Hi-Vis Jacket - Parka',barcode:'OC321',stock:'2',size:'M',colour:'Yellow',status:'Available',minStock:''};
  dashboard.db.ppeStock.push(item);
- dashboard.db.ppeUnits.push({id:'receipt-unit',itemId:item.id,itemName:item.item,barcode:'OI321',status:'In Stock',colour:'Orange',size:'M',issuedTo:'',issuedAt:''});
+ dashboard.db.ppeUnits.push({id:'receipt-unit',itemId:item.id,itemName:item.item,barcode:'OI321',status:'In Stock',colour:'Yellow',size:'M',issuedTo:'',issuedAt:''});
  const received=dashboard.receivePpeStock({itemId:item.id,quantity:'2',supplier:'Test Supplier',deliveryRef:'DEL-321',person:'Safety Officer'});
  assert.ok(received.ok);
  assert.equal(item.stock,'4');
@@ -914,7 +914,7 @@ test('verbal warnings navigation appears once directly beneath incidents',()=>{
 
 test('Allocate PPE tab displays employee allocation fields and does not issue on opening',()=>{
  const {dashboard,elem}=harness({locked:false});
- const item={id:'label-test',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC555'};
+ const item={id:'label-test',item:'Hi-Vis Jacket - Parka',category:'High Visibility Clothing',size:'XL',colour:'Yellow',stock:'2',barcode:'OC555'};
  dashboard.db.ppeStock.push(item);
  dashboard.go('ppeStock');
  assert.ok(elem('content').innerHTML.includes('Stock Management'));
@@ -927,14 +927,14 @@ test('Allocate PPE tab displays employee allocation fields and does not issue on
  assert.ok(page.includes('Employee full name'));
  assert.ok(page.includes('Generate &amp; print allocation labels'));
  assert.ok(page.includes('Scan label to issue PPE'));
- assert.ok(page.includes('Hi-Vis Vest'));
+ assert.ok(page.includes('Hi-Vis Jacket - Parka'));
  assert.equal(item.stock,'2');
  assert.equal(dashboard.db.ppeTransactions.length,0);
 });
 
 test('allocated PPE scan Enter automatically deducts exactly once and creates employee record',()=>{
  const {dashboard,elem}=harness({locked:false});
- const item={id:'alloc-stock',item:'Hi-Vis Vest',category:'High Visibility Clothing',colour:'Orange',size:'XL',stock:'2',minStock:'',status:'Available'};
+ const item={id:'alloc-stock',item:'Hi-Vis Jacket - Bomber',category:'High Visibility Clothing',colour:'Yellow',size:'XL',stock:'2',minStock:'',status:'Available'};
  dashboard.db.ppeStock.push(item);
  const result=dashboard.createPpeAllocation({employee:'Test Employee',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
  assert.ok(result.ok);
@@ -975,7 +975,7 @@ test('allocated PPE scan fails safely when disk write fails',()=>{
 
 test('scanner input without Enter deducts PPE and reflects updated stock tab',()=>{
  const {dashboard,elem}=harness({locked:false});
- const item={id:'scan-no-enter',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'3',minStock:'',status:'Available'};
+ const item={id:'scan-no-enter',item:'Hi-Vis Jacket - Bomber',category:'High Visibility Clothing',size:'XL',colour:'Yellow',stock:'3',minStock:'',status:'Available'};
  dashboard.db.ppeStock.push(item);
  const created=dashboard.createPpeAllocation({employee:'Example Worker',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
  assert.ok(created.ok);
@@ -1237,7 +1237,7 @@ test('QR labels render offline SVG matrix with readable stock code',()=>{
 });
 test('QR scan deducts one from stock and an old OI code stays valid as an alias',()=>{
  const {dashboard}=harness({locked:false});
- const item={id:'qr-v',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',colour:'Orange',stock:'2',barcode:'OC007'};
+ const item={id:'qr-v',item:'Hi-Vis Jacket - Parka',category:'High Visibility Clothing',size:'XL',colour:'Yellow',stock:'2',barcode:'OC007'};
  dashboard.db.ppeStock.push(item);
  dashboard.db.ppeUnits.push({id:'old-one',itemId:item.id,barcode:'OI007',status:'In Stock',itemName:item.item,issuedTo:'',issuedAt:''});
  const created=dashboard.createPpeAllocation({employee:'Test Employee',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
