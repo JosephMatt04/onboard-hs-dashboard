@@ -73,6 +73,14 @@ test('SSOW attachment preview has full-screen toggle and a way to return',()=>{
  assert.ok(html.includes('.preview-modal.ssow-document-preview:fullscreen .modal-actions{display:none!important}'));
  assert.ok(preview.includes('await document.exitFullscreen()'));
 });
+test('Letters of Concern form keeps essential evidence and collapses optional follow-up fields',()=>{
+ const htmlSource=html;
+ assert.ok(htmlSource.includes("k==='verbalWarnings'?(()=>{const byField="));
+ assert.ok(htmlSource.includes("primary=['date','employee','area','subject','description','expectedImprovement','issuedBy','status']"));
+ assert.ok(htmlSource.includes("extra=['employeeResponse','witness','followUpDate','outcome']"));
+ assert.ok(htmlSource.includes('Additional details <span>Optional · response, witness and follow-up'));
+ assert.ok(htmlSource.includes('.concern-compact-grid textarea.field{min-height:68px;height:80px'));
+});
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
