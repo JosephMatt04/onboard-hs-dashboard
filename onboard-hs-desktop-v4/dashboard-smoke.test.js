@@ -184,6 +184,16 @@ test('PPE jacket catalogue shows only yellow Parka and Bomber and excludes older
  assert.ok(!options.includes('Hi-Vis Jacket - Legacy'));
  assert.ok(!options.includes('Hi-Vis Jacket - Parka · L · Orange'));
 });
+test('PPE stock optional fields do not block saving an item',()=>{
+ const {dashboard}=harness({locked:false});
+ const fields=dashboard.config.ppeStock.fields;
+ for(const name of ['location','supplier','person','notes']){
+  const field=fields.find(row=>row[0]===name);
+  assert.ok(field,'Missing '+name);
+  assert.equal(Boolean(field[3]),false,name+' must be optional');
+ }
+ assert.deepEqual(fields.filter(row=>row[3]&&['item','category','stock','location'].includes(row[0])).map(row=>row[0]),['item','category','stock']);
+});
 test('PPE inventory hides the catalogue loader but retains receive and add controls',()=>{
  const {dashboard}=harness({locked:false});
  const page=dashboard.ppeStockRegisterHTML();
