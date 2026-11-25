@@ -5594,8 +5594,8 @@ function preparePpeUnits(id){
 
 function ppeScannerHTML(){
  if(!ensurePpeBarcodes())return '<section class="panel"><h2>QR code setup unavailable</h2><p>Could not save QR code assignments. Check the desktop data file and retry.</p></section>';
- const stock=db.ppeStock.reduce((sum,r)=>sum+(Number(r.stock)||0),0);
- const low=db.ppeStock.filter(r=>r.minStock!==''&&r.minStock!==undefined&&Number(r.stock)<=Number(r.minStock)).length;
+ const stock=ppeVisibleStockItems().reduce((sum,r)=>sum+(Number(r.stock)||0),0);
+ const low=ppeVisibleStockItems().filter(r=>r.minStock!==''&&r.minStock!==undefined&&Number(r.stock)<=Number(r.minStock)).length;
  const moves=Array.isArray(db.ppeTransactions)?db.ppeTransactions:[];
  const history=moves.slice().reverse().slice(0,250).map(t=>{
   const item=db.ppeStock.find(r=>r.id===t.itemId);
@@ -5673,28 +5673,12 @@ function seedPpeCatalogue(){
 /* Inventory category tabs are view filters; the product and transaction records remain untouched. */
 const PPE_INVENTORY_TABS=[
  ['All PPE','package'],
- ['Hi-Vis','shirt'],
- ['Gloves','hand'],
- ['Boots','footprints'],
- ['Eye & Face','glasses'],
- ['Hearing','ear'],
- ['Head','hard-hat'],
- ['Respiratory','wind'],
- ['Protective Clothing','shield'],
- ['Other','box']
+ ['Coats','shirt'],
+ ['Boots','footprints']
 ];
 function ppeTabForItem(r){
- const category=String(r.category||'').trim().toLowerCase();
- const name=String(r.item||'').trim().toLowerCase();
- if(category.includes('high visibility')||/\bhi[\s-]?vis\b|\bhigh[\s-]?visibility\b/.test(name))return 'Hi-Vis';
- if(category.includes('hand protection')||/\bgloves?\b/.test(name))return 'Gloves';
- if(category.includes('foot protection')||/\bboots?\b|\bwellies\b|\bfootwear\b/.test(name))return 'Boots';
- if(category.includes('eye')||category.includes('face protection')||/\bglasses\b|\bgoggles\b|\bface shield\b/.test(name))return 'Eye & Face';
- if(category.includes('hearing')||/\bearplugs?\b|\bear defenders?\b/.test(name))return 'Hearing';
- if(category.includes('head protection')||/\bhelmets?\b|\bbump caps?\b/.test(name))return 'Head';
- if(category.includes('respiratory')||/\brespirators?\b|\bmasks?\b/.test(name))return 'Respiratory';
- if(category.includes('protective clothing')||/\bcoveralls?\b|\baprons?\b/.test(name))return 'Protective Clothing';
- return 'Other';
+ const name=String(r.item||'').toLowerCase();
+ return /\b(boots?|safety shoes?)\b/.test(name)?'Boots':'Coats';
 }
 /* Removed Hi-Vis variants remain in saved records for stock/history integrity, but are not offered in the active PPE inventory or desk register. */
 /* Upgrade the old generic jacket choices once without fabricating or transferring quantities. */
@@ -5719,11 +5703,12 @@ function ensureHiVisJacketTypes(){
 function ppeVisibleStockItems(){
  return db.ppeStock.filter(r=>{
   const name=String(r.item||'').trim().toLowerCase().replace(/[–—]/g,'-');
-  const category=String(r.category||'').toLowerCase();
-  const hiVis=/\bhi[\s-]?vis\b|\bhigh[\s-]?visibility\b/.test(name)||category.includes('high visibility');
-  const jacket=hiVis&&/\bjacket\b/.test(name);
-  if(jacket&&(/\blegacy\b/.test(name)||name==='hi-vis jacket'||String(r.colour||'').trim().toLowerCase()==='orange'))return false;
-  return !(hiVis&&/\b(sweatshirts?|waterproof\s+coats?|trousers?)\b/.test(name));
+  const colour=String(r.colour||'').trim().toLowerCase();
+  const coat=/\b(coats?|jackets?|parkas?|bombers?)\b/.test(name);
+  const boots=/\b(boots?|safety boots?|safety shoes?)\b/.test(name);
+  if(/\blegacy\b/.test(name)||name==='hi-vis jacket')return false;
+  if(coat&&colour==='orange')return false;
+  return coat||boots;
  });
 }
 function ppeInventoryCategoryTabs(){
