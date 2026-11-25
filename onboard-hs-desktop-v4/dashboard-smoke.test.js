@@ -145,6 +145,28 @@ test('generic Hi-Vis Jacket is replaced with Parka and Bomber variants without l
  assert.equal(dashboard.db.ppeStock.length,count);
  assert.notEqual(dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Parka'&&x.size==='XL').barcode, dashboard.db.ppeStock.find(x=>x.item==='Hi-Vis Jacket - Bomber'&&x.size==='XL').barcode);
 });
+test('PPE inventory and receiving offer coats and boots only, retaining historical stock records',()=>{
+ const {dashboard}=harness({locked:false});
+ dashboard.db.ppeStock.push(
+  {id:'coat',item:'Hi-Vis Jacket - Parka',category:'High Visibility Clothing',colour:'Yellow',size:'XL',stock:'4'},
+  {id:'boot',item:'Safety Boots',category:'Foot Protection',size:'9',stock:'5'},
+  {id:'glove',item:'Safety Gloves',category:'Hand Protection',size:'L',stock:'12'},
+  {id:'vest',item:'Hi-Vis Vest',category:'High Visibility Clothing',size:'XL',stock:'8'},
+  {id:'orange-coat',item:'Hi-Vis Jacket - Bomber',category:'High Visibility Clothing',colour:'Orange',size:'XL',stock:'3'}
+ );
+ const visible=dashboard.ppeVisibleStockItems();
+ assert.deepEqual(visible.map(x=>x.id),['coat','boot']);
+ assert.equal(dashboard.db.ppeStock.length,5);
+ const receiving=dashboard.ppeReceiveHTML();
+ assert.ok(receiving.includes('Hi-Vis Jacket - Parka'));
+ assert.ok(receiving.includes('Safety Boots'));
+ assert.ok(!receiving.includes('Safety Gloves'));
+ assert.ok(!receiving.includes('Hi-Vis Vest'));
+ const inventory=dashboard.ppeStockRegisterHTML();
+ assert.ok(inventory.includes('Coats'));
+ assert.ok(inventory.includes('Boots'));
+ assert.ok(!inventory.includes('Gloves</span>'));
+});
 test('PPE jacket catalogue shows only yellow Parka and Bomber and excludes older jacket variants',()=>{
  const {dashboard}=harness({locked:false});
  dashboard.db.ppeStock.push(
