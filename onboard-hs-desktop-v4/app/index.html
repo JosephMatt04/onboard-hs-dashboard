@@ -5707,6 +5707,7 @@ function ppeVisibleStockItems(){
   const coat=/\b(coats?|jackets?|parkas?|bombers?)\b/.test(name);
   const boots=/\b(boots?|safety boots?|safety shoes?)\b/.test(name);
   if(/\blegacy\b/.test(name)||name==='hi-vis jacket')return false;
+  if(/\bwaterproof\s+coat\b/.test(name))return false;
   if(coat&&colour==='orange')return false;
   return coat||boots;
  });
