@@ -6153,7 +6153,7 @@ function printPpeReport(kind){
  if(!ensurePpeBarcodes())return;
  const stockMode=kind==='stock';
  const title=stockMode?'PPE Stock Report':'PPE Issue & Receipt History';
- const items=db.ppeStock.slice().sort((a,b)=>String(a.item||'').localeCompare(String(b.item||'')));
+ const items=ppeVisibleStockItems().slice().sort((a,b)=>String(a.item||'').localeCompare(String(b.item||'')));
  const moves=(db.ppeTransactions||[]).slice().reverse();
  const cell=v=>'<td>'+esc(v===undefined||v===null||v===''?'—':v)+'</td>';
  const date=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('en-GB')};
