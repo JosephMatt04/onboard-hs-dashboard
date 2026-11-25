@@ -81,6 +81,13 @@ test('Letters of Concern form keeps essential evidence and collapses optional fo
  assert.ok(htmlSource.includes('Additional details <span>Optional · response, witness and follow-up'));
  assert.ok(htmlSource.includes('.concern-compact-grid textarea.field{min-height:68px;height:80px'));
 });
+test('Boot claims display essential fields first and keep unknown payment details optional',()=>{
+ assert.ok(html.includes("k==='ppe'?(()=>{const byField="));
+ assert.ok(html.includes("primary=['employee','purchaseDate','amount','inspected','receiptRef','oldBootEvidence','inspectedBy','claimStatus']"));
+ assert.ok(html.includes("extra=['requested','decisionDate','paymentReference','notes']"));
+ assert.ok(html.includes('Payment and administration <span>Optional · complete later'));
+ assert.ok(html.includes('.boot-claim-compact-grid textarea.field{min-height:68px;height:76px'));
+});
 test('all registers render their current workflows without crashing',()=>{
  const {dashboard,elem}=harness({locked:false});
  const names=Object.keys(dashboard.config);
