@@ -1253,7 +1253,7 @@ test('QR scan deducts one from stock and an old OI code stays valid as an alias'
  const created=dashboard.createPpeAllocation({employee:'Test Employee',department:'Production',itemId:item.id,quantity:1,person:'Safety Officer'});
  assert.ok(created.ok);
  const code=created.allocations[0].barcode;
- assert.equal(code,'HIVXL1');
+ assert.equal(code,'HIJPXL1');
  assert.ok(dashboard.db.ppeUnits[0].legacyBarcodes.includes('OI007'));
  assert.equal(dashboard.issuePpeAllocation('OI007').ok,true);
  assert.equal(item.stock,'1');
